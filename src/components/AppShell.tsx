@@ -1,5 +1,4 @@
 // src/components/AppShell.tsx
-//src/components/AppShell.tsx
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { TopBar } from './TopBar';
@@ -10,14 +9,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarProvider>
             <AppSidebar />
 
+            {/* The ONLY place that touches viewport height */}
             <SidebarInset className='h-svh'>
-                {/* This wrapper is the “chrome + content” column */}
+                {/* Chrome + content column */}
                 <div className='flex h-full flex-col overflow-hidden'>
                     <TopBar />
 
-                    {/* THIS is the remaining space. min-h-0 is non-negotiable. */}
-                    <main className='min-h-0 flex-1 overflow-hidden pb-14'>{children}</main>
-                    <BottomBar className='fixed inset-x-0 bottom-0' />
+                    {/* This is the remaining usable space */}
+                    <main className='min-h-0 flex-1 overflow-hidden'>{children}</main>
+
+                    <BottomBar activeHref='/'/>
                 </div>
             </SidebarInset>
         </SidebarProvider>

@@ -23,33 +23,49 @@ function clamp(n: number, min: number, max: number) {
 
 export function TownSquare({ players }: { players: Player[] }) {
     const ref = React.useRef<HTMLDivElement | null>(null);
-    const [layout, setLayout] = React.useState(() => ({
-        w: window.innerWidth,
-        h: window.innerHeight
-    }));
+    const [layout, setLayout] = React.useState({ w: 0, h: 0 });
 
-    // Keep responsive
-    React.useEffect(() => {
-        const onResize = () => setLayout({ w: window.innerWidth, h: window.innerHeight });
-        window.addEventListener('resize', onResize);
-        return () => window.removeEventListener('resize', onResize);
+    // Measure the actual available space (accounts for sidebar/topbar/bottombar)
+    React.useLayoutEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+
+        const ro = new ResizeObserver(([entry]) => {
+            const cr = entry.contentRect;
+            setLayout({ w: cr.width, h: cr.height });
+        });
+
+        ro.observe(el);
+        return () => ro.disconnect();
     }, []);
 
     const N = clamp(players.length, 5, 20);
 
-    // Big circle sizing rules (tweakable)
-    // "goes about 2/3 way to the vertical edge" -> radius relative to width
-    // If centerX is 50vw, max to left/right edge is 50vw, 2/3 of that => ~vw/3
-    // But we also cap based on height so it doesn’t run off-screen.
-    const radius = Math.min(layout.w / 5.75, layout.h * 0.42);
+    // If not measured yet, render an empty container (avoids NaNs)
+    if (layout.w === 0 || layout.h === 0) {
+        return (
+            <div
+                ref={ref}
+                className='h-full w-full'
+            />
+        );
+    }
 
-    // "top edge is about 1/12 of screen away from top"
+    // Circle sizing:
+    // - "halfway to vertical edges from center" => width/4
+    // - cap by height so it doesn't run off-screen
+    const radius = Math.min(layout.w / 4, layout.h * 0.42);
+
+    // "top edge about 1/12 down from top"
     const topMargin = layout.h / 12;
     const centerX = layout.w / 2;
     const centerY = topMargin + radius;
 
-    // Token size: scales with screen, bounded
+    // Token size: scales with available space
     const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.085, 48, 92);
+
+    // Place tokens on the rim; adjust slightly outward if you prefer
+    const ringR = radius;
 
     return (
         <div
@@ -71,42 +87,79 @@ export function TownSquare({ players }: { players: Player[] }) {
             {players.slice(0, N).map((p, i) => {
                 // Start at top (-90deg) so first token is at 12 o’clock
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
-
-                // Place tokens on the rim (slightly outside looks better)
-                const ringR = radius;
                 const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
+
+                // Unique id for SVG path references
+                const labelId = `token-label-${p.id}`;
 
                 return (
                     <button
                         key={p.id}
-                        className='absolute grid place-items-center rounded-full focus:outline-none focus:ring-2 focus:ring-ring'
-                        style={{
-                            width: tokenSize,
-                            height: tokenSize,
-                            left: x,
-                            top: y
-                        }}
-                        title={p.name}
                         type='button'
+                        aria-label={p.name}
+                        className='
+              absolute grid place-items-center rounded-full border-0 overflow-visible
+              outline-none focus:outline-none
+              focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
+            '
+                        style={{ width: tokenSize, height: tokenSize, left: x, top: y }}
                     >
-                        {/* Base token */}
-                        <img
-                            src={tokenImg}
-                            alt=''
-                            className='absolute inset-0 h-full w-full rounded-full object-cover'
-                            draggable={false}
-                        />
-
-                        {/* Role icon overlay (if assigned) */}
-                        {p.role ?
+                        <div className='relative h-full w-full overflow-visible'>
+                            {/* Base token */}
                             <img
-                                src={roleToIcon[p.role]}
-                                alt={p.role}
-                                className='relative h-[70%] w-[70%] object-contain'
+                                src={tokenImg}
+                                alt=''
                                 draggable={false}
+                                className='
+                  absolute inset-0 h-full w-full z-0
+                  rounded-full object-cover
+                  scale-[1.68] origin-center
+                  drop-shadow-md
+                '
                             />
-                        :   null}
+
+                            {/* Role icon */}
+                            {p.role && (
+                                <img
+                                    src={roleToIcon[p.role]}
+                                    alt={p.role}
+                                    draggable={false}
+                                    className='
+                    absolute inset-0 m-auto z-10
+                    h-[80%] w-[80%]
+                    object-contain
+                    scale-[2.4] origin-center
+                    pointer-events-none
+                  '
+                                />
+                            )}
+
+                            {/* Name label (slight arc) */}
+                            <div className='pointer-events-none absolute inset-0 z-20'>
+                                <svg
+                                    viewBox='0 0 100 100'
+                                    className='absolute inset-0'
+                                    aria-hidden='true'
+                                >
+                                    {/* shallow arc near bottom */}
+                                    <path
+                                        id={labelId}
+                                        d='M 18 74 Q 50 82 82 74'
+                                        fill='none'
+                                    />
+                                    <text className={`token-label-svg ${p.name.length > 10 ? 'long' : ''}`}>
+                                        <textPath
+                                            href={`#${labelId}`}
+                                            startOffset='50%'
+                                            textAnchor='middle'
+                                        >
+                                            {p.name.toUpperCase()}
+                                        </textPath>
+                                    </text>
+                                </svg>
+                            </div>
+                        </div>
                     </button>
                 );
             })}

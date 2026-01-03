@@ -1,8 +1,50 @@
+/* src/styles.css */
 @import 'tailwindcss';
 
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "Woodgod";
+  src: url("/fonts/woodgod/woodgod.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Woodgod";
+  src: url("/fonts/woodgod/woodgodbold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Woodgod";
+  src: url("/fonts/woodgod/woodgodboldcond.ttf") format("truetype");
+  font-weight: 700;
+  font-style: condensed;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Woodgod";
+  src: url("/fonts/woodgod/woodgodboldexpand.ttf") format("truetype");
+  font-weight: 800;
+  font-style: expanded;
+  font-display: swap;
+}
+
+/* Optional decorative variant */
+@font-face {
+  font-family: "Woodgod 3D";
+  src: url("/fonts/woodgod/woodgod3d.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 body {
   @apply m-0;
@@ -12,6 +54,32 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.token-label-svg {
+  font-family: "Woodgod", serif;
+  font-weight: 700;
+
+  /* tweak for taste; SVG units */
+  font-size: 9.5px;
+
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+
+  fill: rgba(0, 0, 0, 0.85);
+
+  /* “printed ink” readability */
+  paint-order: stroke fill;
+  stroke: rgba(255, 255, 255, 0.65);
+  stroke-width: 0.6px;
+
+  dominant-baseline: middle;
+}
+
+.token-label-svg.long {
+  font-size: 8.8px;
+  letter-spacing: 0.16em;
+}
+
 
 code {
   font-family:
