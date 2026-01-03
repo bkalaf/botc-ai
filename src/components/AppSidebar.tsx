@@ -1,3 +1,4 @@
+// src/components/AppSidebar.tsx
 import {
     Sidebar,
     SidebarHeader,
