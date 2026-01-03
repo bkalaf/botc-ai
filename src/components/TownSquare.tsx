@@ -125,24 +125,20 @@ export function TownSquare({ players }: { players: Player[] }) {
                                     src={roleToIcon[p.role]}
                                     alt={p.role}
                                     draggable={false}
-                                    className='
-                    absolute inset-0 m-auto z-10
+                                    className='absolute inset-0 m-auto z-10
                     h-[80%] w-[80%]
                     object-contain
                     scale-[2.4] origin-center
-                    pointer-events-none
-                  '
+                    pointer-events-none'
                                 />
                             )}
 
-                            {/* Name label (slight arc) */}
                             <div className='pointer-events-none absolute inset-0 z-20'>
                                 <svg
                                     viewBox='0 0 100 100'
                                     className='absolute inset-0'
                                     aria-hidden='true'
                                 >
-                                    {/* shallow arc near bottom */}
                                     <path
                                         id={labelId}
                                         d='M 18 74 Q 50 82 82 74'
