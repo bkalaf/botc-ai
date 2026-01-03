@@ -3,7 +3,8 @@ import { z } from 'zod';
 
 export const env = createEnv({
     server: {
-        SERVER_URL: z.string().url().optional()
+        SERVER_URL: z.string().url().optional(),
+        OPENAI_API_KEY: z.string().startsWith('sk-')
     },
 
     /**
@@ -13,7 +14,8 @@ export const env = createEnv({
     clientPrefix: 'VITE_',
 
     client: {
-        VITE_APP_TITLE: z.string().min(1).optional()
+        VITE_APP_TITLE: z.string().min(1).optional(),
+        VITE_ICONS_BASE_PATH: z.string()
     },
 
     /**
