@@ -14,11 +14,10 @@ listenerMiddleware.startListening({
         return !action.type.startsWith(historySlice.name);
     },
     effect: (action, listenerApi) => {
-        const logEntryType = isRejected(action)
-            ? 'error'
-            : action.type.endsWith('/fulfilled')
-              ? 'success'
-              : 'info';
+        const logEntryType =
+            isRejected(action) ? 'error'
+            : action.type.endsWith('/fulfilled') ? 'success'
+            : 'info';
 
         listenerApi.dispatch(
             addLogEntry({
