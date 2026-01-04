@@ -77,6 +77,11 @@ export interface ISeatedPlayer {
 
 export type PlayerId = ISeatedPlayer['ID'];
 
+export interface DailyDemocracyManager {
+    nomineePool: PlayerId[];
+    nominatorPool: PlayerId[];
+}
+
 export interface WorldBuildingWorksheet {
     demon: DemonWorldModel;
     minions: MinionWorldModel;
