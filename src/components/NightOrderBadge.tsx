@@ -1,5 +1,5 @@
 // src/components/NightOrderBadge.tsx
-import { Badge } from 'lucide-react';
+import { Badge } from './ui/badge'  ;
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Label } from './ui/label';
 
