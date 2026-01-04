@@ -52,7 +52,7 @@ export interface IReminderTokens {
 }
 
 export interface IGrimoireSlice {
-    seats: ISeat[];
+    seats: ISeatedPlayer[];
     demonBluffs: [Roles, Roles, Roles] | undefined;
     outOfPlay: Roles[];
     reminderTokens: Record<string, IReminderTokens>;
@@ -148,6 +148,17 @@ export const initialState: IGameSlice = {
     gameState: 'idle',
     script: []
 };
+export interface IGameSetupSlice {
+    guid: string;
+    storyteller: string;
+    playerCount: number;
+    players: IPlayer[];
+    outOfPlay: Roles[];
+}
+export interface IGrimoireSlice {
+    seats: ISeatedPlayer[];
+    demonBluffs: [Roles, Roles, Roles] | undefined;
+}
 
 export const gameSlice = createSlice({
     name: 'game',
