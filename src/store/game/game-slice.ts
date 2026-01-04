@@ -141,7 +141,5 @@ export const gameSlice = createSlice({
             state.winner = 'evil';
         }
     },
-    selectors: {
-        
-    }
+    selectors: {}
 });

@@ -13,7 +13,7 @@ function App() {
         { id: '5', name: 'Soldier', role: 'chef' },
         { id: '6', name: 'SOLDIER', role: 'empath' },
         { id: '7', name: 'SPY', role: null },
-        { id: '8', name: 'IMP', role: 'chef' },
+        { id: '8', name: 'IMP', role: 'chef', isAlive: false },
         { id: '9', name: 'RAVENKEEPER', role: 'empath' },
         { id: '10', name: 'RAVENKEEPER', role: null },
         { id: '11', name: 'RAVENKEEPER', role: 'chef' },

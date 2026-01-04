@@ -4,26 +4,19 @@ import tokenImg from './../assets/images/town/token.png';
 import chefImg from './../assets/images/chef_e.png';
 import empathImg from './../assets/images/empath_g.png';
 import { CharacterTokenParent } from './CharacterTokenParent';
-import { CharacterTypes } from '../data/types';
+import { $$ROLES, CharacterTypes, Roles } from '../data/types';
+import { ISeatedPlayer } from '../store/game/game-slice';
 
-type Role = 'chef' | 'empath' | null;
-
-type Player = {
-    id: string;
-    name: string;
-    role: Role;
-};
-
-const roleToIcon: Record<Exclude<Role, null>, string> = {
-    chef: chefImg,
-    empath: empathImg
-};
+// const roleToIcon: Record<Exclude<Role, null>, string> = {
+//     chef: chefImg,
+//     empath: empathImg
+// };
 
 function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
 
-export function TownSquare({ players }: { players: Player[] }) {
+export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const ref = React.useRef<HTMLDivElement | null>(null);
     const [layout, setLayout] = React.useState(() => ({
         w: window.innerWidth,
@@ -70,7 +63,7 @@ export function TownSquare({ players }: { players: Player[] }) {
             />
 
             {/* Tokens around circumference */}
-            {players.slice(0, N).map((p, i) => {
+            {(players as any[]).slice(0, N).map((p, i) => {
                 // Start at top (-90deg) so first token is at 12 o’clock
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
 
@@ -98,10 +91,10 @@ export function TownSquare({ players }: { players: Player[] }) {
                             role={p.role as any}
                             name={p?.name}
                             seatID={parseInt(p.id, 10)}
-                            isAlive={true}
+                            isAlive={p?.isAlive ?? true}
                             isMarked={false}
                             thinks={undefined}
-                            characterType={'townsfolk' as CharacterTypes}
+                            characterType={$$ROLES[p.role as Roles]?.team as CharacterTypes}
                             alignment={'good'}
                         >
                             <img
@@ -112,7 +105,7 @@ export function TownSquare({ players }: { players: Player[] }) {
                             />
                             {p.role ?
                                 <img
-                                    src={roleToIcon[p.role]}
+                                    src={`./../assets/images/${p.role}_${p.alignment === 'good' ? 'g' : 'e'}.png`}
                                     alt={p.role}
                                     className='relative object-contain scale-125'
                                     draggable={false}
