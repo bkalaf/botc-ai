@@ -26,7 +26,9 @@ export function CharacterTokenParent({
     seatID,
     isDrunk,
     isPoisoned,
-    reminders
+    reminders,
+    firstNightOrder,
+    otherNightOrder
 }: {
     tokenSize: number;
     x: number;
@@ -43,8 +45,12 @@ export function CharacterTokenParent({
     isDrunk?: boolean;
     isPoisoned?: boolean;
     reminders?: string;
+    firstNightOrder?: number;
+    otherNightOrder?: number;
 }) {
     const { firstNight, firstNightReminder, otherNight, otherNightReminder, ability } = $$ROLES[role];
+    const displayFirstNightOrder = firstNightOrder ?? firstNight;
+    const displayOtherNightOrder = otherNightOrder ?? otherNight;
     return (
         <>
             <button
@@ -92,11 +98,11 @@ export function CharacterTokenParent({
                     </TooltipContent>
                 </Tooltip>
                 <FirstNightOrderBadge
-                    order={firstNight}
+                    order={displayFirstNightOrder}
                     reminder={firstNightReminder}
                 />
                 <OtherNightOrderBadge
-                    order={otherNight}
+                    order={displayOtherNightOrder}
                     reminder={otherNightReminder}
                 />
                 <Label
