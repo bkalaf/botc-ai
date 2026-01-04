@@ -1,8 +1,6 @@
 // src/store/st-queue/st-queue-slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type StorytellerQueueMode = 'fifo' | 'lifo';
-
 export interface IStorytellerQueueItem {
     id: string;
     type: string;
@@ -10,40 +8,52 @@ export interface IStorytellerQueueItem {
     requestedBy?: string;
 }
 
-export interface IStorytellerQueueSlice {
-    items: IStorytellerQueueItem[];
-    currentItem: IStorytellerQueueItem | null;
+export interface StorytellerQueueState {
+    queue: IStorytellerQueueItem[];
+    isRunning: boolean;
+    awaitingHuman: boolean;
+    error: string | null;
 }
 
-export const initialState: IStorytellerQueueSlice = {
-    items: [],
-    currentItem: null
+export const initialState: StorytellerQueueState = {
+    queue: [],
+    isRunning: false,
+    awaitingHuman: false,
+    error: null
 };
 
 export const storytellerQueueSlice = createSlice({
     name: 'storytellerQueue',
     initialState,
     reducers: {
-        enqueueBack: (state, action: PayloadAction<IStorytellerQueueItem>) => {
-            state.items.push(action.payload);
+        setAwaitingHuman: (state, action: PayloadAction<boolean>) => {
+            state.awaitingHuman = action.payload;
         },
-        enqueueFront: (state, action: PayloadAction<IStorytellerQueueItem>) => {
-            state.items.unshift(action.payload);
+        enqueueTask: (state, action: PayloadAction<IStorytellerQueueItem>) => {
+            state.queue.push(action.payload);
         },
-        dequeueNext: (state) => {
-            state.currentItem = state.items.shift() ?? null;
+        pushtask: (state, action: PayloadAction<IStorytellerQueueItem>) => {
+            state.queue.unshift(action.payload);
+        },
+        popTask: (state) => {
+            state.queue.shift();
         },
         clearQueue: (state) => {
-            state.items = [];
+            state.queue = [];
         },
-        clearCurrent: (state) => {
-            state.currentItem = null;
+        setRunning: (state, action: PayloadAction<boolean>) => {
+            state.isRunning = action.payload;
+        },
+        setError: (state, action: PayloadAction<string | null>) => {
+            state.error = action.payload;
         }
     },
     selectors: {
-        selectQueueItems: (state) => state.items,
-        selectHasQueueItems: (state) => state.items.length > 0,
-        selectNextQueueItem: (state) => state.items[0] ?? null,
-        selectCurrentQueueItem: (state) => state.currentItem
+        selectSTQueueState: (state) => state,
+        selectSTQueue: (state) => state.queue,
+        selecSTQueueSize: (state) => state.queue.length,
+        selectSTQueueIsRunning: (state) => state.isRunning,
+        selectSTNextTask: (state) => state.queue[0] ?? null,
+        selectSTAwaitingHuman: (state) => state.awaitingHuman
     }
 });
