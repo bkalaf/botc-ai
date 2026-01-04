@@ -54,7 +54,7 @@ export function TownSquare({ players }: { players: Player[] }) {
     // Circle sizing:
     // - "halfway to vertical edges from center" => width/4
     // - cap by height so it doesn't run off-screen
-    const radius = Math.min(layout.w / 4, layout.h * 0.42);
+    const radius = Math.min(layout.w / 3, layout.h * 0.42);
 
     // "top edge about 1/12 down from top"
     const topMargin = layout.h / 12;
@@ -85,13 +85,13 @@ export function TownSquare({ players }: { players: Player[] }) {
 
             {/* Tokens around circumference */}
             {players.slice(0, N).map((p, i) => {
-                // Start at top (-90deg) so first token is at 12 o’clock
+                //  Start at top (-90deg) so first token is at 12 o’clock
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
                 const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
 
                 // Unique id for SVG path references
-                const labelId = `token-label-${p.id}`;
+                const labelId = `token-label-${p.id}-${i}`;
 
                 return (
                     <button
@@ -128,25 +128,27 @@ export function TownSquare({ players }: { players: Player[] }) {
                                     className='absolute inset-0 m-auto z-10
                     h-[80%] w-[80%]
                     object-contain
-                    scale-[2.4] origin-center
+                    scale-[1.7] origin-center
                     pointer-events-none'
                                 />
                             )}
 
+                            {/* Name label (slight arc) */}
                             <div className='pointer-events-none absolute inset-0 z-20'>
                                 <svg
                                     viewBox='0 0 100 100'
-                                    className='absolute inset-0'
+                                    className='absolute inset-0 h-full w-full'
                                     aria-hidden='true'
                                 >
                                     <path
                                         id={labelId}
-                                        d='M 18 74 Q 50 82 82 74'
+                                        d='M 12 86 Q 50 96 88 86'
                                         fill='none'
                                     />
                                     <text className={`token-label-svg ${p.name.length > 10 ? 'long' : ''}`}>
                                         <textPath
                                             href={`#${labelId}`}
+                                            xlinkHref={`#${labelId}`}
                                             startOffset='50%'
                                             textAnchor='middle'
                                         >
