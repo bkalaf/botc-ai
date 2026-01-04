@@ -35,8 +35,7 @@ export const store = configureStore({
         game: gameSlice.reducer,
         history: historySlice.reducer
     },
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().prepend(listenerMiddleware.middleware)
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(listenerMiddleware.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
