@@ -18,7 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     {/* This is the remaining usable space */}
                     <main className='min-h-0 flex-1 overflow-hidden'>{children}</main>
 
-                    <BottomBar activeHref='/12' />
+                    <BottomBar className='bottom-0"' />
                 </div>
             </SidebarInset>
         </SidebarProvider>

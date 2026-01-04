@@ -94,7 +94,7 @@ export function TownSquare({ players }: { players: Player[] }) {
                         <img
                             src={tokenImg}
                             alt=''
-                            className='absolute inset-0 h-full w-full rounded-full object-cover'
+                            className='absolute inset-0 h-full w-full rounded-full object-cover scale-110'
                             draggable={false}
                         />
 
@@ -103,7 +103,7 @@ export function TownSquare({ players }: { players: Player[] }) {
                             <img
                                 src={roleToIcon[p.role]}
                                 alt={p.role}
-                                className='relative h-[95%] w-[95%] object-contain'
+                                className='relative object-contain scale-125'
                                 draggable={false}
                             />
                         :   null}
