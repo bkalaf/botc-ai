@@ -1,9 +1,23 @@
 // src/store/index.ts
 import { configureStore, createListenerMiddleware, isRejected } from '@reduxjs/toolkit';
+import { aiOrchestratorSlice, enqueueBack, enqueueFront } from './ai-orchestrator/ai-orchestrator-slice';
+import { chatsSlice } from './chats/chats-slice';
 import { gameSlice } from './game/game-slice';
+import { grimoireSlice } from './grimoire/grimoire-slice';
 import { addLogEntry, historySlice } from './history/history-slice';
+import { IStorytellerQueueItem, storytellerQueueSlice } from './st-queue/st-queue-slice';
+import { votingSlice } from './voting/voting-slice';
+
+const mapStorytellerQueueItem = (item: IStorytellerQueueItem) => ({
+    id: item.id,
+    type: item.type,
+    payload: item.payload,
+    requestedBy: item.requestedBy,
+    httpTarget: 'storyteller' as const
+});
 
 const listenerMiddleware = createListenerMiddleware();
+export const dynamicMiddlewareRegistry = createDynamicMiddlewareRegistry();
 
 listenerMiddleware.startListening({
     predicate: (action) => {
@@ -30,12 +44,34 @@ listenerMiddleware.startListening({
     }
 });
 
+listenerMiddleware.startListening({
+    actionCreator: storytellerQueueSlice.actions.enqueueTask,
+    effect: (action, listenerApi) => {
+        listenerApi.dispatch(enqueueBack(mapStorytellerQueueItem(action.payload)));
+    }
+});
+
+listenerMiddleware.startListening({
+    actionCreator: storytellerQueueSlice.actions.pushtask,
+    effect: (action, listenerApi) => {
+        listenerApi.dispatch(enqueueFront(mapStorytellerQueueItem(action.payload)));
+    }
+});
+
 export const store = configureStore({
     reducer: {
+        aiOrchestrator: aiOrchestratorSlice.reducer,
+        chats: chatsSlice.reducer,
         game: gameSlice.reducer,
-        history: historySlice.reducer
+        grimoire: grimoireSlice.reducer,
+        history: historySlice.reducer,
+        storytellerQueue: storytellerQueueSlice.reducer,
+        voting: votingSlice.reducer
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(listenerMiddleware.middleware)
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware()
+            .prepend(listenerMiddleware.middleware)
+            .concat(dynamicMiddlewareRegistry.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;

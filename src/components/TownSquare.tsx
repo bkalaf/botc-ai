@@ -3,7 +3,9 @@ import * as React from 'react';
 import tokenImg from './../assets/images/town/token.png';
 import { CharacterTokenParent } from './CharacterTokenParent';
 import { $$ROLES, CharacterTypes, Roles } from '../data/types';
-import { ISeatedPlayer } from '../store/game/game-slice';
+import { ISeatedPlayer, selectScript } from '../store/game/game-slice';
+import { useAppSelector } from '@/store/hooks';
+import { buildNightOrderIndex } from '../utils/nightOrder';
 import { Button } from '@/components/ui/button';
 import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
@@ -102,6 +104,7 @@ function clamp(n: number, min: number, max: number) {
 }
 
 export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
+    const script = useAppSelector(selectScript);
     const ref = React.useRef<HTMLDivElement | null>(null);
     const [layout, setLayout] = React.useState(() => ({
         w: window.innerWidth,
@@ -121,6 +124,21 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         tension: 0,
         tokenScale: 1
     });
+    const inPlayRoles = React.useMemo(
+        () => players.map((player) => player.role).filter((role): role is Roles => Boolean(role)),
+        [players]
+    );
+    const activeRoles = React.useMemo(() => {
+        const merged = [...script, ...inPlayRoles];
+        return Array.from(new Set(merged));
+    }, [script, inPlayRoles]);
+    const nightOrderIndex = React.useMemo(
+        () => ({
+            first: buildNightOrderIndex(activeRoles, 'firstNight'),
+            other: buildNightOrderIndex(activeRoles, 'otherNight')
+        }),
+        [activeRoles]
+    );
 
     // Keep responsive
     React.useEffect(() => {
@@ -574,6 +592,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             isAlive={p?.isAlive ?? true}
                             characterType={characterType}
                             alignment={alignment}
+                            firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
+                            otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
                         >
                             <img
                                 src={tokenImg}

@@ -15,6 +15,10 @@ export function HistoryPanel() {
     const entries = useAppSelector(selectHistoryEntries);
     const [collapsed, setCollapsed] = useState(false);
     const scrollRef = useRef<HTMLDivElement | null>(null);
+    const panelRef = useRef<HTMLDivElement | null>(null);
+    const [panelPosition, setPanelPosition] = useState<{ x: number; y: number } | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStartRef = useRef({ x: 0, y: 0, startX: 0, startY: 0 });
 
     const renderedEntries = useMemo(
         () =>
@@ -48,21 +52,81 @@ export function HistoryPanel() {
         }
     }, [entries.length, collapsed]);
 
+    useEffect(() => {
+        if (panelPosition || !panelRef.current || typeof window === 'undefined') {
+            return;
+        }
+
+        const rect = panelRef.current.getBoundingClientRect();
+        const defaultX = Math.max(16, window.innerWidth - rect.width - 16);
+        const defaultY = Math.max(16, window.innerHeight - rect.height - 64);
+        setPanelPosition({ x: defaultX, y: defaultY });
+    }, [panelPosition]);
+
+    useEffect(() => {
+        if (!isDragging) {
+            return;
+        }
+
+        const handleMove = (event: PointerEvent) => {
+            const deltaX = event.clientX - dragStartRef.current.startX;
+            const deltaY = event.clientY - dragStartRef.current.startY;
+            const rect = panelRef.current?.getBoundingClientRect();
+            const maxX = window.innerWidth - (rect?.width ?? 0) - 8;
+            const maxY = window.innerHeight - (rect?.height ?? 0) - 8;
+            const nextX = Math.min(Math.max(8, dragStartRef.current.x + deltaX), Math.max(8, maxX));
+            const nextY = Math.min(Math.max(8, dragStartRef.current.y + deltaY), Math.max(8, maxY));
+            setPanelPosition({ x: nextX, y: nextY });
+        };
+
+        const handleUp = () => {
+            setIsDragging(false);
+        };
+
+        window.addEventListener('pointermove', handleMove);
+        window.addEventListener('pointerup', handleUp);
+
+        return () => {
+            window.removeEventListener('pointermove', handleMove);
+            window.removeEventListener('pointerup', handleUp);
+        };
+    }, [isDragging]);
+
     return (
         <div
+            ref={panelRef}
             className={cn(
-                'fixed right-4 z-50 flex flex-col rounded-lg border border-neutral-800 bg-black shadow-lg',
+                'fixed z-50 flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-black shadow-lg',
+                panelPosition ? null : collapsed ? 'bottom-0 right-4' : 'bottom-16 right-4',
                 collapsed
-                    ? 'bottom-0 h-8 w-[25vw] min-w-[220px] resize-none'
-                    : 'bottom-16 h-[33vh] w-[25vw] min-w-[220px] min-h-[160px] resize'
+                    ? 'h-8 w-[25vw] min-w-[220px] min-h-[32px] resize'
+                    : 'h-[33vh] w-[25vw] min-w-[220px] min-h-[160px] resize'
             )}
+            style={panelPosition ? { left: panelPosition.x, top: panelPosition.y } : undefined}
         >
-            <div className='flex items-center justify-between border-b border-neutral-800 px-3 py-2 text-xs uppercase tracking-wide text-neutral-200'>
+            <div
+                className='flex cursor-move select-none items-center justify-between border-b border-neutral-800 px-3 py-2 text-xs uppercase tracking-wide text-neutral-200'
+                onPointerDown={(event) => {
+                    if (!panelRef.current) {
+                        return;
+                    }
+                    const rect = panelRef.current.getBoundingClientRect();
+                    dragStartRef.current = {
+                        x: panelPosition?.x ?? rect.left,
+                        y: panelPosition?.y ?? rect.top,
+                        startX: event.clientX,
+                        startY: event.clientY
+                    };
+                    setIsDragging(true);
+                }}
+                style={{ touchAction: 'none' }}
+            >
                 <span>History</span>
                 <button
                     type='button'
                     className='text-[10px] uppercase tracking-wider text-neutral-400 hover:text-white'
                     onClick={() => setCollapsed((prev) => !prev)}
+                    onPointerDown={(event) => event.stopPropagation()}
                 >
                     {collapsed ? 'Expand' : 'Collapse'}
                 </button>

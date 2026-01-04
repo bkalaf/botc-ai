@@ -9,7 +9,15 @@ import {
     useSidebar
 } from '@/components/ui/sidebar';
 import { Link } from '@tanstack/react-router';
-import { Home, Users, Settings } from 'lucide-react';
+import {
+    BookOpen,
+    Clock,
+    ClipboardList,
+    History,
+    Home,
+    Settings,
+    Users
+} from 'lucide-react';
 
 function SidebarBrandToggle() {
     const { toggleSidebar } = useSidebar();
@@ -74,6 +82,54 @@ export function AppSidebar() {
                             <Link to='/'>
                                 <Settings className='h-4 w-4' />
                                 <span>Settings</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            tooltip='ST Consult'
+                        >
+                            <Link to='/'>
+                                <BookOpen className='h-4 w-4' />
+                                <span>ST Consult</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            tooltip='Timer'
+                        >
+                            <Link to='/'>
+                                <Clock className='h-4 w-4' />
+                                <span>Timer</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            tooltip='Task Queue'
+                        >
+                            <Link to='/'>
+                                <ClipboardList className='h-4 w-4' />
+                                <span>Task Queue</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            tooltip='Voting History'
+                        >
+                            <Link to='/'>
+                                <History className='h-4 w-4' />
+                                <span>Voting History</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

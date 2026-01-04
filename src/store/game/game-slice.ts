@@ -77,6 +77,11 @@ export interface ISeatedPlayer {
 
 export type PlayerId = ISeatedPlayer['ID'];
 
+export interface DailyDemocracyManager {
+    nomineePool: PlayerId[];
+    nominatorPool: PlayerId[];
+}
+
 export interface WorldBuildingWorksheet {
     demon: DemonWorldModel;
     minions: MinionWorldModel;
@@ -213,3 +218,5 @@ export const gameSlice = createSlice({
         selectDisplayTime: (state) => toProperCase(`${state.phase} ${state.day.toString()}`)
     }
 });
+
+export const { selectScript } = gameSlice.selectors;
