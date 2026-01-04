@@ -306,9 +306,26 @@ export default {
             rubik: 'Rubik',
             open: 'Open Sans',
             raleway: 'Raleway',
-            sans: ['ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
+            sans: [
+                'ui-sans-serif',
+                'system-ui',
+                'sans-serif',
+                '"Apple Color Emoji"',
+                '"Segoe UI Emoji"',
+                '"Segoe UI Symbol"',
+                '"Noto Color Emoji"'
+            ],
             serif: ['ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
-            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace']
+            mono: [
+                'ui-monospace',
+                'SFMono-Regular',
+                'Menlo',
+                'Monaco',
+                'Consolas',
+                '"Liberation Mono"',
+                '"Courier New"',
+                'monospace'
+            ]
         },
         fontSize: {
             xs: ['0.75rem', { lineHeight: '1rem' }],
@@ -937,7 +954,8 @@ export default {
         transitionProperty: {
             none: 'none',
             all: 'all',
-            DEFAULT: 'color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter',
+            DEFAULT:
+                'color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter',
             colors: 'color, background-color, border-color, text-decoration-color, fill, stroke',
             opacity: 'opacity',
             shadow: 'box-shadow',
@@ -960,7 +978,7 @@ export default {
             '3/4': '75%',
             full: '100%'
         }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         size: ({ theme }: { theme: any }) => ({
             auto: 'auto',
             ...theme('spacing'),
@@ -1050,7 +1068,7 @@ export default {
         }
     },
     plugins: [
-        plugin(function ({ addVariant }) {           
+        plugin(function ({ addVariant }) {
             addVariant('enabled', '&:not(:disabled)');
         })
     ]

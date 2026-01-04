@@ -45,7 +45,10 @@ function getAlignment(characterType: CharacterTypes): Alignments {
     }
 }
 function getImages(role: Roles, characterType: CharacterTypes): IIconPaths {
-    const neutral = ['loric', 'fabled', 'traveler'].includes(characterType) ? `${env.VITE_ICONS_BASE_PATH}/${role}.webp` : undefined;
+    const neutral =
+        ['loric', 'fabled', 'traveler'].includes(characterType) ?
+            `${env.VITE_ICONS_BASE_PATH}/${role}.webp`
+        :   undefined;
     const evil = ['loric', 'fabled'].includes(characterType) ? undefined : `${env.VITE_ICONS_BASE_PATH}/${role}_e.webp`;
     const good = ['loric', 'fabled'].includes(characterType) ? undefined : `${env.VITE_ICONS_BASE_PATH}/${role}_g.webp`;
     return {

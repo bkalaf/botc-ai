@@ -71,7 +71,6 @@ import virginGoodImg from './../assets/images/virgin_g.png';
 import virginEvilImg from './../assets/images/virgin_e.png';
 import washerwomanGoodImg from './../assets/images/washerwoman_g.png';
 import washerwomanEvilImg from './../assets/images/washerwoman_e.png';
-import { Button } from './ui/button';
 
 const roleToIcon: Record<Roles, [any, any?]> = {
     empath: [empathGoodImg, empathEvilImg],
@@ -199,9 +198,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     }}
                 >
                     View Controls
-                    <span className='text-[10px] font-normal normal-case text-muted-foreground'>
-                        Drag
-                    </span>
+                    <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
                 </div>
                 <div className='flex flex-wrap gap-2 p-3'>
                     <Button

@@ -79,14 +79,14 @@ export function CharacterTokenParent({
                 {children}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <span className='place-self-center text-center bg-transparent mx-auto transform -translate-y-full absolute w-full top-1/7 z-30 font-black text-black text-base'>
-                            <Label className='w-full min-w-fit rounded-md shadow-inner border-black border-2 bg-white text-black text-sm text-center font-bold px-1 py-0.5 justify-center z-30'>
+                        <span className='place-self-center text-center bg-transparent mx-auto transform -translate-y-full absolute w-full top-1/7 z-30 font-black px-1.5 py-0.5 justify-center'>
+                            <Label className='w-full min-w-fit rounded-md shadow-inner border-black border-2 bg-white text-center font-bold px-1 py-0.5 justify-center z-30 transform translate-y-2/3 text-black text-base group-data-[character-type=demon]:bg-red-500 group-data-[character-type=minion]:bg-orange-500 group-data-[character-type=outsider]:bg-cyan-500 group-data-[character-type=townsfolk]:bg-blue-500 group- data-[character-type=traveler]:bg-yellow-500 '>
                                 {$$ROLES[role]?.name}
                             </Label>
                         </span>
                     </TooltipTrigger>
                     <TooltipContent className='z-40'>
-                        <Label className='bg-slate-700 px-1.5 py-0.5 rounded-lg text-white text-lg text-wrap'>
+                        <Label className='bg-slate-700 px-1.5 py-0.5 rounded-lg text-white text-lg text-wrap '>
                             {ability}
                         </Label>
                     </TooltipContent>
