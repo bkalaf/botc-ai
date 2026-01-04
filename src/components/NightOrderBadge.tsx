@@ -1,6 +1,7 @@
 // src/components/NightOrderBadge.tsx
 import { Badge } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Label } from './ui/label';
 
 export function NightOrderBadge({
     order,
@@ -14,7 +15,7 @@ export function NightOrderBadge({
     order: number;
 }) {
     const className = [
-        'absolute  top-1/2 min-w-6 h-6 z-40 transform   text-white font-extrabold text-lg group-data-[is-alive=false]:invisible data-[order="0"]:invisible tabular-nums',
+        'absolute top-1/2 min-w-6 h-6 z-20 transform   text-white font-extrabold text-lg group-data-[is-dead=true]:invisible data-[order="0"]:invisible tabular-nums',
         bgColor,
         side
     ].join(' ');
@@ -25,10 +26,12 @@ export function NightOrderBadge({
                     className={className}
                     data-order={order}
                 >
-                    {order}
+                    <span className='text-white text-base'>{order}</span>
                 </Badge>
             </TooltipTrigger>
-            <TooltipContent>{reminder}</TooltipContent>
+            <TooltipContent>
+                <Label className='bg-slate-700 px-1.5 py-0.5 rounded-lg text-white text-lg text-wrap'>{reminder}</Label>
+            </TooltipContent>
         </Tooltip>
     );
 }
