@@ -4,6 +4,7 @@ import tokenImg from './../assets/images/town/token.png';
 import { CharacterTokenParent } from './CharacterTokenParent';
 import { $$ROLES, CharacterTypes, Roles } from '../data/types';
 import { ISeatedPlayer } from '../store/game/game-slice';
+import { Button } from '@/components/ui/button';
 import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
 // import beggarGoodImg from './../assets/images/beggar_g.png';
@@ -106,6 +107,13 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         w: window.innerWidth,
         h: window.innerHeight
     }));
+    const [viewSettings, setViewSettings] = React.useState({
+        zoom: 1,
+        offsetX: 0,
+        offsetY: 0,
+        topOffset: 0,
+        ringOffset: 0
+    });
 
     // Keep responsive
     React.useEffect(() => {
@@ -120,23 +128,182 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     // "goes about 2/3 way to the vertical edge" -> radius relative to width
     // If centerX is 50vw, max to left/right edge is 50vw, 2/3 of that => ~vw/3
     // But we also cap based on height so it doesn’t run off-screen.
-    const radius = Math.min(layout.w / 5, layout.h * 0.42);
+    const baseRadius = Math.min(layout.w / 5, layout.h * 0.42);
 
     // "top edge is about 1/12 of screen away from top"
-    const topMargin = layout.h / 20;
-    const centerX = layout.w / 2.5;
-    const centerY = topMargin + radius;
+    const baseTopMargin = layout.h / 20;
+    const baseCenterX = layout.w / 2.5;
 
-    console.log(`topMargin`, topMargin, `centerX`, centerX, `centerY`, centerY);
-    console.log(`radius`, radius);
+    const radius = baseRadius * viewSettings.zoom;
+    const topMargin = baseTopMargin * viewSettings.zoom + viewSettings.topOffset;
+    const centerX = baseCenterX * viewSettings.zoom + viewSettings.offsetX;
+    const centerY = topMargin + radius + viewSettings.offsetY;
+
     // Token size: scales with screen, bounded
-    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25, 48, 105);
+    const tokenSize = clamp(
+        Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom,
+        48,
+        130
+    );
 
     return (
         <div
             ref={ref}
             className='relative h-full w-full overflow-hidden bg-background'
         >
+            <div className='absolute left-4 top-4 z-20 flex flex-col gap-2 rounded-md bg-white/90 p-3 text-sm shadow'>
+                <div className='flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                    View Controls
+                </div>
+                <div className='flex flex-wrap gap-2'>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
+                            }))
+                        }
+                    >
+                        Zoom In
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
+                            }))
+                        }
+                    >
+                        Zoom Out
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetX: prev.offsetX - 16
+                            }))
+                        }
+                    >
+                        Left
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetX: prev.offsetX + 16
+                            }))
+                        }
+                    >
+                        Right
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetY: prev.offsetY - 16
+                            }))
+                        }
+                    >
+                        Up
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetY: prev.offsetY + 16
+                            }))
+                        }
+                    >
+                        Down
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                topOffset: prev.topOffset + 12
+                            }))
+                        }
+                    >
+                        Top Margin +
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                topOffset: prev.topOffset - 12
+                            }))
+                        }
+                    >
+                        Top Margin -
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                ringOffset: prev.ringOffset + 12
+                            }))
+                        }
+                    >
+                        Tokens Out
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                ringOffset: prev.ringOffset - 12
+                            }))
+                        }
+                    >
+                        Tokens In
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='secondary'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings({
+                                zoom: 1,
+                                offsetX: 0,
+                                offsetY: 0,
+                                topOffset: 0,
+                                ringOffset: 0
+                            })
+                        }
+                    >
+                        Reset
+                    </Button>
+                </div>
+            </div>
             {/* Big background circle */}
             <div
                 className='absolute rounded-full border bg-white/80 shadow-sm'
@@ -154,23 +321,16 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
 
                 // Place tokens on the rim (slightly outside looks better)
-                const ringR = radius - tokenSize * 0.55;
+                const ringR = radius - tokenSize * 0.55 + viewSettings.ringOffset;
                 const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
 
-                console.log(`ringR`, ringR, `x`, x, `y`, y);
                 const labelId = `token-label-${p.id}-${p.name}`;
                 const label = p.name.toUpperCase();
                 const isLong = label.length >= 9;
                 const targetLen = isLong ? 70 : 76;
                 const className = `token-label-svg ${isLong ? 'long' : ''}`;
-                console.log(`labelId`, labelId);
-                console.log(`label`, label);
-                console.log(`isLong`, isLong);
-                console.log(`targetLen`, targetLen);
-                console.log(`className`, className);
                 const image = `./../assets/images/${p.role}_${p.alignment === 'good' ? 'g' : 'e'}.png`;
-                console.log(`image`, image);
                 const img = (
                     p.alignment === 'good' ?
                         roleToIcon[p.role as any as keyof typeof roleToIcon][0]
