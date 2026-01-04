@@ -1,4 +1,4 @@
-// src/store/game/slice.ts
+// src/store/game/game-slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CharacterTypes, Roles } from '../../data/types';
 
@@ -117,6 +117,31 @@ export const gameSlice = createSlice({
         },
         setScript: (state, action: PayloadAction<Roles[]>) => {
             state.script = action.payload;
+        },
+        cycleGameState: (state) => {
+            switch (state.gameState) {
+                case 'idle':
+                    state.gameState = 'setup';
+                    break;
+                case 'reveal':
+                    state.gameState = 'idle';
+                    break;
+                case 'in-progress':
+                    state.gameState = 'reveal';
+                    break;
+                case 'setup':
+                    state.gameState = 'in-progress';
+                    break;
+            }
+        },
+        goodWon: (state) => {
+            state.winner = 'good';
+        },
+        evilWon: (state) => {
+            state.winner = 'evil';
         }
+    },
+    selectors: {
+        
     }
 });
