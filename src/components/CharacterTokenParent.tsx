@@ -17,17 +17,14 @@ export function CharacterTokenParent({
     x,
     y,
     name,
-    thinks,
     role,
     children,
     isMarked,
     isAlive,
     characterType,
     alignment,
-    seatID,
     isDrunk,
-    isPoisoned,
-    reminders
+    isPoisoned
 }: {
     tokenSize: number;
     x: number;
