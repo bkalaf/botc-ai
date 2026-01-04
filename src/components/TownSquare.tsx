@@ -70,6 +70,7 @@ import virginGoodImg from './../assets/images/virgin_g.png';
 import virginEvilImg from './../assets/images/virgin_e.png';
 import washerwomanGoodImg from './../assets/images/washerwoman_g.png';
 import washerwomanEvilImg from './../assets/images/washerwoman_e.png';
+import { Button } from './ui/button';
 
 const roleToIcon: Record<Roles, [any, any?]> = {
     empath: [empathGoodImg, empathEvilImg],
@@ -139,11 +140,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const centerY = topMargin + radius + viewSettings.offsetY;
 
     // Token size: scales with screen, bounded
-    const tokenSize = clamp(
-        Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom,
-        48,
-        130
-    );
+    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 130);
 
     return (
         <div
@@ -324,12 +321,6 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
 
-                const labelId = `token-label-${p.id}-${p.name}`;
-                const label = p.name.toUpperCase();
-                const isLong = label.length >= 9;
-                const targetLen = isLong ? 70 : 76;
-                const className = `token-label-svg ${isLong ? 'long' : ''}`;
-                const image = `./../assets/images/${p.role}_${p.alignment === 'good' ? 'g' : 'e'}.png`;
                 const img = (
                     p.alignment === 'good' ?
                         roleToIcon[p.role as any as keyof typeof roleToIcon][0]

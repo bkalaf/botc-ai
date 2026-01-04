@@ -6,7 +6,6 @@ import { Label } from './ui/label';
 import { Children } from '../types';
 import { SkullIcon } from 'lucide-react';
 import shroudImg from './../assets/images/town/shroud.png';
-import { Badge } from './ui/badge';
 import { ShadedOverlay } from './ShadedOverlay';
 import { FirstNightOrderBadge } from './FirstNightOrderBadge';
 import { OtherNightOrderBadge } from './OtherNightOrderBadge';
