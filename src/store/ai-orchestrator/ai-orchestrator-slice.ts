@@ -1,7 +1,7 @@
 // src/store/ai-orchestrator/ai-orchestrator-slice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { addLogEntry } from '../history/history-slice';
-import { IStorytellerQueueItem } from '../st-queue/st-queue-slice';
+import { IStorytellerQueueItem, storytellerQueueSlice } from '../st-queue/st-queue-slice';
 
 export type AiOrchestratorStatus = 'idle' | 'pending' | 'fulfilled' | 'errored';
 export type AiHttpFunctionTarget = 'storyteller' | 'player' | 'system';
@@ -88,10 +88,30 @@ export const initialState: IAiOrchestratorState = {
 export const orchestrateNext = createAsyncThunk<
     IAiOrchestratorResult,
     void,
-    { state: { aiOrchestrator: IAiOrchestratorState } }
+    { state: { aiOrchestrator: IAiOrchestratorState; storytellerQueue: { items: IStorytellerQueueItem[]; currentItem: IStorytellerQueueItem | null } } }
 >('aiOrchestrator/orchestrateNext', async (_, { dispatch, getState, rejectWithValue }) => {
-    const state = getState().aiOrchestrator;
-    const nextItem = state.currentItem ?? state.items[0];
+    const rootState = getState();
+    const state = rootState.aiOrchestrator;
+    let nextItem = state.currentItem ?? state.items[0];
+    let usedStorytellerQueue = false;
+
+    if (!nextItem) {
+        const storytellerState = rootState.storytellerQueue;
+        const stItem = storytellerState.currentItem ?? storytellerState.items[0];
+        if (stItem) {
+            if (!storytellerState.currentItem) {
+                dispatch(storytellerQueueSlice.actions.dequeueNext());
+            }
+            nextItem = {
+                id: stItem.id,
+                type: stItem.type,
+                payload: stItem.payload,
+                requestedBy: stItem.requestedBy,
+                httpTarget: 'storyteller'
+            };
+            usedStorytellerQueue = true;
+        }
+    }
 
     if (!nextItem) {
         return rejectWithValue('No queued AI request.');
@@ -135,6 +155,10 @@ export const orchestrateNext = createAsyncThunk<
     }
 
     const data = await response.json();
+
+    if (usedStorytellerQueue) {
+        dispatch(storytellerQueueSlice.actions.clearCurrent());
+    }
 
     return {
         item: nextItem,
