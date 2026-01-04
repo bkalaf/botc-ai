@@ -72,6 +72,54 @@ export interface ISeatedPlayer {
     reminders: string;
     isDrunk: boolean;
     isPoisoned: boolean;
+    worldBuildingWorksheet?: WorldBuildingWorksheet;
+}
+
+export type PlayerId = ISeatedPlayer['ID'];
+
+export interface WorldBuildingWorksheet {
+    demon: DemonWorldModel;
+    minions: MinionWorldModel;
+    outsiders: OutsiderWorldModel;
+    setupModifiers: SetupModifierWorldModel;
+    intoxication: IntoxicationWorldModel;
+    notes?: string;
+}
+
+export interface DemonWorldModel {
+    role?: Roles;
+    specialAbilities?: string[];
+    killsPerNight?: number;
+    constraints?: string[];
+    notes?: string;
+}
+
+export interface MinionWorldModel {
+    expectedCount?: number;
+    confirmed?: Roles[];
+    possibleSets?: Roles[][];
+    notes?: string;
+}
+
+export interface OutsiderWorldModel {
+    baseCount?: number;
+    currentCount?: number;
+    suspectedModifiers?: string[];
+    notes?: string;
+}
+
+export interface SetupModifierWorldModel {
+    suspectedModifiers?: string[];
+    confirmedModifiers?: string[];
+    notes?: string;
+}
+
+export interface IntoxicationWorldModel {
+    knownDrunk?: PlayerId[];
+    knownPoisoned?: PlayerId[];
+    suspectedDrunk?: PlayerId[];
+    suspectedPoisoned?: PlayerId[];
+    notes?: string;
 }
 
 export type TrustModels = 'all_trusting' | 'skeptical' | 'doubting_thomas';
