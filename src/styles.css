@@ -57,27 +57,27 @@ body {
 
 .token-label-svg {
   font-family: "Woodgod", serif;
-  font-weight: 700;
+  font-weight: 800;
 
   /* tweak for taste; SVG units */
-  font-size: 9.5px;
+  font-size: 11.2px;
 
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 
-  fill: rgba(0, 0, 0, 0.85);
+  fill: rgba(0, 0, 0, 0.98);
 
   /* “printed ink” readability */
   paint-order: stroke fill;
-  stroke: rgba(255, 255, 255, 0.65);
-  stroke-width: 0.6px;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 1px;
 
   dominant-baseline: middle;
 }
 
 .token-label-svg.long {
-  font-size: 8.8px;
-  letter-spacing: 0.16em;
+  font-size: 10px;
+  letter-spacing: 0.14em;
 }
 
 

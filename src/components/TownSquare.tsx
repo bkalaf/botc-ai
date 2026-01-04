@@ -39,7 +39,7 @@ export function TownSquare({ players }: { players: Player[] }) {
         return () => ro.disconnect();
     }, []);
 
-    const N = clamp(players.length, 5, 20);
+    const N = clamp(players.length, 5, 18);
 
     // If not measured yet, render an empty container (avoids NaNs)
     if (layout.w === 0 || layout.h === 0) {
@@ -62,10 +62,18 @@ export function TownSquare({ players }: { players: Player[] }) {
     const centerY = topMargin + radius;
 
     // Token size: scales with available space
-    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.085, 48, 92);
+    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.095, 54, 104);
 
-    // Place tokens on the rim; adjust slightly outward if you prefer
-    const ringR = radius;
+    const spacingFactor = (() => {
+        if (N >= 18) return 1;
+        if (N <= 15) return 1.06;
+        const t = (18 - N) / 3;
+        return 1 + 0.06 * t;
+    })();
+
+    // Place tokens on the rim; adjust to control spacing between tokens
+    const minRingR = (tokenSize * spacingFactor) / (2 * Math.sin(Math.PI / N));
+    const ringR = Math.min(radius, minRingR);
 
     return (
         <div
@@ -141,7 +149,7 @@ export function TownSquare({ players }: { players: Player[] }) {
                                 >
                                     <path
                                         id={labelId}
-                                        d='M 18 74 Q 50 82 82 74'
+                                        d='M 14 80 Q 50 92 86 80'
                                         fill='none'
                                     />
                                     <text className={`token-label-svg ${p.name.length > 10 ? 'long' : ''}`}>
