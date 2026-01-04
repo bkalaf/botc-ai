@@ -1,10 +1,12 @@
 // src/data/types.ts
-import editions from './editions.json';
-import fabled from './fabled.json';
-import jinxes from './hatred.json';
-import roles from './roles.json';
-import officialCounts from './game.json';
+import $$editions from './editions.json';
+import $$fabled from './fabled.json';
+import $$jinxes from './hatred.json';
+import $$roles from './roles.json';
+import $$officialCounts from './game.json';
 
+const $$ROLES = Object.fromEntries($$roles.map((x) => [x.id, x]));
+export { $$officialCounts, $$ROLES, $$jinxes, $$fabled, $$editions };
 export type CharacterTokens = {
     id: Roles;
     name: string;
@@ -51,4 +53,3 @@ export type Roles =
     | 'baron'
     | 'poisoner'
     | 'imp';
-

@@ -3,6 +3,8 @@ import * as React from 'react';
 import tokenImg from './../assets/images/town/token.png';
 import chefImg from './../assets/images/chef_e.png';
 import empathImg from './../assets/images/empath_g.png';
+import { CharacterTokenParent } from './CharacterTokenParent';
+import { CharacterTypes } from '../data/types';
 
 type Role = 'chef' | 'empath' | null;
 
@@ -77,37 +79,60 @@ export function TownSquare({ players }: { players: Player[] }) {
                 const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
 
+                const labelId = `token-label-${p.id}-${p.name}`;
+                const label = p.name.toUpperCase();
+                const isLong = label.length >= 9;
+                const targetLen = isLong ? 70 : 76;
+                const className = `token-label-svg ${isLong ? 'long' : ''}`;
+                console.log(`labelId`, labelId);
+                console.log(`label`, label);
+                console.log(`isLong`, isLong);
+                console.log(`targetLen`, targetLen);
+                console.log(`className`, className);
                 return (
-                    <button
-                        key={p.id}
-                        className='absolute grid place-items-center rounded-full focus:outline-none focus:ring-2 focus:ring-ring'
-                        style={{
-                            width: tokenSize,
-                            height: tokenSize,
-                            left: x,
-                            top: y
-                        }}
-                        title={p.name}
-                        type='button'
-                    >
-                        {/* Base token */}
-                        <img
-                            src={tokenImg}
-                            alt=''
-                            className='absolute inset-0 h-full w-full rounded-full object-cover scale-110'
-                            draggable={false}
-                        />
-
-                        {/* Role icon overlay (if assigned) */}
-                        {p.role ?
+                    <>
+                        <CharacterTokenParent
+                            tokenSize={tokenSize}
+                            x={x}
+                            y={y}
+                            role={p.role as any}
+                            name={p?.name}
+                            seatID={parseInt(p.id, 10)}
+                            isAlive={true}
+                            isMarked={false}
+                            thinks={undefined}
+                            characterType={'townsfolk' as CharacterTypes}
+                            alignment={'good'}
+                        >
                             <img
-                                src={roleToIcon[p.role]}
-                                alt={p.role}
-                                className='relative object-contain scale-125'
+                                src={tokenImg}
+                                alt=''
+                                className='absolute inset-0 h-full w-full rounded-full object-cover scale-110'
                                 draggable={false}
                             />
-                        :   null}
-                    </button>
+                            {p.role ?
+                                <img
+                                    src={roleToIcon[p.role]}
+                                    alt={p.role}
+                                    className='relative object-contain scale-125'
+                                    draggable={false}
+                                />
+                            :   null}
+                        </CharacterTokenParent>
+                        {/* <button
+                            key={p.id}
+                            className='absolute grid place-items-center rounded-full focus:outline-none focus:ring-2 focus:ring-ring'
+                            style={{
+                                width: tokenSize,
+                                height: tokenSize,
+                                left: x,
+                                top: y
+                            }}
+                            title={p.name}
+                            type='button'
+                        > */}
+                        {/* Base token */}
+                    </>
                 );
             })}
         </div>
