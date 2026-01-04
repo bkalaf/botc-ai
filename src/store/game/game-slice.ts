@@ -202,3 +202,5 @@ export const gameSlice = createSlice({
         selectDisplayTime: (state) => toProperCase(`${state.phase} ${state.day.toString()}`)
     }
 });
+
+export const { selectScript } = gameSlice.selectors;
