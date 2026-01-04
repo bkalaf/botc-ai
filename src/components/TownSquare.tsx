@@ -110,13 +110,16 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const [controlsPosition, setControlsPosition] = React.useState({ x: 16, y: 16 });
     const [isDraggingControls, setIsDraggingControls] = React.useState(false);
     const dragStartRef = React.useRef({ x: 0, y: 0, startX: 0, startY: 0 });
+    const [userIdentifier, setUserIdentifier] = React.useState('');
     const [viewSettings, setViewSettings] = React.useState({
         zoom: 1,
         offsetX: 0,
         offsetY: 0,
         topOffset: 0,
         ringOffset: 0,
-        stretch: 1
+        stretch: 1,
+        tension: 0,
+        tokenScale: 1
     });
 
     // Keep responsive
@@ -124,6 +127,38 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         const onResize = () => setLayout({ w: window.innerWidth, h: window.innerHeight });
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
+    }, []);
+
+    React.useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const storedUser = window.localStorage.getItem('townSquarePreferences:lastUser');
+        if (storedUser) {
+            setUserIdentifier(storedUser);
+        }
+
+        const raw = window.localStorage.getItem('townSquarePreferences');
+        if (!raw || !storedUser) {
+            return;
+        }
+
+        try {
+            const parsed = JSON.parse(raw) as Record<
+                string,
+                { viewSettings: typeof viewSettings; controlsPosition: typeof controlsPosition }
+            >;
+            const saved = parsed[storedUser];
+            if (saved?.viewSettings) {
+                setViewSettings(saved.viewSettings);
+            }
+            if (saved?.controlsPosition) {
+                setControlsPosition(saved.controlsPosition);
+            }
+        } catch {
+            return;
+        }
     }, []);
 
     React.useEffect(() => {
@@ -171,9 +206,60 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const topMargin = baseTopMargin * viewSettings.zoom + viewSettings.topOffset;
     const centerX = baseCenterX * viewSettings.zoom + viewSettings.offsetX;
     const centerY = topMargin + radiusY + viewSettings.offsetY;
+    const backgroundRadius = clamp(50 - viewSettings.tension * 18, 18, 50);
 
     // Token size: scales with screen, bounded
-    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 130);
+    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom * viewSettings.tokenScale, 48, 160);
+
+    const savePreferences = () => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        let identifier = userIdentifier.trim();
+        if (!identifier) {
+            const response = window.prompt('Enter your email or name to save these settings:');
+            if (!response) {
+                return;
+            }
+            identifier = response.trim();
+            if (!identifier) {
+                return;
+            }
+            setUserIdentifier(identifier);
+        }
+
+        const payload = {
+            identifier,
+            viewSettings,
+            controlsPosition,
+            savedAt: new Date().toISOString()
+        };
+
+        const raw = window.localStorage.getItem('townSquarePreferences');
+        let existing: Record<string, typeof payload> = {};
+        if (raw) {
+            try {
+                existing = JSON.parse(raw) as Record<string, typeof payload>;
+            } catch {
+                existing = {};
+            }
+        }
+        existing[identifier] = payload;
+        window.localStorage.setItem('townSquarePreferences', JSON.stringify(existing));
+        window.localStorage.setItem('townSquarePreferences:lastUser', identifier);
+
+        const safeIdentifier = identifier.replace(/[^a-z0-9-_]+/gi, '_');
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+            type: 'application/json'
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `town-square-preferences-${safeIdentifier}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div
@@ -359,6 +445,66 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     </Button>
                     <Button
                         size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                tension: clamp(prev.tension + 0.05, 0, 0.6)
+                            }))
+                        }
+                    >
+                        Tension +
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                tension: clamp(prev.tension - 0.05, 0, 0.6)
+                            }))
+                        }
+                    >
+                        Tension -
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                tokenScale: clamp(prev.tokenScale + 0.05, 0.7, 1.6)
+                            }))
+                        }
+                    >
+                        Token Size +
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
+                            }))
+                        }
+                    >
+                        Token Size -
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='default'
+                        type='button'
+                        onClick={savePreferences}
+                    >
+                        Save Preferences
+                    </Button>
+                    <Button
+                        size='sm'
                         variant='secondary'
                         type='button'
                         onClick={() =>
@@ -368,7 +514,9 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                                 offsetY: 0,
                                 topOffset: 0,
                                 ringOffset: 0,
-                                stretch: 1
+                                stretch: 1,
+                                tension: 0,
+                                tokenScale: 1
                             })
                         }
                     >
@@ -378,12 +526,13 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             </div>
             {/* Big background circle */}
             <div
-                className='absolute rounded-full border bg-white/80 shadow-sm'
+                className='absolute border bg-white/80 shadow-sm'
                 style={{
                     width: radiusX * 2,
                     height: radiusY * 2,
                     left: centerX - radiusX,
-                    top: centerY - radiusY
+                    top: centerY - radiusY,
+                    borderRadius: `${backgroundRadius}%`
                 }}
             />
 
@@ -395,8 +544,9 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 // Place tokens on the rim (slightly outside looks better)
                 const ringRx = radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
                 const ringRy = radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
-                const x = centerX + ringRx * Math.cos(angle) - tokenSize / 2;
-                const y = centerY + ringRy * Math.sin(angle) - tokenSize / 2;
+                const cornerBoost = 1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
+                const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
+                const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
 
                 const img = (
                     p.alignment === 'good' ?
