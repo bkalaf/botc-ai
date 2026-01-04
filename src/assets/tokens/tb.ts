@@ -1,7 +1,10 @@
 import { th } from 'zod/v4/locales';
 
 //src/assets/tokens/tb.ts
-export type IDefinedRole = Omit<IRole, 'alignment' | 'characterType' | 'edition' | 'key' | 'name' | 'nightOrder' | 'reminders' | 'icons'>;
+export type IDefinedRole = Omit<
+    IRole,
+    'alignment' | 'characterType' | 'edition' | 'key' | 'name' | 'nightOrder' | 'reminders' | 'icons'
+>;
 
 export const tokens: Record<Editions, Partial<Record<CharacterTypes, Partial<Record<Roles, IDefinedRole>>>>> = {
     tb: {
@@ -27,7 +30,8 @@ export const tokens: Record<Editions, Partial<Record<CharacterTypes, Partial<Rec
                 otherNight: 'The Thief chooses a player.'
             },
             gunslinger: {
-                abilityText: 'Each day, after the 1st vote has been tallied, you may choose a player that voted: they die.',
+                abilityText:
+                    'Each day, after the 1st vote has been tallied, you may choose a player that voted: they die.',
                 bluffType: 'never',
                 threatType: 'high'
             },
@@ -115,12 +119,14 @@ export const tokens: Record<Editions, Partial<Record<CharacterTypes, Partial<Rec
             },
             ravenkeeper: {
                 abilityText: 'If you die at night, you are woken to choose a player: you learn their character.',
-                otherNight: "If the Ravenkeeper died tonight, the Ravenkeeper chooses a player. Show that player's character token.",
+                otherNight:
+                    "If the Ravenkeeper died tonight, the Ravenkeeper chooses a player. Show that player's character token.",
                 bluffType: 'active',
                 threatType: 'medium'
             },
             slayer: {
-                abilityText: 'Once per game, during the day, publicly choose a player: if they are the Demon, they die.',
+                abilityText:
+                    'Once per game, during the day, publicly choose a player: if they are the Demon, they die.',
                 bluffType: 'easy',
                 threatType: 'high'
             },
@@ -143,7 +149,8 @@ export const tokens: Record<Editions, Partial<Record<CharacterTypes, Partial<Rec
                 threatType: 'medium'
             },
             virgin: {
-                abilityText: 'The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately.',
+                abilityText:
+                    'The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately.',
                 bluffType: 'risky',
                 threatType: 'medium'
             }
@@ -163,22 +170,26 @@ export const tokens: Record<Editions, Partial<Record<CharacterTypes, Partial<Rec
             butler: {
                 bluffType: 'easy',
                 threatType: 'low',
-                abilityText: 'Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too.',
+                abilityText:
+                    'Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too.',
                 firstNight: 'The Butler chooses a player.',
                 otherNight: 'The Butler chooses a player.'
             },
             drunk: {
                 bluffType: 'risky',
                 threatType: 'low',
-                abilityText: 'You do not know you are the Drunk. You think you are a Townsfolk character, but you are not.'
+                abilityText:
+                    'You do not know you are the Drunk. You think you are a Townsfolk character, but you are not.'
             }
         },
         minion: {
             scarletwoman: {
                 bluffType: 'active',
                 threatType: 'high',
-                abilityText: "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don't count.)",
-                otherNight: 'If the Scarlet Woman became the Demon today, show them the YOU ARE token, then the Demon token.'
+                abilityText:
+                    "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don't count.)",
+                otherNight:
+                    'If the Scarlet Woman became the Demon today, show them the YOU ARE token, then the Demon token.'
             },
             poisoner: {
                 bluffType: 'risky',
@@ -195,7 +206,8 @@ export const tokens: Record<Editions, Partial<Record<CharacterTypes, Partial<Rec
             spy: {
                 bluffType: 'risky',
                 threatType: 'high',
-                abilityText: 'Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead.',
+                abilityText:
+                    'Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead.',
                 firstNight: 'Show the Grimoire for as long as the Spy needs.',
                 otherNight: 'Show the Grimoire for as long as the Spy needs.',
                 traits: ['ability_persist_thru_death']
@@ -205,7 +217,8 @@ export const tokens: Record<Editions, Partial<Record<CharacterTypes, Partial<Rec
             imp: {
                 bluffType: 'risky',
                 threatType: 'high',
-                abilityText: 'Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.',
+                abilityText:
+                    'Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.',
                 otherNight:
                     'The Imp chooses a player.  If the Imp chose themselves: Replace 1 alive Minion token with a spare Imp token. Put the old Imp to sleep. Wake the new Imp. Show the YOU ARE token, then show the Imp token.'
             }

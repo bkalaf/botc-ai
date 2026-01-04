@@ -209,11 +209,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const backgroundRadius = clamp(50 - viewSettings.tension * 18, 18, 50);
 
     // Token size: scales with screen, bounded
-    const tokenSize = clamp(
-        Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom * viewSettings.tokenScale,
-        48,
-        160
-    );
+    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom * viewSettings.tokenScale, 48, 160);
 
     const savePreferences = () => {
         if (typeof window === 'undefined') {
@@ -288,9 +284,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     }}
                 >
                     View Controls
-                    <span className='text-[10px] font-normal normal-case text-muted-foreground'>
-                        Drag
-                    </span>
+                    <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
                 </div>
                 <div className='flex flex-wrap gap-2 p-3'>
                     <Button
@@ -550,17 +544,10 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 // Place tokens on the rim (slightly outside looks better)
                 const ringRx = radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
                 const ringRy = radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
-                const cornerBoost =
-                    1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
+                const cornerBoost = 1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
                 const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
 
-                const labelId = `token-label-${p.id}-${p.name}`;
-                const label = p.name.toUpperCase();
-                const isLong = label.length >= 9;
-                const targetLen = isLong ? 70 : 76;
-                const className = `token-label-svg ${isLong ? 'long' : ''}`;
-                const image = `./../assets/images/${p.role}_${p.alignment === 'good' ? 'g' : 'e'}.png`;
                 const img = (
                     p.alignment === 'good' ?
                         roleToIcon[p.role as any as keyof typeof roleToIcon][0]
