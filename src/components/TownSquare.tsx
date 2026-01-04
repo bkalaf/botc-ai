@@ -4,6 +4,7 @@ import tokenImg from './../assets/images/town/token.png';
 import { CharacterTokenParent } from './CharacterTokenParent';
 import { $$ROLES, CharacterTypes, Roles } from '../data/types';
 import { ISeatedPlayer } from '../store/game/game-slice';
+import { Button } from '@/components/ui/button';
 import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
 // import beggarGoodImg from './../assets/images/beggar_g.png';
@@ -107,12 +108,16 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         w: window.innerWidth,
         h: window.innerHeight
     }));
+    const [controlsPosition, setControlsPosition] = React.useState({ x: 16, y: 16 });
+    const [isDraggingControls, setIsDraggingControls] = React.useState(false);
+    const dragStartRef = React.useRef({ x: 0, y: 0, startX: 0, startY: 0 });
     const [viewSettings, setViewSettings] = React.useState({
         zoom: 1,
         offsetX: 0,
         offsetY: 0,
         topOffset: 0,
-        ringOffset: 0
+        ringOffset: 0,
+        stretch: 1
     });
 
     // Keep responsive
@@ -121,6 +126,33 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
     }, []);
+
+    React.useEffect(() => {
+        if (!isDraggingControls) {
+            return;
+        }
+
+        const handleMove = (event: MouseEvent) => {
+            const deltaX = event.clientX - dragStartRef.current.startX;
+            const deltaY = event.clientY - dragStartRef.current.startY;
+            setControlsPosition({
+                x: dragStartRef.current.x + deltaX,
+                y: dragStartRef.current.y + deltaY
+            });
+        };
+
+        const handleUp = () => {
+            setIsDraggingControls(false);
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleUp);
+        };
+    }, [isDraggingControls]);
 
     const N = clamp(players.length, 5, 20);
 
@@ -135,9 +167,11 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const baseCenterX = layout.w / 2.5;
 
     const radius = baseRadius * viewSettings.zoom;
+    const radiusX = radius * viewSettings.stretch;
+    const radiusY = radius;
     const topMargin = baseTopMargin * viewSettings.zoom + viewSettings.topOffset;
     const centerX = baseCenterX * viewSettings.zoom + viewSettings.offsetX;
-    const centerY = topMargin + radius + viewSettings.offsetY;
+    const centerY = topMargin + radiusY + viewSettings.offsetY;
 
     // Token size: scales with screen, bounded
     const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 130);
@@ -147,11 +181,29 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             ref={ref}
             className='relative h-full w-full overflow-hidden bg-background'
         >
-            <div className='absolute left-4 top-4 z-20 flex flex-col gap-2 rounded-md bg-white/90 p-3 text-sm shadow'>
-                <div className='flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+            <div
+                className='absolute z-20 flex w-[260px] flex-col gap-2 rounded-md border bg-white/95 text-sm shadow-lg'
+                style={{ left: controlsPosition.x, top: controlsPosition.y }}
+            >
+                <div
+                    className='flex cursor-move items-center justify-between rounded-t-md border-b bg-muted/60 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground'
+                    onMouseDown={(event) => {
+                        dragStartRef.current = {
+                            x: controlsPosition.x,
+                            y: controlsPosition.y,
+                            startX: event.clientX,
+                            startY: event.clientY
+                        };
+                        setIsDraggingControls(true);
+                        event.preventDefault();
+                    }}
+                >
                     View Controls
+                    <span className='text-[10px] font-normal normal-case text-muted-foreground'>
+                        Drag
+                    </span>
                 </div>
-                <div className='flex flex-wrap gap-2'>
+                <div className='flex flex-wrap gap-2 p-3'>
                     <Button
                         size='sm'
                         variant='outline'
@@ -284,6 +336,32 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     </Button>
                     <Button
                         size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
+                            }))
+                        }
+                    >
+                        Stretch +
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
+                            }))
+                        }
+                    >
+                        Stretch -
+                    </Button>
+                    <Button
+                        size='sm'
                         variant='secondary'
                         type='button'
                         onClick={() =>
@@ -292,7 +370,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                                 offsetX: 0,
                                 offsetY: 0,
                                 topOffset: 0,
-                                ringOffset: 0
+                                ringOffset: 0,
+                                stretch: 1
                             })
                         }
                     >
@@ -304,10 +383,10 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             <div
                 className='absolute rounded-full border bg-white/80 shadow-sm'
                 style={{
-                    width: radius * 2,
-                    height: radius * 2,
-                    left: centerX - radius,
-                    top: centerY - radius
+                    width: radiusX * 2,
+                    height: radiusY * 2,
+                    left: centerX - radiusX,
+                    top: centerY - radiusY
                 }}
             />
 
@@ -317,9 +396,10 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
 
                 // Place tokens on the rim (slightly outside looks better)
-                const ringR = radius - tokenSize * 0.55 + viewSettings.ringOffset;
-                const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
-                const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
+                const ringRx = radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
+                const ringRy = radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
+                const x = centerX + ringRx * Math.cos(angle) - tokenSize / 2;
+                const y = centerY + ringRy * Math.sin(angle) - tokenSize / 2;
 
                 const img = (
                     p.alignment === 'good' ?
