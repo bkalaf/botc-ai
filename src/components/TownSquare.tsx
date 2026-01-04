@@ -4,6 +4,7 @@ import tokenImg from './../assets/images/town/token.png';
 import { CharacterTokenParent } from './CharacterTokenParent';
 import { $$ROLES, CharacterTypes, Roles } from '../data/types';
 import { ISeatedPlayer } from '../store/game/game-slice';
+import { Button } from '@/components/ui/button';
 import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
 // import beggarGoodImg from './../assets/images/beggar_g.png';
@@ -106,6 +107,17 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         w: window.innerWidth,
         h: window.innerHeight
     }));
+    const [controlsPosition, setControlsPosition] = React.useState({ x: 16, y: 16 });
+    const [isDraggingControls, setIsDraggingControls] = React.useState(false);
+    const dragStartRef = React.useRef({ x: 0, y: 0, startX: 0, startY: 0 });
+    const [viewSettings, setViewSettings] = React.useState({
+        zoom: 1,
+        offsetX: 0,
+        offsetY: 0,
+        topOffset: 0,
+        ringOffset: 0,
+        stretch: 1
+    });
 
     // Keep responsive
     React.useEffect(() => {
@@ -114,37 +126,270 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         return () => window.removeEventListener('resize', onResize);
     }, []);
 
+    React.useEffect(() => {
+        if (!isDraggingControls) {
+            return;
+        }
+
+        const handleMove = (event: MouseEvent) => {
+            const deltaX = event.clientX - dragStartRef.current.startX;
+            const deltaY = event.clientY - dragStartRef.current.startY;
+            setControlsPosition({
+                x: dragStartRef.current.x + deltaX,
+                y: dragStartRef.current.y + deltaY
+            });
+        };
+
+        const handleUp = () => {
+            setIsDraggingControls(false);
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleUp);
+        };
+    }, [isDraggingControls]);
+
     const N = clamp(players.length, 5, 20);
 
     // Big circle sizing rules (tweakable)
     // "goes about 2/3 way to the vertical edge" -> radius relative to width
     // If centerX is 50vw, max to left/right edge is 50vw, 2/3 of that => ~vw/3
     // But we also cap based on height so it doesn’t run off-screen.
-    const radius = Math.min(layout.w / 5, layout.h * 0.42);
+    const baseRadius = Math.min(layout.w / 5, layout.h * 0.42);
 
     // "top edge is about 1/12 of screen away from top"
-    const topMargin = layout.h / 20;
-    const centerX = layout.w / 2.5;
-    const centerY = topMargin + radius;
+    const baseTopMargin = layout.h / 20;
+    const baseCenterX = layout.w / 2.5;
 
-    console.log(`topMargin`, topMargin, `centerX`, centerX, `centerY`, centerY);
-    console.log(`radius`, radius);
+    const radius = baseRadius * viewSettings.zoom;
+    const radiusX = radius * viewSettings.stretch;
+    const radiusY = radius;
+    const topMargin = baseTopMargin * viewSettings.zoom + viewSettings.topOffset;
+    const centerX = baseCenterX * viewSettings.zoom + viewSettings.offsetX;
+    const centerY = topMargin + radiusY + viewSettings.offsetY;
+
     // Token size: scales with screen, bounded
-    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25, 48, 105);
+    const tokenSize = clamp(
+        Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom,
+        48,
+        130
+    );
 
     return (
         <div
             ref={ref}
             className='relative h-full w-full overflow-hidden bg-background'
         >
+            <div
+                className='absolute z-20 flex w-[260px] flex-col gap-2 rounded-md border bg-white/95 text-sm shadow-lg'
+                style={{ left: controlsPosition.x, top: controlsPosition.y }}
+            >
+                <div
+                    className='flex cursor-move items-center justify-between rounded-t-md border-b bg-muted/60 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground'
+                    onMouseDown={(event) => {
+                        dragStartRef.current = {
+                            x: controlsPosition.x,
+                            y: controlsPosition.y,
+                            startX: event.clientX,
+                            startY: event.clientY
+                        };
+                        setIsDraggingControls(true);
+                        event.preventDefault();
+                    }}
+                >
+                    View Controls
+                    <span className='text-[10px] font-normal normal-case text-muted-foreground'>
+                        Drag
+                    </span>
+                </div>
+                <div className='flex flex-wrap gap-2 p-3'>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
+                            }))
+                        }
+                    >
+                        Zoom In
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
+                            }))
+                        }
+                    >
+                        Zoom Out
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetX: prev.offsetX - 16
+                            }))
+                        }
+                    >
+                        Left
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetX: prev.offsetX + 16
+                            }))
+                        }
+                    >
+                        Right
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetY: prev.offsetY - 16
+                            }))
+                        }
+                    >
+                        Up
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                offsetY: prev.offsetY + 16
+                            }))
+                        }
+                    >
+                        Down
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                topOffset: prev.topOffset + 12
+                            }))
+                        }
+                    >
+                        Top Margin +
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                topOffset: prev.topOffset - 12
+                            }))
+                        }
+                    >
+                        Top Margin -
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                ringOffset: prev.ringOffset + 12
+                            }))
+                        }
+                    >
+                        Tokens Out
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                ringOffset: prev.ringOffset - 12
+                            }))
+                        }
+                    >
+                        Tokens In
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
+                            }))
+                        }
+                    >
+                        Stretch +
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings((prev) => ({
+                                ...prev,
+                                stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
+                            }))
+                        }
+                    >
+                        Stretch -
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='secondary'
+                        type='button'
+                        onClick={() =>
+                            setViewSettings({
+                                zoom: 1,
+                                offsetX: 0,
+                                offsetY: 0,
+                                topOffset: 0,
+                                ringOffset: 0,
+                                stretch: 1
+                            })
+                        }
+                    >
+                        Reset
+                    </Button>
+                </div>
+            </div>
             {/* Big background circle */}
             <div
                 className='absolute rounded-full border bg-white/80 shadow-sm'
                 style={{
-                    width: radius * 2,
-                    height: radius * 2,
-                    left: centerX - radius,
-                    top: centerY - radius
+                    width: radiusX * 2,
+                    height: radiusY * 2,
+                    left: centerX - radiusX,
+                    top: centerY - radiusY
                 }}
             />
 
@@ -154,23 +399,17 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
 
                 // Place tokens on the rim (slightly outside looks better)
-                const ringR = radius - tokenSize * 0.55;
-                const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
-                const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
+                const ringRx = radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
+                const ringRy = radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
+                const x = centerX + ringRx * Math.cos(angle) - tokenSize / 2;
+                const y = centerY + ringRy * Math.sin(angle) - tokenSize / 2;
 
-                console.log(`ringR`, ringR, `x`, x, `y`, y);
                 const labelId = `token-label-${p.id}-${p.name}`;
                 const label = p.name.toUpperCase();
                 const isLong = label.length >= 9;
                 const targetLen = isLong ? 70 : 76;
                 const className = `token-label-svg ${isLong ? 'long' : ''}`;
-                console.log(`labelId`, labelId);
-                console.log(`label`, label);
-                console.log(`isLong`, isLong);
-                console.log(`targetLen`, targetLen);
-                console.log(`className`, className);
                 const image = `./../assets/images/${p.role}_${p.alignment === 'good' ? 'g' : 'e'}.png`;
-                console.log(`image`, image);
                 const img = (
                     p.alignment === 'good' ?
                         roleToIcon[p.role as any as keyof typeof roleToIcon][0]
