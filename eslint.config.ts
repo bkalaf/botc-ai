@@ -1,4 +1,6 @@
 //eslint.config.ts
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
@@ -6,6 +8,8 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import globals from 'globals'; // Use the 'globals' package if available, or define manually
 import reactPlugin from 'eslint-plugin-react';
 import hooksPlugin from 'eslint-plugin-react-hooks';
+
+const tsconfigRootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
     js.configs.recommended,
@@ -26,7 +30,7 @@ export default [
             parser: tsParser,
             parserOptions: {
                 project: './tsconfig.json',
-                tsconfigRootDir: import.meta.dirname
+                tsconfigRootDir
             },
             globals: {
                 ...globals.node, // This fixes 'Buffer' and 'process'
