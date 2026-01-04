@@ -27,7 +27,7 @@ function App() {
         { id: '10', name: 'RAVENKEEPER', role: 'imp' },
         { id: '11', name: 'RAVENKEEPER', role: 'chef' },
         { id: '12', name: 'RAVENKEEPER', role: 'empath' },
-        { id: '13', name: 'RAVENKEEPER', role: 'baron' },
+        { id: '13', name: 'RAVENKEEPER', role: 'baron', alignment: 'good' },
         { id: '14', name: 'RAVENKEEPER', role: 'chef' },
         { id: '15', name: 'RAVENKEEPER', role: 'empath' }
     ];

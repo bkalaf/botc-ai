@@ -127,6 +127,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const centerX = layout.w / 2.5;
     const centerY = topMargin + radius;
 
+    console.log(`topMargin`, topMargin, `centerX`, centerX, `centerY`, centerY);
+    console.log(`radius`, radius);
     // Token size: scales with screen, bounded
     const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25, 48, 105);
 
@@ -156,6 +158,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
 
+                console.log(`ringR`, ringR, `x`, x, `y`, y);
                 const labelId = `token-label-${p.id}-${p.name}`;
                 const label = p.name.toUpperCase();
                 const isLong = label.length >= 9;
@@ -189,16 +192,16 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             alignment={'good'}
                         >
                             <img
-                                src={img}
+                                src={tokenImg}
                                 alt=''
-                                className='absolute inset-0 h-full w-full rounded-full object-cover scale-110'
+                                className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-0'
                                 draggable={false}
                             />
                             {p.role ?
                                 <img
-                                    src={image}
+                                    src={img}
                                     alt={p.role}
-                                    className='relative object-contain scale-125'
+                                    className='z-10 relative object-contain scale-125'
                                     draggable={false}
                                 />
                             :   null}

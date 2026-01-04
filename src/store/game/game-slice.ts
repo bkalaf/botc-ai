@@ -1,6 +1,7 @@
 // src/store/game/game-slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CharacterTypes, Roles } from '../../data/types';
+import { toProperCase } from '../../utils/getWordsForNumber.ts/toProperCase';
 
 // src/store/game/slice.ts
 export interface IGameSlice {
@@ -141,5 +142,15 @@ export const gameSlice = createSlice({
             state.winner = 'evil';
         }
     },
-    selectors: {}
+    selectors: {
+        selectDoesGameContinue: (state) => state.winner == null,
+        selectDidGoodWin: (state) => state.winner === 'good',
+        selectDidEvilWin: (state) => state.winner === 'evil',
+        selectGameState: (state) => state.gameState,
+        selectCanCycleGameState: (state) => state.script.length > 0,
+        selectScript: (state) => state.script,
+        selectDay: (state) => state.day,
+        selectPhase: (state) => state.phase,
+        selectDisplayTime: (state) => toProperCase(`${state.phase} ${state.day.toString()}`)
+    }
 });
