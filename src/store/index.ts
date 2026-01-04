@@ -1,6 +1,7 @@
 // src/store/index.ts
 import { configureStore, createListenerMiddleware, isRejected } from '@reduxjs/toolkit';
 import { aiOrchestratorSlice, enqueueBack, enqueueFront } from './ai-orchestrator/ai-orchestrator-slice';
+import { chatsSlice } from './chats/chats-slice';
 import { gameSlice } from './game/game-slice';
 import { grimoireSlice } from './grimoire/grimoire-slice';
 import { addLogEntry, historySlice } from './history/history-slice';
@@ -60,6 +61,7 @@ listenerMiddleware.startListening({
 export const store = configureStore({
     reducer: {
         aiOrchestrator: aiOrchestratorSlice.reducer,
+        chats: chatsSlice.reducer,
         game: gameSlice.reducer,
         grimoire: grimoireSlice.reducer,
         history: historySlice.reducer,
