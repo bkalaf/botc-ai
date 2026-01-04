@@ -54,7 +54,7 @@ export function TownSquare({ players }: { players: Player[] }) {
     // Circle sizing:
     // - "halfway to vertical edges from center" => width/4
     // - cap by height so it doesn't run off-screen
-    const radius = Math.min(layout.w / 3, layout.h * 0.42);
+    const radius = Math.min(layout.w * 0.45, layout.h * 0.45);
 
     // "top edge about 1/12 down from top"
     const topMargin = layout.h / 12;
@@ -150,7 +150,7 @@ export function TownSquare({ players }: { players: Player[] }) {
                                 >
                                     <path
                                         id={labelId}
-                                        d='M 18 74 Q 50 82 82 74'
+                                        d='M 14 86 Q 50 96 86 86'
                                         fill='none'
                                     />
                                     <text className={`token-label-svg ${p.name.length > 10 ? 'long' : ''}`}>
