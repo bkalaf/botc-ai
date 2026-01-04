@@ -1,9 +1,12 @@
 // src/routes/api/generate24Hex.tsx
-import { createServerFn } from '@tanstack/start';
+import { generateHex24 } from '../../utils/generateHex24';
+import { createServerFn } from '@tanstack/react-start';
 
-export const generate24hex = createServerFn('GET', async () => {
-  const hext = generate24Hex
+export const generate24hex = createServerFn({
+    method: 'GET'
+}).handler(async () => {
+    const hext = generateHex24();
     return {
-        id: hex
+        id: hext
     };
 });
