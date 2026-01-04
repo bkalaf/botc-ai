@@ -1,7 +1,7 @@
 // src/components/TownSquare.tsx
 import * as React from 'react';
 import tokenImg from './../assets/images/town/token.png';
-import chefImg from './../assets/images/chef_g.png';
+import chefImg from './../assets/images/chef_e.png';
 import empathImg from './../assets/images/empath_g.png';
 
 type Role = 'chef' | 'empath' | null;
@@ -23,57 +23,33 @@ function clamp(n: number, min: number, max: number) {
 
 export function TownSquare({ players }: { players: Player[] }) {
     const ref = React.useRef<HTMLDivElement | null>(null);
-    const [layout, setLayout] = React.useState({ w: 0, h: 0 });
+    const [layout, setLayout] = React.useState(() => ({
+        w: window.innerWidth,
+        h: window.innerHeight
+    }));
 
-    // Measure the actual available space (accounts for sidebar/topbar/bottombar)
-    React.useLayoutEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-
-        const ro = new ResizeObserver(([entry]) => {
-            const cr = entry.contentRect;
-            setLayout({ w: cr.width, h: cr.height });
-        });
-
-        ro.observe(el);
-        return () => ro.disconnect();
+    // Keep responsive
+    React.useEffect(() => {
+        const onResize = () => setLayout({ w: window.innerWidth, h: window.innerHeight });
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
     }, []);
 
-    const N = clamp(players.length, 5, 18);
+    const N = clamp(players.length, 5, 20);
 
-    // If not measured yet, render an empty container (avoids NaNs)
-    if (layout.w === 0 || layout.h === 0) {
-        return (
-            <div
-                ref={ref}
-                className='h-full w-full'
-            />
-        );
-    }
+    // Big circle sizing rules (tweakable)
+    // "goes about 2/3 way to the vertical edge" -> radius relative to width
+    // If centerX is 50vw, max to left/right edge is 50vw, 2/3 of that => ~vw/3
+    // But we also cap based on height so it doesn’t run off-screen.
+    const radius = Math.min(layout.w / 5, layout.h * 0.42);
 
-    // Circle sizing:
-    // - "halfway to vertical edges from center" => width/4
-    // - cap by height so it doesn't run off-screen
-    const radius = Math.min(layout.w * 0.45, layout.h * 0.45);
-
-    // "top edge about 1/12 down from top"
-    const topMargin = layout.h / 12;
-    const centerX = layout.w / 2;
+    // "top edge is about 1/12 of screen away from top"
+    const topMargin = layout.h / 20;
+    const centerX = layout.w / 2.5;
     const centerY = topMargin + radius;
 
-    // Token size: scales with available space
-    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.095, 54, 104);
-
-    const spacingFactor = (() => {
-        if (N >= 18) return 1;
-        if (N <= 15) return 1.06;
-        const t = (18 - N) / 3;
-        return 1 + 0.06 * t;
-    })();
-
-    // Place tokens on the rim; adjust to control spacing between tokens
-    const minRingR = (tokenSize * spacingFactor) / (2 * Math.sin(Math.PI / N));
-    const ringR = Math.min(radius, minRingR);
+    // Token size: scales with screen, bounded
+    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25, 48, 105);
 
     return (
         <div
@@ -93,79 +69,44 @@ export function TownSquare({ players }: { players: Player[] }) {
 
             {/* Tokens around circumference */}
             {players.slice(0, N).map((p, i) => {
-                //  Start at top (-90deg) so first token is at 12 o’clock
+                // Start at top (-90deg) so first token is at 12 o’clock
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
+
+                // Place tokens on the rim (slightly outside looks better)
+                const ringR = radius - tokenSize * 0.55;
                 const x = centerX + ringR * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringR * Math.sin(angle) - tokenSize / 2;
-
-                // Unique id for SVG path references
-                const labelId = `token-label-${p.id}-${i}`;
 
                 return (
                     <button
                         key={p.id}
+                        className='absolute grid place-items-center rounded-full focus:outline-none focus:ring-2 focus:ring-ring'
+                        style={{
+                            width: tokenSize,
+                            height: tokenSize,
+                            left: x,
+                            top: y
+                        }}
+                        title={p.name}
                         type='button'
-                        aria-label={p.name}
-                        className='
-              absolute grid place-items-center rounded-full border-0 overflow-visible
-              outline-none focus:outline-none
-              focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background
-            '
-                        style={{ width: tokenSize, height: tokenSize, left: x, top: y }}
                     >
-                        <div className='relative h-full w-full overflow-visible'>
-                            {/* Base token */}
+                        {/* Base token */}
+                        <img
+                            src={tokenImg}
+                            alt=''
+                            className='absolute inset-0 h-full w-full rounded-full object-cover'
+                            draggable={false}
+                        />
+
+                        {/* Role icon overlay (if assigned) */}
+                        {p.role ?
                             <img
-                                src={tokenImg}
-                                alt=''
+                                src={roleToIcon[p.role]}
+                                alt={p.role}
+                                className='relative h-[95%] w-[95%] object-contain'
                                 draggable={false}
-                                className='
-                  absolute inset-0 h-full w-full z-0
-                  rounded-full object-cover
-                  scale-[1.68] origin-center
-                  drop-shadow-md
-                '
                             />
-
-                            {/* Role icon */}
-                            {p.role && (
-                                <img
-                                    src={roleToIcon[p.role]}
-                                    alt={p.role}
-                                    draggable={false}
-                                    className='absolute inset-0 m-auto z-10
-                    h-[80%] w-[80%]
-                    object-contain
-                    scale-[1.7] origin-center
-                    pointer-events-none'
-                                />
-                            )}
-
-                            {/* Name label (slight arc) */}
-                            <div className='pointer-events-none absolute inset-0 z-20'>
-                                <svg
-                                    viewBox='0 0 100 100'
-                                    className='absolute inset-0 h-full w-full'
-                                    aria-hidden='true'
-                                >
-                                    <path
-                                        id={labelId}
-                                        d='M 14 86 Q 50 96 86 86'
-                                        fill='none'
-                                    />
-                                    <text className={`token-label-svg ${p.name.length > 10 ? 'long' : ''}`}>
-                                        <textPath
-                                            href={`#${labelId}`}
-                                            xlinkHref={`#${labelId}`}
-                                            startOffset='50%'
-                                            textAnchor='middle'
-                                        >
-                                            {p.name.toUpperCase()}
-                                        </textPath>
-                                    </text>
-                                </svg>
-                            </div>
-                        </div>
+                        :   null}
                     </button>
                 );
             })}
