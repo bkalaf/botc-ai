@@ -8,7 +8,9 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import appCss from '../styles.css?url';
 
 import type { QueryClient } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
 import { AppShell } from '../components/AppShell';
+import { store } from '../store';
 
 interface MyRouterContext {
     queryClient: QueryClient;
@@ -46,7 +48,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <HeadContent />
             </head>
             <body>
-                <AppShell>{children}</AppShell>
+                <Provider store={store}>
+                    <AppShell>{children}</AppShell>
+                </Provider>
                 <TanStackDevtools
                     config={{
                         position: 'bottom-right'

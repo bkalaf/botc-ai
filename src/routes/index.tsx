@@ -21,7 +21,7 @@ function App() {
         { id: '4', name: 'Monk', role: 'recluse' },
         { id: '5', name: 'Soldier', role: 'chef' },
         { id: '6', name: 'SOLDIER', role: 'empath' },
-        { id: '7', name: 'SPY', role: 'saint' },
+        { ID: '7', name: 'Bobby', role: 'poisoner', alignment: 'evil', isAlive: true },
         { id: '8', name: 'IMP', role: 'chef', isAlive: false },
         { id: '9', name: 'RAVENKEEPER', role: 'empath' },
         { id: '10', name: 'RAVENKEEPER', role: 'imp' },

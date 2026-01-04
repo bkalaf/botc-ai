@@ -566,6 +566,9 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                         roleToIcon[p.role as any as keyof typeof roleToIcon][0]
                     :   roleToIcon[p.role as any as keyof typeof roleToIcon][1]) as any;
                 // const cc = {};
+
+                const characterType = $$ROLES[p.role as Roles]?.team as CharacterTypes;
+                const alignment = p?.alignment ?? 'good';
                 return (
                     <>
                         <CharacterTokenParent
@@ -575,11 +578,15 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             role={p.role as any}
                             name={p?.name}
                             seatID={parseInt(p.id, 10)}
-                            isAlive={p?.isAlive ?? true}
-                            isMarked={false}
+                            data-is-alive={p?.isAlive ?? true}
+                            data-is-dead={!(p?.isAlive ?? true)}
+                            data-is-marked={false}
                             thinks={undefined}
-                            characterType={$$ROLES[p.role as Roles]?.team as CharacterTypes}
-                            alignment={'good'}
+                            data-character-type={characterType}
+                            data-alignment={'good'}
+                            isAlive={p?.isAlive ?? true}
+                            characterType={characterType}
+                            alignment={alignment}
                         >
                             <img
                                 src={tokenImg}
@@ -596,19 +603,6 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                                 />
                             :   null}
                         </CharacterTokenParent>
-                        {/* <button
-                            key={p.id}
-                            className='absolute grid place-items-center rounded-full focus:outline-none focus:ring-2 focus:ring-ring'
-                            style={{
-                                width: tokenSize,
-                                height: tokenSize,
-                                left: x,
-                                top: y
-                            }}
-                            title={p.name}
-                            type='button'
-                        > */}
-                        {/* Base token */}
                     </>
                 );
             })}
