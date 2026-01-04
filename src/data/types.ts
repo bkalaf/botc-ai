@@ -42,6 +42,7 @@ export type Roles =
     | 'undertaker'
     | 'mayor'
     | 'soldier'
+    | 'virgin'
     | 'slayer'
     | 'fortuneteller'
     | 'saint'

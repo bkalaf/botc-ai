@@ -17,7 +17,10 @@ export function CharacterTokenParent({
     role,
     children,
     isMarked,
-    isAlive
+    isAlive,
+    characterType,
+    alignment,
+    seatID
 }: {
     tokenSize: number;
     x: number;
@@ -44,7 +47,7 @@ export function CharacterTokenParent({
                 >
                     <div
                         className='absolute inset-0 h-full w-full rounded-full border-0 ring-0 outline-0 data-[character-type="demon"]:bg-red-500/60 data-[character-type="minion"]:bg-red-500/60 data-[character-type="outsider"]:bg-blue-500/60 data-[character-type="townsfolk"]:bg-blue-500/60'
-                        data-character-type={}
+                        data-character-type={characterType}
                     />
                     <div
                         className='invisible data-[is-alive=false]:visible absolute inset-0 h-full w-full rounded-full bg-black/65 z-10  border-0 ring-0 outline-0'
