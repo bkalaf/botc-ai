@@ -6,6 +6,7 @@ import { gameSlice } from './game/game-slice';
 import { grimoireSlice } from './grimoire/grimoire-slice';
 import { addLogEntry, historySlice } from './history/history-slice';
 import { IStorytellerQueueItem, storytellerQueueSlice } from './st-queue/st-queue-slice';
+import { votingSlice } from './voting/voting-slice';
 
 const mapStorytellerQueueItem = (item: IStorytellerQueueItem) => ({
     id: item.id,
@@ -65,7 +66,8 @@ export const store = configureStore({
         game: gameSlice.reducer,
         grimoire: grimoireSlice.reducer,
         history: historySlice.reducer,
-        storytellerQueue: storytellerQueueSlice.reducer
+        storytellerQueue: storytellerQueueSlice.reducer,
+        voting: votingSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
