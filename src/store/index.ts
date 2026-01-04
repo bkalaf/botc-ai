@@ -15,6 +15,7 @@ const mapStorytellerQueueItem = (item: IStorytellerQueueItem) => ({
 });
 
 const listenerMiddleware = createListenerMiddleware();
+export const dynamicMiddlewareRegistry = createDynamicMiddlewareRegistry();
 
 listenerMiddleware.startListening({
     predicate: (action) => {
@@ -65,7 +66,9 @@ export const store = configureStore({
         storytellerQueue: storytellerQueueSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().prepend(listenerMiddleware.middleware)
+        getDefaultMiddleware()
+            .prepend(listenerMiddleware.middleware)
+            .concat(dynamicMiddlewareRegistry.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
