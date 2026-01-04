@@ -2,8 +2,10 @@
 import { configureStore, createListenerMiddleware, isRejected } from '@reduxjs/toolkit';
 import { gameSlice } from './game/game-slice';
 import { addLogEntry, historySlice } from './history/history-slice';
+import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
 
 const listenerMiddleware = createListenerMiddleware();
+export const dynamicMiddlewareRegistry = createDynamicMiddlewareRegistry();
 
 listenerMiddleware.startListening({
     predicate: (action) => {
@@ -37,7 +39,9 @@ export const store = configureStore({
         history: historySlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().prepend(listenerMiddleware.middleware)
+        getDefaultMiddleware()
+            .prepend(listenerMiddleware.middleware)
+            .concat(dynamicMiddlewareRegistry.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
