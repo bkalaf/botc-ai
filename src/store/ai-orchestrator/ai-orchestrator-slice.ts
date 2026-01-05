@@ -1,7 +1,7 @@
 // src/store/ai-orchestrator/ai-orchestrator-slice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { addLogEntry } from '../history/history-slice';
-import { IStorytellerQueueItem, storytellerQueueSlice } from '../st-queue/st-queue-slice';
+import { IStorytellerQueueItem, StorytellerQueueState, storytellerQueueSlice } from '../st-queue/st-queue-slice';
 
 export type AiOrchestratorStatus = 'idle' | 'pending' | 'fulfilled' | 'errored';
 export type AiHttpFunctionTarget = 'storyteller' | 'player' | 'system';
@@ -88,7 +88,7 @@ export const initialState: IAiOrchestratorState = {
 export const orchestrateNext = createAsyncThunk<
     IAiOrchestratorResult,
     void,
-    { state: { aiOrchestrator: IAiOrchestratorState; storytellerQueue: { items: IStorytellerQueueItem[]; currentItem: IStorytellerQueueItem | null } } }
+    { state: { aiOrchestrator: IAiOrchestratorState; storytellerQueue: StorytellerQueueState } }
 >('aiOrchestrator/orchestrateNext', async (_, { dispatch, getState, rejectWithValue }) => {
     const rootState = getState();
     const state = rootState.aiOrchestrator;
