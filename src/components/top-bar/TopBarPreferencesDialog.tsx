@@ -2,12 +2,15 @@ import * as React from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Settings } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
+    selectGrimoireShape,
     selectShowFirstNightOrder,
     selectShowNightOrder,
     selectShowOtherNightOrder,
+    setGrimoireShape,
     setShowFirstNightOrder,
     setShowNightOrder,
     setShowOtherNightOrder
@@ -15,6 +18,7 @@ import {
 
 export function TopBarPreferencesDialog() {
     const dispatch = useAppDispatch();
+    const grimoireShape = useAppSelector(selectGrimoireShape);
     const showNightOrder = useAppSelector(selectShowNightOrder);
     const showFirstNightOrder = useAppSelector(selectShowFirstNightOrder);
     const showOtherNightOrder = useAppSelector(selectShowOtherNightOrder);
@@ -40,6 +44,32 @@ export function TopBarPreferencesDialog() {
                     <DialogDescription>Adjust game UI visibility settings.</DialogDescription>
                 </DialogHeader>
                 <div className='space-y-4'>
+                    <div className='border-b border-border/60 pb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                        Preferences
+                    </div>
+                    <div className='flex flex-wrap items-center justify-between gap-4'>
+                        <div>
+                            <div className='text-sm font-semibold'>Grimoire shape</div>
+                            <div className='text-xs text-muted-foreground'>
+                                Choose the layout shape for the grimoire board.
+                            </div>
+                        </div>
+                        <ToggleGroup
+                            type='single'
+                            value={grimoireShape}
+                            variant='outline'
+                            size='sm'
+                            spacing={0}
+                            onValueChange={(value) => {
+                                if (value) {
+                                    dispatch(setGrimoireShape(value as typeof grimoireShape));
+                                }
+                            }}
+                        >
+                            <ToggleGroupItem value='circle'>Circle</ToggleGroupItem>
+                            <ToggleGroupItem value='square'>Square</ToggleGroupItem>
+                        </ToggleGroup>
+                    </div>
                     <div className='border-b border-border/60 pb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
                         Night order badges
                     </div>
