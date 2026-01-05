@@ -1,5 +1,5 @@
 // src/components/BottomBar.tsx
-import { CogsIcon } from 'lucide-react';
+import { CogIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useViewControls } from './ViewControlsContext';
 
@@ -18,7 +18,7 @@ export function BottomBar({ className }: { className: string }) {
                         onClick={toggleViewControls}
                         className='gap-2 text-[11px] font-semibold uppercase tracking-wide'
                     >
-                        <CogsIcon className='h-4 w-4' />
+                        <CogIcon className='h-4 w-4' />
                         View Controls
                     </Button>
                 </div>

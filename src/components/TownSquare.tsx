@@ -321,286 +321,16 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             ref={ref}
             className='relative h-full w-full overflow-hidden bg-background'
         >
-            {isViewControlsOpen ? (
-                <div
-                    className='absolute z-20 flex w-[260px] flex-col gap-2 rounded-md border bg-white/95 text-sm shadow-lg'
-                    style={{ left: controlsPosition.x, top: controlsPosition.y }}
-                >
-                    View Controls
-                    <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
-                </div>
-                <div className='flex flex-wrap gap-2 p-3'>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
-                            }))
-                        }
+            {isViewControlsOpen ?
+                <>
+                    <div
+                        className='absolute z-20 flex w-[260px] flex-col gap-2 rounded-md border bg-white/95 text-sm shadow-lg'
+                        style={{ left: controlsPosition.x, top: controlsPosition.y }}
                     >
-                        Zoom In
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
-                            }))
-                        }
-                    >
-                        Zoom Out
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                offsetX: prev.offsetX - 16
-                            }))
-                        }
-                    >
-                        Left
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                offsetX: prev.offsetX + 16
-                            }))
-                        }
-                    >
-                        Right
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                offsetY: prev.offsetY - 16
-                            }))
-                        }
-                    >
-                        Up
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                offsetY: prev.offsetY + 16
-                            }))
-                        }
-                    >
-                        Down
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                topOffset: prev.topOffset + 12
-                            }))
-                        }
-                    >
-                        Top Margin +
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                topOffset: prev.topOffset - 12
-                            }))
-                        }
-                    >
-                        Top Margin -
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                ringOffset: prev.ringOffset + 12
-                            }))
-                        }
-                    >
-                        Tokens Out
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                ringOffset: prev.ringOffset - 12
-                            }))
-                        }
-                    >
-                        Tokens In
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
-                            }))
-                        }
-                    >
-                        Stretch +
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
-                            }))
-                        }
-                    >
-                        Stretch -
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={handleSmoothOut}
-                    >
-                        Smooth Out
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                tension: clamp(prev.tension + 0.05, 0, 0.6)
-                            }))
-                        }
-                    >
-                        Tension +
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                tension: clamp(prev.tension - 0.05, 0, 0.6)
-                            }))
-                        }
-                    >
-                        Tension -
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                tokenScale: clamp(prev.tokenScale + 0.05, 0.7, 1.6)
-                            }))
-                        }
-                    >
-                        Token Size +
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings((prev) => ({
-                                ...prev,
-                                tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
-                            }))
-                        }
-                    >
-                        Token Size -
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='default'
-                        type='button'
-                        onClick={savePreferences}
-                    >
-                        Save Preferences
-                    </Button>
-                    <Button
-                        size='sm'
-                        variant='secondary'
-                        type='button'
-                        onClick={() =>
-                            setViewSettings({
-                                zoom: 1,
-                                offsetX: 0,
-                                offsetY: 0,
-                                topOffset: 0,
-                                ringOffset: 0,
-                                stretch: 1,
-                                tension: 0,
-                                tokenScale: 1
-                            })
-                        }
-                    >
-                        <span>View Controls</span>
-                        <div className='flex items-center gap-2'>
-                            <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
-                            <Button
-                                size='icon'
-                                variant='ghost'
-                                type='button'
-                                onMouseDown={(event) => event.stopPropagation()}
-                                onClick={() => setIsViewControlsOpen(false)}
-                                aria-label='Dismiss view controls'
-                                className='h-6 w-6'
-                            >
-                                <XIcon className='h-3.5 w-3.5' />
-                            </Button>
-                        </div>
+                        View Controls
+                        <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
                     </div>
-                    <div className='grid grid-cols-2 gap-2 p-3'>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
-                                }))
-                            }
-                        >
-                            Zoom Out
-                        </Button>
+                    <div className='flex flex-wrap gap-2 p-3'>
                         <Button
                             size='sm'
                             variant='outline'
@@ -613,6 +343,19 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             }
                         >
                             Zoom In
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
+                                }))
+                            }
+                        >
+                            Zoom Out
                         </Button>
                         <Button
                             size='sm'
@@ -647,19 +390,6 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             onClick={() =>
                                 setViewSettings((prev) => ({
                                     ...prev,
-                                    offsetY: prev.offsetY + 16
-                                }))
-                            }
-                        >
-                            Down
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
                                     offsetY: prev.offsetY - 16
                                 }))
                             }
@@ -673,11 +403,11 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             onClick={() =>
                                 setViewSettings((prev) => ({
                                     ...prev,
-                                    topOffset: prev.topOffset - 12
+                                    offsetY: prev.offsetY + 16
                                 }))
                             }
                         >
-                            Top Margin -
+                            Down
                         </Button>
                         <Button
                             size='sm'
@@ -699,11 +429,11 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             onClick={() =>
                                 setViewSettings((prev) => ({
                                     ...prev,
-                                    ringOffset: prev.ringOffset - 12
+                                    topOffset: prev.topOffset - 12
                                 }))
                             }
                         >
-                            Tokens In
+                            Top Margin -
                         </Button>
                         <Button
                             size='sm'
@@ -725,11 +455,11 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             onClick={() =>
                                 setViewSettings((prev) => ({
                                     ...prev,
-                                    stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
+                                    ringOffset: prev.ringOffset - 12
                                 }))
                             }
                         >
-                            Stretch -
+                            Tokens In
                         </Button>
                         <Button
                             size='sm'
@@ -751,11 +481,19 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             onClick={() =>
                                 setViewSettings((prev) => ({
                                     ...prev,
-                                    tension: clamp(prev.tension - 0.05, 0, 0.6)
+                                    stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
                                 }))
                             }
                         >
-                            Tension -
+                            Stretch -
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={handleSmoothOut}
+                        >
+                            Smooth Out
                         </Button>
                         <Button
                             size='sm'
@@ -777,11 +515,11 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             onClick={() =>
                                 setViewSettings((prev) => ({
                                     ...prev,
-                                    tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
+                                    tension: clamp(prev.tension - 0.05, 0, 0.6)
                                 }))
                             }
                         >
-                            Token Size -
+                            Tension -
                         </Button>
                         <Button
                             size='sm'
@@ -795,6 +533,27 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             }
                         >
                             Token Size +
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
+                                }))
+                            }
+                        >
+                            Token Size -
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='default'
+                            type='button'
+                            onClick={savePreferences}
+                        >
+                            Save Preferences
                         </Button>
                         <Button
                             size='sm'
@@ -813,32 +572,272 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                                 })
                             }
                         >
-                            Reset
+                            <span>View Controls</span>
+                            <div className='flex items-center gap-2'>
+                                <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
+                                <Button
+                                    size='icon'
+                                    variant='ghost'
+                                    type='button'
+                                    onMouseDown={(event) => event.stopPropagation()}
+                                    onClick={() => setIsViewControlsOpen(false)}
+                                    aria-label='Dismiss view controls'
+                                    className='h-6 w-6'
+                                >
+                                    <XIcon className='h-3.5 w-3.5' />
+                                </Button>
+                            </div>
                         </Button>
-                        <Button
-                            size='sm'
-                            variant='default'
-                            type='button'
-                            onClick={savePreferences}
-                        >
-                            Save Preferences
-                        </Button>
+                        <div className='grid grid-cols-2 gap-2 p-3'>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
+                                    }))
+                                }
+                            >
+                                Zoom Out
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
+                                    }))
+                                }
+                            >
+                                Zoom In
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        offsetX: prev.offsetX - 16
+                                    }))
+                                }
+                            >
+                                Left
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        offsetX: prev.offsetX + 16
+                                    }))
+                                }
+                            >
+                                Right
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        offsetY: prev.offsetY + 16
+                                    }))
+                                }
+                            >
+                                Down
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        offsetY: prev.offsetY - 16
+                                    }))
+                                }
+                            >
+                                Up
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        topOffset: prev.topOffset - 12
+                                    }))
+                                }
+                            >
+                                Top Margin -
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        topOffset: prev.topOffset + 12
+                                    }))
+                                }
+                            >
+                                Top Margin +
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        ringOffset: prev.ringOffset - 12
+                                    }))
+                                }
+                            >
+                                Tokens In
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        ringOffset: prev.ringOffset + 12
+                                    }))
+                                }
+                            >
+                                Tokens Out
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
+                                    }))
+                                }
+                            >
+                                Stretch -
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
+                                    }))
+                                }
+                            >
+                                Stretch +
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        tension: clamp(prev.tension - 0.05, 0, 0.6)
+                                    }))
+                                }
+                            >
+                                Tension -
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        tension: clamp(prev.tension + 0.05, 0, 0.6)
+                                    }))
+                                }
+                            >
+                                Tension +
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
+                                    }))
+                                }
+                            >
+                                Token Size -
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='outline'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings((prev) => ({
+                                        ...prev,
+                                        tokenScale: clamp(prev.tokenScale + 0.05, 0.7, 1.6)
+                                    }))
+                                }
+                            >
+                                Token Size +
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='secondary'
+                                type='button'
+                                onClick={() =>
+                                    setViewSettings({
+                                        zoom: 1,
+                                        offsetX: 0,
+                                        offsetY: 0,
+                                        topOffset: 0,
+                                        ringOffset: 0,
+                                        stretch: 1,
+                                        tension: 0,
+                                        tokenScale: 1
+                                    })
+                                }
+                            >
+                                Reset
+                            </Button>
+                            <Button
+                                size='sm'
+                                variant='default'
+                                type='button'
+                                onClick={savePreferences}
+                            >
+                                Save Preferences
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            ) : null}
-            {/* Big background circle */}
-            <div
-                className='absolute border bg-white/80 shadow-sm'
-                style={{
-                    width: radiusX * 2,
-                    height: radiusY * 2,
-                    left: centerX - radiusX,
-                    top: centerY - radiusY,
-                    borderRadius: `${backgroundRadius}%`
-                }}
-            />
-
-            {/* Tokens around circumference */}
+                    <div
+                        className='absolute border bg-white/80 shadow-sm'
+                        style={{
+                            width: radiusX * 2,
+                            height: radiusY * 2,
+                            left: centerX - radiusX,
+                            top: centerY - radiusY,
+                            borderRadius: `${backgroundRadius}%`
+                        }}
+                    />
+                </>
+            :   null}
             {(players as any[]).slice(0, N).map((p, i) => {
                 // Start at top (-90deg) so first token is at 12 o’clock
                 const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
