@@ -587,7 +587,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     return (
         <div
             ref={ref}
-            className='relative h-full w-full overflow-hidden bg-background'
+            className='relative h-full w-full overflow-hidden bg-transparent'
         >
             {isViewControlsOpen && !shouldUseDrawer ?
                 <div
