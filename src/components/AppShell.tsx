@@ -5,6 +5,7 @@ import { TopBar } from './TopBar';
 import { BottomBar } from './BottomBar';
 import { HistoryPanel } from './HistoryPanel';
 import { ViewControlsProvider } from './ViewControlsContext';
+import townBackground from '@/assets/images/town/background.jpg';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     return (
@@ -19,7 +20,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         <TopBar />
 
                         {/* This is the remaining usable space */}
-                        <main className='min-h-0 flex-1 overflow-hidden'>{children}</main>
+                        <main
+                            className='min-h-0 flex-1 overflow-hidden bg-transparent bg-cover bg-center'
+                            style={{ backgroundImage: `url(${townBackground})` }}
+                        >
+                            {children}
+                        </main>
 
                         <BottomBar className='bottom-0"' />
                     </div>
