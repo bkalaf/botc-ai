@@ -8,6 +8,7 @@ import { ISeatedPlayer } from '../store/types/player-types';
 import { useAppSelector } from '@/store/hooks';
 import { buildNightOrderIndex } from '../utils/nightOrder';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
@@ -107,6 +108,25 @@ function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
 
+type GrimoireShape = 'circle' | 'square' | 'rectangle';
+
+const defaultViewSettings = {
+    zoom: 1,
+    offsetX: 0,
+    offsetY: 0,
+    topOffset: 0,
+    ringOffset: 0,
+    stretch: 1,
+    tension: 0,
+    tokenScale: 1,
+    grimoireShape: 'circle' as GrimoireShape
+};
+
+const grimoireLayouts: Record<Exclude<GrimoireShape, 'circle'>, { maxColumns: number; rowPattern: number[] }> = {
+    square: { maxColumns: 6, rowPattern: [6, 4, 6, 4] },
+    rectangle: { maxColumns: 7, rowPattern: [7, 3, 7, 3] }
+};
+
 export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const script = useAppSelector(selectScript);
     const ref = React.useRef<HTMLDivElement | null>(null);
@@ -120,16 +140,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const [isDraggingControls, setIsDraggingControls] = React.useState(false);
     const dragStartRef = React.useRef({ x: 0, y: 0, startX: 0, startY: 0 });
     const [userIdentifier, setUserIdentifier] = React.useState('');
-    const [viewSettings, setViewSettings] = React.useState({
-        zoom: 1,
-        offsetX: 0,
-        offsetY: 0,
-        topOffset: 0,
-        ringOffset: 0,
-        stretch: 1,
-        tension: 0,
-        tokenScale: 1
-    });
+    const [viewSettings, setViewSettings] = React.useState(defaultViewSettings);
     const inPlayRoles = React.useMemo(
         () => players.map((player) => player.role).filter((role): role is Roles => Boolean(role)),
         [players]
@@ -171,11 +182,11 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         try {
             const parsed = JSON.parse(raw) as Record<
                 string,
-                { viewSettings: typeof viewSettings; controlsPosition: typeof controlsPosition }
+                { viewSettings: Partial<typeof viewSettings>; controlsPosition: typeof controlsPosition }
             >;
             const saved = parsed[storedUser];
             if (saved?.viewSettings) {
-                setViewSettings(saved.viewSettings);
+                setViewSettings((prev) => ({ ...prev, ...saved.viewSettings }));
             }
             if (saved?.controlsPosition) {
                 setControlsPosition(saved.controlsPosition);
@@ -238,6 +249,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const N = clamp(players.length, 5, 20);
     const reminderSlotsPerPlayer = 5;
     const shouldUseDrawer = layout.w < 768;
+    const grimoireShape = viewSettings.grimoireShape;
+    const isCardLayout = grimoireShape !== 'circle';
 
     // Big circle sizing rules (tweakable)
     // "goes about 2/3 way to the vertical edge" -> radius relative to width
@@ -260,6 +273,30 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     // Token size: scales with screen, bounded
     const baseTokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 160);
     const tokenSize = clamp(baseTokenSize * viewSettings.tokenScale, 48, 220);
+
+    const grimoireLayout = isCardLayout ? grimoireLayouts[grimoireShape] : undefined;
+    const cardRows = grimoireLayout?.rowPattern ?? [];
+    const maxColumns = grimoireLayout?.maxColumns ?? 0;
+    const cardGap = isCardLayout ? clamp(Math.min(layout.w, layout.h) * 0.02, 10, 20) : 0;
+    const cardSize =
+        isCardLayout ?
+            clamp(
+                Math.min(
+                    (layout.w - 64 - cardGap * (maxColumns - 1)) / maxColumns,
+                    (layout.h - 64 - cardGap * (cardRows.length - 1)) / cardRows.length
+                ),
+                72,
+                180
+            )
+        :   0;
+    const cardSeats = React.useMemo(
+        () =>
+            Array.from({ length: 20 }, (_, index) => ({
+                seatIndex: index,
+                player: players[index]
+            })),
+        [players]
+    );
 
     const handleControlsPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) {
@@ -552,22 +589,34 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             >
                 Smooth Out
             </Button>
+            <div className='col-span-2 space-y-2'>
+                <div className='text-[11px] font-semibold uppercase tracking-wide text-muted-foreground'>
+                    Grimoire Shape
+                </div>
+                <div className='grid grid-cols-3 gap-2'>
+                    {(['circle', 'square', 'rectangle'] as GrimoireShape[]).map((shape) => (
+                        <Button
+                            key={shape}
+                            size='sm'
+                            variant={viewSettings.grimoireShape === shape ? 'default' : 'outline'}
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    grimoireShape: shape
+                                }))
+                            }
+                        >
+                            {shape}
+                        </Button>
+                    ))}
+                </div>
+            </div>
             <Button
                 size='sm'
                 variant='secondary'
                 type='button'
-                onClick={() =>
-                    setViewSettings({
-                        zoom: 1,
-                        offsetX: 0,
-                        offsetY: 0,
-                        topOffset: 0,
-                        ringOffset: 0,
-                        stretch: 1,
-                        tension: 0,
-                        tokenScale: 1
-                    })
-                }
+                onClick={() => setViewSettings(defaultViewSettings)}
                 className='col-span-2'
             >
                 Reset
@@ -644,99 +693,137 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     </DrawerContent>
                 </Drawer>
             :   null}
-            {/* Big background circle */}
-            <div
-                className='absolute border bg-white/80 shadow-sm'
-                style={{
-                    width: radiusX * 2,
-                    height: radiusY * 2,
-                    left: centerX - radiusX,
-                    top: centerY - radiusY,
-                    borderRadius: `${backgroundRadius}%`
-                }}
-            />
-
-            {/* Tokens around circumference */}
-            {(players as any[]).slice(0, N).map((p, i) => {
-                // Start at top (-90deg) so first token is at 12 o’clock
-                const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
-
-                // Place tokens on the rim (slightly outside looks better)
-                const ringRx = radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
-                const ringRy = radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
-                const cornerBoost = 1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
-                const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
-                const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
-                const tokenCenterX = x + tokenSize / 2;
-                const tokenCenterY = y + tokenSize / 2;
-                const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
-                const radialX = tokenCenterX - centerX;
-                const radialY = tokenCenterY - centerY;
-                const radialLength = Math.hypot(radialX, radialY) || 1;
-                const unitRadialX = radialX / radialLength;
-                const unitRadialY = radialY / radialLength;
-                const reminderStart = tokenSize / 2 + reminderTokenSize * 0.6;
-                const reminderSpacing = reminderTokenSize * 0.9;
-                const reminderSlots = Array.from({ length: reminderSlotsPerPlayer }, (_, slotIndex) => {
-                    const distance = reminderStart + slotIndex * reminderSpacing;
-                    return {
-                        x: tokenCenterX + unitRadialX * distance - reminderTokenSize / 2,
-                        y: tokenCenterY + unitRadialY * distance - reminderTokenSize / 2
-                    };
-                });
-
-                const roleKey = p.role as keyof typeof roleToIcon;
-                const iconEntry = roleKey ? roleToIcon[roleKey] : undefined;
-                const img =
-                    iconEntry ?
-                        p.alignment === 'good' ?
-                            iconEntry[0]
-                        :   iconEntry[1]
-                    :   undefined;
-
-                const characterType = $$ROLES[p.role as Roles]?.team as CharacterTypes;
-                const alignment = p?.alignment ?? 'good';
-                return (
-                    <CharacterTokenParent
-                        key={p.id}
-                        tokenSize={tokenSize}
-                        x={x}
-                        y={y}
-                        role={p.role as Roles}
-                        name={p?.name}
-                        seatID={parseInt(p.id, 10)}
-                        data-is-alive={p?.isAlive ?? true}
-                        data-is-dead={!(p?.isAlive ?? true)}
-                        data-is-marked={false}
-                        thinks={undefined}
-                        data-character-type={characterType}
-                        data-alignment={'good'}
-                        isAlive={p?.isAlive ?? true}
-                        characterType={characterType}
-                        alignment={alignment}
-                        firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
-                        otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
-                        reminderSlots={reminderSlots}
-                        reminderTokenSize={reminderTokenSize}
+            {isCardLayout ?
+                <div className='absolute inset-0 flex items-center justify-center'>
+                    <div
+                        className='flex flex-col items-center'
+                        style={{ gap: cardGap }}
                     >
-                        <img
-                            // src={tokenBase}
-                            src={tokenImg}
-                            alt=''
-                            className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-0'
-                            draggable={false}
-                        />
-                        {p.role && img ?
-                            <img
-                                src={img}
-                                alt={p.role}
-                                className='z-0 relative object-contain scale-125'
-                                draggable={false}
-                            />
-                        :   null}
-                    </CharacterTokenParent>
-                );
-            })}
+                        {cardRows.reduce<React.ReactNode[]>((rows, rowSize, rowIndex) => {
+                            const startIndex = cardRows.slice(0, rowIndex).reduce((sum, value) => sum + value, 0);
+                            const rowSeats = cardSeats.slice(startIndex, startIndex + rowSize);
+                            rows.push(
+                                <div
+                                    key={`row-${rowIndex}`}
+                                    className='flex items-center justify-center'
+                                    style={{ gap: cardGap }}
+                                >
+                                    {rowSeats.map(({ seatIndex, player }) => (
+                                        <Card
+                                            key={`seat-${seatIndex}`}
+                                            className='flex flex-col items-center justify-center gap-2 p-2 text-center text-[11px] font-semibold uppercase tracking-wide'
+                                            style={{ width: cardSize, height: cardSize }}
+                                        >
+                                            <div className='text-xs font-semibold text-foreground'>
+                                                {player?.name || `Seat ${seatIndex + 1}`}
+                                            </div>
+                                            <div className='text-[10px] text-muted-foreground'>
+                                                {player?.role || 'Open'}
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            );
+                            return rows;
+                        }, [])}
+                    </div>
+                </div>
+            :   <>
+                    {/* Big background circle */}
+                    <div
+                        className='absolute border bg-white/80 shadow-sm'
+                        style={{
+                            width: radiusX * 2,
+                            height: radiusY * 2,
+                            left: centerX - radiusX,
+                            top: centerY - radiusY,
+                            borderRadius: `${backgroundRadius}%`
+                        }}
+                    />
+
+                    {/* Tokens around circumference */}
+                    {(players as any[]).slice(0, N).map((p, i) => {
+                        // Start at top (-90deg) so first token is at 12 o’clock
+                        const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
+
+                        // Place tokens on the rim (slightly outside looks better)
+                        const ringRx = radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
+                        const ringRy = radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
+                        const cornerBoost = 1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
+                        const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
+                        const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
+                        const tokenCenterX = x + tokenSize / 2;
+                        const tokenCenterY = y + tokenSize / 2;
+                        const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
+                        const radialX = tokenCenterX - centerX;
+                        const radialY = tokenCenterY - centerY;
+                        const radialLength = Math.hypot(radialX, radialY) || 1;
+                        const unitRadialX = radialX / radialLength;
+                        const unitRadialY = radialY / radialLength;
+                        const reminderStart = tokenSize / 2 + reminderTokenSize * 0.6;
+                        const reminderSpacing = reminderTokenSize * 0.9;
+                        const reminderSlots = Array.from({ length: reminderSlotsPerPlayer }, (_, slotIndex) => {
+                            const distance = reminderStart + slotIndex * reminderSpacing;
+                            return {
+                                x: tokenCenterX + unitRadialX * distance - reminderTokenSize / 2,
+                                y: tokenCenterY + unitRadialY * distance - reminderTokenSize / 2
+                            };
+                        });
+
+                        const roleKey = p.role as keyof typeof roleToIcon;
+                        const iconEntry = roleKey ? roleToIcon[roleKey] : undefined;
+                        const img =
+                            iconEntry ?
+                                p.alignment === 'good' ?
+                                    iconEntry[0]
+                                :   iconEntry[1]
+                            :   undefined;
+
+                        const characterType = $$ROLES[p.role as Roles]?.team as CharacterTypes;
+                        const alignment = p?.alignment ?? 'good';
+                        return (
+                            <CharacterTokenParent
+                                key={p.id}
+                                tokenSize={tokenSize}
+                                x={x}
+                                y={y}
+                                role={p.role as Roles}
+                                name={p?.name}
+                                seatID={parseInt(p.id, 10)}
+                                data-is-alive={p?.isAlive ?? true}
+                                data-is-dead={!(p?.isAlive ?? true)}
+                                data-is-marked={false}
+                                thinks={undefined}
+                                data-character-type={characterType}
+                                data-alignment={'good'}
+                                isAlive={p?.isAlive ?? true}
+                                characterType={characterType}
+                                alignment={alignment}
+                                firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
+                                otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
+                                reminderSlots={reminderSlots}
+                                reminderTokenSize={reminderTokenSize}
+                            >
+                                <img
+                                    // src={tokenBase}
+                                    src={tokenImg}
+                                    alt=''
+                                    className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-0'
+                                    draggable={false}
+                                />
+                                {p.role && img ?
+                                    <img
+                                        src={img}
+                                        alt={p.role}
+                                        className='z-0 relative object-contain scale-125'
+                                        draggable={false}
+                                    />
+                                :   null}
+                            </CharacterTokenParent>
+                        );
+                    })}
+                </>
+            }
         </div>
     );
 }
