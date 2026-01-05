@@ -8,6 +8,7 @@ import { ISeatedPlayer } from '../store/types/player-types';
 import { useAppSelector } from '@/store/hooks';
 import { buildNightOrderIndex } from '../utils/nightOrder';
 import { Button } from '@/components/ui/button';
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
 import { useViewControls } from './ViewControlsContext';
@@ -109,6 +110,7 @@ function clamp(n: number, min: number, max: number) {
 export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const script = useAppSelector(selectScript);
     const ref = React.useRef<HTMLDivElement | null>(null);
+    const controlsRef = React.useRef<HTMLDivElement | null>(null);
     const { isViewControlsOpen, setIsViewControlsOpen } = useViewControls();
     const [layout, setLayout] = React.useState(() => ({
         w: window.innerWidth,
@@ -188,12 +190,17 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             return;
         }
 
-        const handleMove = (event: MouseEvent) => {
+        const handleMove = (event: PointerEvent) => {
             const deltaX = event.clientX - dragStartRef.current.startX;
             const deltaY = event.clientY - dragStartRef.current.startY;
+            const rect = controlsRef.current?.getBoundingClientRect();
+            const maxX = window.innerWidth - (rect?.width ?? 0) - 8;
+            const maxY = window.innerHeight - (rect?.height ?? 0) - 8;
+            const nextX = Math.min(Math.max(8, dragStartRef.current.x + deltaX), Math.max(8, maxX));
+            const nextY = Math.min(Math.max(8, dragStartRef.current.y + deltaY), Math.max(8, maxY));
             setControlsPosition({
-                x: dragStartRef.current.x + deltaX,
-                y: dragStartRef.current.y + deltaY
+                x: nextX,
+                y: nextY
             });
         };
 
@@ -201,17 +208,36 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             setIsDraggingControls(false);
         };
 
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('mouseup', handleUp);
+        window.addEventListener('pointermove', handleMove);
+        window.addEventListener('pointerup', handleUp);
 
         return () => {
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('mouseup', handleUp);
+            window.removeEventListener('pointermove', handleMove);
+            window.removeEventListener('pointerup', handleUp);
         };
     }, [isDraggingControls]);
 
+    React.useEffect(() => {
+        if (!isViewControlsOpen || !controlsRef.current) {
+            return;
+        }
+
+        const rect = controlsRef.current.getBoundingClientRect();
+        const maxX = window.innerWidth - rect.width - 8;
+        const maxY = window.innerHeight - rect.height - 8;
+        setControlsPosition((prev) => {
+            const nextX = clamp(prev.x, 8, Math.max(8, maxX));
+            const nextY = clamp(prev.y, 8, Math.max(8, maxY));
+            if (nextX === prev.x && nextY === prev.y) {
+                return prev;
+            }
+            return { x: nextX, y: nextY };
+        });
+    }, [isViewControlsOpen, layout.w, layout.h]);
+
     const N = clamp(players.length, 5, 20);
     const reminderSlotsPerPlayer = 5;
+    const shouldUseDrawer = layout.w < 768;
 
     // Big circle sizing rules (tweakable)
     // "goes about 2/3 way to the vertical edge" -> radius relative to width
@@ -235,7 +261,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const baseTokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 160);
     const tokenSize = clamp(baseTokenSize * viewSettings.tokenScale, 48, 220);
 
-    const handleControlsMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleControlsPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) {
             return;
         }
@@ -248,6 +274,13 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             startX: event.clientX,
             startY: event.clientY
         };
+    };
+
+    const handleSmoothOut = () => {
+        setViewSettings((prev) => ({
+            ...prev,
+            tension: 0
+        }));
     };
 
     const savePreferences = () => {
@@ -300,517 +333,316 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         URL.revokeObjectURL(url);
     };
 
+    const renderViewControlsGrid = (className?: string) => (
+        <div className={['grid grid-cols-2 gap-2', className].filter(Boolean).join(' ')}>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
+                    }))
+                }
+            >
+                Zoom Out
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
+                    }))
+                }
+            >
+                Zoom In
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        offsetX: prev.offsetX - 16
+                    }))
+                }
+            >
+                Left
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        offsetX: prev.offsetX + 16
+                    }))
+                }
+            >
+                Right
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        offsetY: prev.offsetY - 16
+                    }))
+                }
+            >
+                Up
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        offsetY: prev.offsetY + 16
+                    }))
+                }
+            >
+                Down
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        topOffset: prev.topOffset - 12
+                    }))
+                }
+            >
+                Top Margin -
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        topOffset: prev.topOffset + 12
+                    }))
+                }
+            >
+                Top Margin +
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        ringOffset: prev.ringOffset - 12
+                    }))
+                }
+            >
+                Tokens In
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        ringOffset: prev.ringOffset + 12
+                    }))
+                }
+            >
+                Tokens Out
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
+                    }))
+                }
+            >
+                Stretch -
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
+                    }))
+                }
+            >
+                Stretch +
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        tension: clamp(prev.tension - 0.05, 0, 0.6)
+                    }))
+                }
+            >
+                Tension -
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        tension: clamp(prev.tension + 0.05, 0, 0.6)
+                    }))
+                }
+            >
+                Tension +
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
+                    }))
+                }
+            >
+                Token Size -
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={() =>
+                    setViewSettings((prev) => ({
+                        ...prev,
+                        tokenScale: clamp(prev.tokenScale + 0.05, 0.7, 1.6)
+                    }))
+                }
+            >
+                Token Size +
+            </Button>
+            <Button
+                size='sm'
+                variant='outline'
+                type='button'
+                onClick={handleSmoothOut}
+                className='col-span-2'
+            >
+                Smooth Out
+            </Button>
+            <Button
+                size='sm'
+                variant='secondary'
+                type='button'
+                onClick={() =>
+                    setViewSettings({
+                        zoom: 1,
+                        offsetX: 0,
+                        offsetY: 0,
+                        topOffset: 0,
+                        ringOffset: 0,
+                        stretch: 1,
+                        tension: 0,
+                        tokenScale: 1
+                    })
+                }
+                className='col-span-2'
+            >
+                Reset
+            </Button>
+            <Button
+                size='sm'
+                variant='default'
+                type='button'
+                onClick={savePreferences}
+                className='col-span-2'
+            >
+                Save Preferences
+            </Button>
+        </div>
+    );
+
     return (
         <div
             ref={ref}
             className='relative h-full w-full overflow-hidden bg-background'
         >
-            {isViewControlsOpen ?
-                <>
+            {isViewControlsOpen && !shouldUseDrawer ?
+                <div
+                    ref={controlsRef}
+                    className='absolute z-20 hidden w-[280px] flex-col overflow-hidden rounded-md border bg-white/95 text-sm shadow-lg backdrop-blur md:flex'
+                    style={{ left: controlsPosition.x, top: controlsPosition.y }}
+                >
                     <div
-                        className='absolute z-20 flex w-[260px] flex-col gap-2 rounded-md border bg-white/95 text-sm shadow-lg'
-                        style={{ left: controlsPosition.x, top: controlsPosition.y }}
+                        className='flex cursor-move select-none items-center justify-between border-b border-border/60 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-foreground'
+                        onPointerDown={handleControlsPointerDown}
+                        style={{ touchAction: 'none' }}
                     >
-                        View Controls
-                        <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
-                    </div>
-                    <div className='flex flex-wrap gap-2 p-3'>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
-                                }))
-                            }
-                        >
-                            Zoom In
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
-                                }))
-                            }
-                        >
-                            Zoom Out
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    offsetX: prev.offsetX - 16
-                                }))
-                            }
-                        >
-                            Left
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    offsetX: prev.offsetX + 16
-                                }))
-                            }
-                        >
-                            Right
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    offsetY: prev.offsetY - 16
-                                }))
-                            }
-                        >
-                            Up
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    offsetY: prev.offsetY + 16
-                                }))
-                            }
-                        >
-                            Down
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    topOffset: prev.topOffset + 12
-                                }))
-                            }
-                        >
-                            Top Margin +
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    topOffset: prev.topOffset - 12
-                                }))
-                            }
-                        >
-                            Top Margin -
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    ringOffset: prev.ringOffset + 12
-                                }))
-                            }
-                        >
-                            Tokens Out
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    ringOffset: prev.ringOffset - 12
-                                }))
-                            }
-                        >
-                            Tokens In
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
-                                }))
-                            }
-                        >
-                            Stretch +
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
-                                }))
-                            }
-                        >
-                            Stretch -
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={handleSmoothOut}
-                        >
-                            Smooth Out
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    tension: clamp(prev.tension + 0.05, 0, 0.6)
-                                }))
-                            }
-                        >
-                            Tension +
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    tension: clamp(prev.tension - 0.05, 0, 0.6)
-                                }))
-                            }
-                        >
-                            Tension -
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    tokenScale: clamp(prev.tokenScale + 0.05, 0.7, 1.6)
-                                }))
-                            }
-                        >
-                            Token Size +
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='outline'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings((prev) => ({
-                                    ...prev,
-                                    tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
-                                }))
-                            }
-                        >
-                            Token Size -
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='default'
-                            type='button'
-                            onClick={savePreferences}
-                        >
-                            Save Preferences
-                        </Button>
-                        <Button
-                            size='sm'
-                            variant='secondary'
-                            type='button'
-                            onClick={() =>
-                                setViewSettings({
-                                    zoom: 1,
-                                    offsetX: 0,
-                                    offsetY: 0,
-                                    topOffset: 0,
-                                    ringOffset: 0,
-                                    stretch: 1,
-                                    tension: 0,
-                                    tokenScale: 1
-                                })
-                            }
-                        >
+                        <div className='flex flex-col gap-0.5 text-left'>
                             <span>View Controls</span>
-                            <div className='flex items-center gap-2'>
-                                <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
+                            <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
+                        </div>
+                        <Button
+                            size='icon-sm'
+                            variant='ghost'
+                            type='button'
+                            onPointerDown={(event) => event.stopPropagation()}
+                            onClick={() => setIsViewControlsOpen(false)}
+                            aria-label='Dismiss view controls'
+                        >
+                            <XIcon className='h-3.5 w-3.5' />
+                        </Button>
+                    </div>
+                    {renderViewControlsGrid('p-3')}
+                </div>
+            :   null}
+            {shouldUseDrawer ?
+                <Drawer
+                    open={isViewControlsOpen}
+                    onOpenChange={setIsViewControlsOpen}
+                >
+                    <DrawerContent>
+                        <DrawerHeader className='flex-row items-center justify-between'>
+                            <div className='flex flex-col gap-0.5 text-left'>
+                                <DrawerTitle>View Controls</DrawerTitle>
+                                <span className='text-[11px] text-muted-foreground'>Swipe down to close</span>
+                            </div>
+                            <DrawerClose asChild>
                                 <Button
-                                    size='icon'
+                                    size='icon-sm'
                                     variant='ghost'
                                     type='button'
-                                    onMouseDown={(event) => event.stopPropagation()}
-                                    onClick={() => setIsViewControlsOpen(false)}
                                     aria-label='Dismiss view controls'
-                                    className='h-6 w-6'
                                 >
                                     <XIcon className='h-3.5 w-3.5' />
                                 </Button>
-                            </div>
-                        </Button>
-                        <div className='grid grid-cols-2 gap-2 p-3'>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
-                                    }))
-                                }
-                            >
-                                Zoom Out
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
-                                    }))
-                                }
-                            >
-                                Zoom In
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        offsetX: prev.offsetX - 16
-                                    }))
-                                }
-                            >
-                                Left
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        offsetX: prev.offsetX + 16
-                                    }))
-                                }
-                            >
-                                Right
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        offsetY: prev.offsetY + 16
-                                    }))
-                                }
-                            >
-                                Down
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        offsetY: prev.offsetY - 16
-                                    }))
-                                }
-                            >
-                                Up
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        topOffset: prev.topOffset - 12
-                                    }))
-                                }
-                            >
-                                Top Margin -
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        topOffset: prev.topOffset + 12
-                                    }))
-                                }
-                            >
-                                Top Margin +
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        ringOffset: prev.ringOffset - 12
-                                    }))
-                                }
-                            >
-                                Tokens In
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        ringOffset: prev.ringOffset + 12
-                                    }))
-                                }
-                            >
-                                Tokens Out
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
-                                    }))
-                                }
-                            >
-                                Stretch -
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
-                                    }))
-                                }
-                            >
-                                Stretch +
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        tension: clamp(prev.tension - 0.05, 0, 0.6)
-                                    }))
-                                }
-                            >
-                                Tension -
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        tension: clamp(prev.tension + 0.05, 0, 0.6)
-                                    }))
-                                }
-                            >
-                                Tension +
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
-                                    }))
-                                }
-                            >
-                                Token Size -
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='outline'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings((prev) => ({
-                                        ...prev,
-                                        tokenScale: clamp(prev.tokenScale + 0.05, 0.7, 1.6)
-                                    }))
-                                }
-                            >
-                                Token Size +
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='secondary'
-                                type='button'
-                                onClick={() =>
-                                    setViewSettings({
-                                        zoom: 1,
-                                        offsetX: 0,
-                                        offsetY: 0,
-                                        topOffset: 0,
-                                        ringOffset: 0,
-                                        stretch: 1,
-                                        tension: 0,
-                                        tokenScale: 1
-                                    })
-                                }
-                            >
-                                Reset
-                            </Button>
-                            <Button
-                                size='sm'
-                                variant='default'
-                                type='button'
-                                onClick={savePreferences}
-                            >
-                                Save Preferences
-                            </Button>
-                        </div>
-                    </div>
-                </>
+                            </DrawerClose>
+                        </DrawerHeader>
+                        {renderViewControlsGrid('px-4 pb-6')}
+                    </DrawerContent>
+                </Drawer>
             :   null}
             {/* Big background circle */}
             <div
@@ -898,7 +730,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             <img
                                 src={img}
                                 alt={p.role}
-                                className='z-10 relative object-contain scale-125'
+                                className='z-0 relative object-contain scale-125'
                                 draggable={false}
                             />
                         :   null}

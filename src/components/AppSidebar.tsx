@@ -1,45 +1,7 @@
 // src/components/AppSidebar.tsx
-import {
-    Sidebar,
-    SidebarHeader,
-    SidebarContent,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-    useSidebar
-} from '@/components/ui/sidebar';
-import { Link } from '@tanstack/react-router';
-import {
-    BookOpen,
-    Clock,
-    ClipboardList,
-    History,
-    Home,
-    Settings,
-    Users
-} from 'lucide-react';
-
-function SidebarBrandToggle() {
-    const { toggleSidebar } = useSidebar();
-
-    return (
-        <button
-            type='button'
-            onClick={toggleSidebar}
-            className='flex items-center gap-2 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-ring'
-            aria-label='Toggle sidebar'
-        >
-            <img
-                src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq-O8uTV06F2xMayi91pOGQIgzFVLiMIDoIw&s'
-                alt=''
-                className='h-8 w-8 rounded-md object-cover'
-                aria-hidden='true'
-            />
-            {/* Optional: show text only when expanded (if you want) */}
-            {/* <span className="text-sm font-semibold">BOTC AI</span> */}
-        </button>
-    );
-}
+import { Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/sidebar';
+import { SidebarBrandToggle } from '@/components/sidebar/SidebarBrandToggle';
+import { SidebarMenuLinks } from '@/components/sidebar/SidebarMenuLinks';
 
 export function AppSidebar() {
     return (
@@ -49,91 +11,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip='Home'
-                        >
-                            <Link to='/'>
-                                <Home className='h-4 w-4' />
-                                <span>Home</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip='Players'
-                        >
-                            <Link to='/'>
-                                <Users className='h-4 w-4' />
-                                <span>Players</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip='Settings'
-                        >
-                            <Link to='/'>
-                                <Settings className='h-4 w-4' />
-                                <span>Settings</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip='ST Consult'
-                        >
-                            <Link to='/'>
-                                <BookOpen className='h-4 w-4' />
-                                <span>ST Consult</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip='Timer'
-                        >
-                            <Link to='/'>
-                                <Clock className='h-4 w-4' />
-                                <span>Timer</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip='Task Queue'
-                        >
-                            <Link to='/'>
-                                <ClipboardList className='h-4 w-4' />
-                                <span>Task Queue</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            tooltip='Voting History'
-                        >
-                            <Link to='/'>
-                                <History className='h-4 w-4' />
-                                <span>Voting History</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <SidebarMenuLinks />
             </SidebarContent>
         </Sidebar>
     );

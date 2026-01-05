@@ -1,3 +1,4 @@
+// src/assets/tokens/firstNight.ts
 //src/assets/tokens/firstNight.ts
 const firstNight = [
     'angel',
