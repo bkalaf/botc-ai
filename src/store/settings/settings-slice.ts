@@ -5,12 +5,14 @@ export interface SettingsState {
     showNightOrder: boolean;
     showFirstNightOrder: boolean;
     showOtherNightOrder: boolean;
+    grimoireShape: 'circle' | 'square';
 }
 
 const initialState: SettingsState = {
     showNightOrder: true,
     showFirstNightOrder: true,
-    showOtherNightOrder: true
+    showOtherNightOrder: true,
+    grimoireShape: 'circle'
 };
 
 export const settingsSlice = createSlice({
@@ -25,17 +27,25 @@ export const settingsSlice = createSlice({
         },
         setShowOtherNightOrder: (state, action: PayloadAction<boolean>) => {
             state.showOtherNightOrder = action.payload;
+        },
+        setGrimoireShape: (state, action: PayloadAction<SettingsState['grimoireShape']>) => {
+            state.grimoireShape = action.payload;
         }
     },
     selectors: {
         selectShowNightOrder: (state) => state.showNightOrder,
         selectShowFirstNightOrder: (state) => state.showFirstNightOrder,
-        selectShowOtherNightOrder: (state) => state.showOtherNightOrder
+        selectShowOtherNightOrder: (state) => state.showOtherNightOrder,
+        selectGrimoireShape: (state) => state.grimoireShape
     }
 });
 
-export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder } =
+export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder, setGrimoireShape } =
     settingsSlice.actions;
 
-export const { selectShowNightOrder, selectShowFirstNightOrder, selectShowOtherNightOrder } =
-    settingsSlice.selectors;
+export const {
+    selectShowNightOrder,
+    selectShowFirstNightOrder,
+    selectShowOtherNightOrder,
+    selectGrimoireShape
+} = settingsSlice.selectors;
