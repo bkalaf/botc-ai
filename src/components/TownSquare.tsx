@@ -10,6 +10,8 @@ import { buildNightOrderIndex } from '../utils/nightOrder';
 import { Button } from '@/components/ui/button';
 import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
+import { useViewControls } from './ViewControlsContext';
+import { XIcon } from 'lucide-react';
 // import beggarGoodImg from './../assets/images/beggar_g.png';
 // import beggarEvilImg from './../assets/images/beggar_e.png';
 // import beggarImg from './../assets/images/beggar.png';
@@ -104,9 +106,17 @@ function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
 
+function estimateEllipsePerimeter(radiusX: number, radiusY: number) {
+    const a = Math.max(radiusX, 1);
+    const b = Math.max(radiusY, 1);
+    const h = Math.pow(a - b, 2) / Math.pow(a + b, 2);
+    return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+}
+
 export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const script = useAppSelector(selectScript);
     const ref = React.useRef<HTMLDivElement | null>(null);
+    const { isViewControlsOpen, setIsViewControlsOpen } = useViewControls();
     const [layout, setLayout] = React.useState(() => ({
         w: window.innerWidth,
         h: window.innerHeight
@@ -229,7 +239,32 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const backgroundRadius = clamp(50 - viewSettings.tension * 18, 18, 50);
 
     // Token size: scales with screen, bounded
-    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom * viewSettings.tokenScale, 48, 160);
+    const baseTokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 160);
+    const tokenSize = clamp(baseTokenSize * viewSettings.tokenScale, 48, 220);
+
+    const handleSmoothOut = () => {
+        setViewSettings((prev) => {
+            const baseToken = clamp(Math.min(layout.w, layout.h) * 0.25 * prev.zoom, 48, 160);
+            const scaledToken = clamp(baseToken * prev.tokenScale, 48, 220);
+            const radiusBase = baseRadius * prev.zoom;
+            const ringRx = radiusBase * prev.stretch - scaledToken * 0.55 + prev.ringOffset;
+            const ringRy = radiusBase - scaledToken * 0.55 + prev.ringOffset;
+            const perimeter = estimateEllipsePerimeter(ringRx, ringRy);
+            const requiredPerimeter = N * scaledToken * 1.05;
+
+            if (perimeter >= requiredPerimeter) {
+                return prev;
+            }
+
+            const stretchScale = requiredPerimeter / perimeter;
+            const nextStretch = clamp(prev.stretch * stretchScale, 0.8, 2.2);
+
+            return {
+                ...prev,
+                stretch: nextStretch
+            };
+        });
+    };
 
     const savePreferences = () => {
         if (typeof window === 'undefined') {
@@ -286,22 +321,10 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
             ref={ref}
             className='relative h-full w-full overflow-hidden bg-background'
         >
-            <div
-                className='absolute z-20 flex w-[260px] flex-col gap-2 rounded-md border bg-white/95 text-sm shadow-lg'
-                style={{ left: controlsPosition.x, top: controlsPosition.y }}
-            >
+            {isViewControlsOpen ? (
                 <div
-                    className='flex cursor-move items-center justify-between rounded-t-md border-b bg-muted/60 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground'
-                    onMouseDown={(event) => {
-                        dragStartRef.current = {
-                            x: controlsPosition.x,
-                            y: controlsPosition.y,
-                            startX: event.clientX,
-                            startY: event.clientY
-                        };
-                        setIsDraggingControls(true);
-                        event.preventDefault();
-                    }}
+                    className='absolute z-20 flex w-[260px] flex-col gap-2 rounded-md border bg-white/95 text-sm shadow-lg'
+                    style={{ left: controlsPosition.x, top: controlsPosition.y }}
                 >
                     View Controls
                     <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
@@ -467,6 +490,14 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                         size='sm'
                         variant='outline'
                         type='button'
+                        onClick={handleSmoothOut}
+                    >
+                        Smooth Out
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
                         onClick={() =>
                             setViewSettings((prev) => ({
                                 ...prev,
@@ -540,10 +571,261 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             })
                         }
                     >
-                        Reset
-                    </Button>
+                        <span>View Controls</span>
+                        <div className='flex items-center gap-2'>
+                            <span className='text-[10px] font-normal normal-case text-muted-foreground'>Drag</span>
+                            <Button
+                                size='icon'
+                                variant='ghost'
+                                type='button'
+                                onMouseDown={(event) => event.stopPropagation()}
+                                onClick={() => setIsViewControlsOpen(false)}
+                                aria-label='Dismiss view controls'
+                                className='h-6 w-6'
+                            >
+                                <XIcon className='h-3.5 w-3.5' />
+                            </Button>
+                        </div>
+                    </div>
+                    <div className='grid grid-cols-2 gap-2 p-3'>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    zoom: clamp(prev.zoom - 0.05, 0.7, 1.6)
+                                }))
+                            }
+                        >
+                            Zoom Out
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    zoom: clamp(prev.zoom + 0.05, 0.7, 1.6)
+                                }))
+                            }
+                        >
+                            Zoom In
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    offsetX: prev.offsetX - 16
+                                }))
+                            }
+                        >
+                            Left
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    offsetX: prev.offsetX + 16
+                                }))
+                            }
+                        >
+                            Right
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    offsetY: prev.offsetY + 16
+                                }))
+                            }
+                        >
+                            Down
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    offsetY: prev.offsetY - 16
+                                }))
+                            }
+                        >
+                            Up
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    topOffset: prev.topOffset - 12
+                                }))
+                            }
+                        >
+                            Top Margin -
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    topOffset: prev.topOffset + 12
+                                }))
+                            }
+                        >
+                            Top Margin +
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    ringOffset: prev.ringOffset - 12
+                                }))
+                            }
+                        >
+                            Tokens In
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    ringOffset: prev.ringOffset + 12
+                                }))
+                            }
+                        >
+                            Tokens Out
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    stretch: clamp(prev.stretch - 0.1, 0.8, 1.8)
+                                }))
+                            }
+                        >
+                            Stretch -
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    stretch: clamp(prev.stretch + 0.1, 0.8, 1.8)
+                                }))
+                            }
+                        >
+                            Stretch +
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    tension: clamp(prev.tension - 0.05, 0, 0.6)
+                                }))
+                            }
+                        >
+                            Tension -
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    tension: clamp(prev.tension + 0.05, 0, 0.6)
+                                }))
+                            }
+                        >
+                            Tension +
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    tokenScale: clamp(prev.tokenScale - 0.05, 0.7, 1.6)
+                                }))
+                            }
+                        >
+                            Token Size -
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='outline'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings((prev) => ({
+                                    ...prev,
+                                    tokenScale: clamp(prev.tokenScale + 0.05, 0.7, 1.6)
+                                }))
+                            }
+                        >
+                            Token Size +
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='secondary'
+                            type='button'
+                            onClick={() =>
+                                setViewSettings({
+                                    zoom: 1,
+                                    offsetX: 0,
+                                    offsetY: 0,
+                                    topOffset: 0,
+                                    ringOffset: 0,
+                                    stretch: 1,
+                                    tension: 0,
+                                    tokenScale: 1
+                                })
+                            }
+                        >
+                            Reset
+                        </Button>
+                        <Button
+                            size='sm'
+                            variant='default'
+                            type='button'
+                            onClick={savePreferences}
+                        >
+                            Save Preferences
+                        </Button>
+                    </div>
                 </div>
-            </div>
+            ) : null}
             {/* Big background circle */}
             <div
                 className='absolute border bg-white/80 shadow-sm'
