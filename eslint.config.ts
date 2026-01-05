@@ -29,7 +29,7 @@ export default [
         languageOptions: {
             parser: tsParser,
             parserOptions: {
-                project: './tsconfig.eslint.json',
+                project: path.join(tsconfigRootDir, 'tsconfig.eslint.json'),
                 tsconfigRootDir
             },
             globals: {
@@ -44,7 +44,7 @@ export default [
             react: reactPlugin,
             'react-hooks': hooksPlugin
         },
-        ignores: ['esling.config.ts', 'assets/**/*.*'],
+        ignores: ['eslint.config.ts', 'assets/**/*.*'],
         rules: {
             ...reactPlugin.configs.recommended.rules,
             ...hooksPlugin.configs.recommended.rules,
