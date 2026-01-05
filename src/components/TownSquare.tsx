@@ -104,6 +104,13 @@ function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
 
+function estimateEllipsePerimeter(radiusX: number, radiusY: number) {
+    const a = Math.max(radiusX, 1);
+    const b = Math.max(radiusY, 1);
+    const h = Math.pow(a - b, 2) / Math.pow(a + b, 2);
+    return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+}
+
 export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const script = useAppSelector(selectScript);
     const ref = React.useRef<HTMLDivElement | null>(null);
@@ -229,7 +236,32 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const backgroundRadius = clamp(50 - viewSettings.tension * 18, 18, 50);
 
     // Token size: scales with screen, bounded
-    const tokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom * viewSettings.tokenScale, 48, 160);
+    const baseTokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 160);
+    const tokenSize = clamp(baseTokenSize * viewSettings.tokenScale, 48, 220);
+
+    const handleSmoothOut = () => {
+        setViewSettings((prev) => {
+            const baseToken = clamp(Math.min(layout.w, layout.h) * 0.25 * prev.zoom, 48, 160);
+            const scaledToken = clamp(baseToken * prev.tokenScale, 48, 220);
+            const radiusBase = baseRadius * prev.zoom;
+            const ringRx = radiusBase * prev.stretch - scaledToken * 0.55 + prev.ringOffset;
+            const ringRy = radiusBase - scaledToken * 0.55 + prev.ringOffset;
+            const perimeter = estimateEllipsePerimeter(ringRx, ringRy);
+            const requiredPerimeter = N * scaledToken * 1.05;
+
+            if (perimeter >= requiredPerimeter) {
+                return prev;
+            }
+
+            const stretchScale = requiredPerimeter / perimeter;
+            const nextStretch = clamp(prev.stretch * stretchScale, 0.8, 2.2);
+
+            return {
+                ...prev,
+                stretch: nextStretch
+            };
+        });
+    };
 
     const savePreferences = () => {
         if (typeof window === 'undefined') {
@@ -462,6 +494,14 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                         }
                     >
                         Stretch -
+                    </Button>
+                    <Button
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        onClick={handleSmoothOut}
+                    >
+                        Smooth Out
                     </Button>
                     <Button
                         size='sm'
