@@ -79,7 +79,7 @@ describe('store listeners', () => {
         const store = buildStore();
 
         store.dispatch(
-            storytellerQueueSlice.actions.enqueueTask({
+            storytellerQueueSlice.actions.enqueueBack({
                 id: 'task-1',
                 type: 'announce',
                 payload: { message: 'hello' },
@@ -87,7 +87,7 @@ describe('store listeners', () => {
             })
         );
         store.dispatch(
-            storytellerQueueSlice.actions.pushtask({
+            storytellerQueueSlice.actions.enqueueFront({
                 id: 'task-2',
                 type: 'urgent',
                 payload: { message: 'now' },
