@@ -1,10 +1,27 @@
 // src/components/BottomBar.tsx
+import { CogsIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useViewControls } from './ViewControlsContext';
+
 export function BottomBar({ className }: { className: string }) {
     const $cn = [className, 'border-t bg-background'].join(' ');
+    const { isViewControlsOpen, toggleViewControls } = useViewControls();
     return (
         <nav className={$cn}>
             <div className='mx-auto flex min-h-14 max-w-screen-sm items-center justify-between gap-4 px-4 py-3 text-sm font-semibold'>
                 <div className='flex flex-1 items-center justify-start'>Chat</div>
+                <div className='flex flex-1 items-center justify-center'>
+                    <Button
+                        size='sm'
+                        variant={isViewControlsOpen ? 'secondary' : 'outline'}
+                        type='button'
+                        onClick={toggleViewControls}
+                        className='gap-2 text-[11px] font-semibold uppercase tracking-wide'
+                    >
+                        <CogsIcon className='h-4 w-4' />
+                        View Controls
+                    </Button>
+                </div>
                 <div className='flex flex-1 items-center justify-end'>Population</div>
             </div>
             <div className='border-t border-border/60 bg-background/95'>
