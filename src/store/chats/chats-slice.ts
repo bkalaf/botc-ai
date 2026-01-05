@@ -32,8 +32,7 @@ const initialState: ChatsState = {
     activeConversationId: null
 };
 
-const ensureUniqueParticipants = (participants: number[]) =>
-    Array.from(new Set(participants));
+const ensureUniqueParticipants = (participants: number[]) => Array.from(new Set(participants));
 
 const createConversation = (state: ChatsState, entries: ChatLogEntry[] = []) => {
     const conversationId = nanoid();
@@ -122,10 +121,7 @@ export const chatsSlice = createSlice({
             room.isOpen = false;
             room.participants = [];
         },
-        openPublicRoomFor: (
-            state,
-            action: PayloadAction<{ roomId?: string; participants?: number[] }>
-        ) => {
+        openPublicRoomFor: (state, action: PayloadAction<{ roomId?: string; participants?: number[] }>) => {
             const { roomId, participants = [] } = action.payload;
             const resolvedId = roomId ?? nanoid();
             let room = state.rooms.find((candidate) => candidate.id === resolvedId);
@@ -142,10 +138,7 @@ export const chatsSlice = createSlice({
             } else {
                 room.type = 'public';
                 room.isOpen = true;
-                room.participants = ensureUniqueParticipants([
-                    ...room.participants,
-                    ...participants
-                ]);
+                room.participants = ensureUniqueParticipants([...room.participants, ...participants]);
             }
 
             ensureRoomConversation(state, room);
@@ -161,10 +154,7 @@ export const chatsSlice = createSlice({
             room.isOpen = false;
             room.participants = [];
         },
-        inviteParticipantsToRoom: (
-            state,
-            action: PayloadAction<{ roomId: string; participants: number[] }>
-        ) => {
+        inviteParticipantsToRoom: (state, action: PayloadAction<{ roomId: string; participants: number[] }>) => {
             const { roomId, participants } = action.payload;
             const room = state.rooms.find((candidate) => candidate.id === roomId);
 
@@ -174,10 +164,7 @@ export const chatsSlice = createSlice({
 
             room.participants = ensureUniqueParticipants([...room.participants, ...participants]);
         },
-        registerConversation: (
-            state,
-            action: PayloadAction<{ roomId: string; entries?: ChatLogEntry[] }>
-        ) => {
+        registerConversation: (state, action: PayloadAction<{ roomId: string; entries?: ChatLogEntry[] }>) => {
             const { roomId, entries } = action.payload;
             const room = state.rooms.find((candidate) => candidate.id === roomId);
 
@@ -193,10 +180,7 @@ export const chatsSlice = createSlice({
             state.activeConversationId = room?.conversationId ?? null;
         },
         addChatLogEntry: {
-            reducer: (
-                state,
-                action: PayloadAction<{ conversationId: string; entry: ChatLogEntry }>
-            ) => {
+            reducer: (state, action: PayloadAction<{ conversationId: string; entry: ChatLogEntry }>) => {
                 const { conversationId, entry } = action.payload;
                 const existing = state.conversations[conversationId];
                 if (!existing) {
@@ -221,8 +205,7 @@ export const chatsSlice = createSlice({
     selectors: {
         roomsOccupied: (state) => state.rooms.filter((room) => room.isOpen),
         roomsEmpty: (state) => state.rooms.filter((room) => !room.isOpen),
-        getRoomByID: (state, roomId: string) =>
-            state.rooms.find((room) => room.id === roomId) ?? null
+        getRoomByID: (state, roomId: string) => state.rooms.find((room) => room.id === roomId) ?? null
     }
 });
 

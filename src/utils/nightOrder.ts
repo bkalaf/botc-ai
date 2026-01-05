@@ -13,7 +13,7 @@ export const buildNightOrderIndex = (roles: Roles[], orderKey: NightOrderKey) =>
         .filter(({ order }) => order > 0)
         .sort((a, b) => a.order - b.order);
 
-    return Object.fromEntries(
-        orderedRoles.map(({ role }, index) => [role, index + 1])
-    ) as Partial<Record<Roles, number>>;
+    return Object.fromEntries(orderedRoles.map(({ role }, index) => [role, index + 1])) as Partial<
+        Record<Roles, number>
+    >;
 };

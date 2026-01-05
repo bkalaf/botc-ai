@@ -24,20 +24,23 @@ export function HistoryPanel() {
     const renderedEntries = useMemo(
         () =>
             entries.map((entry) => (
-                <div key={entry.id} className='space-y-1 border-b border-neutral-800 pb-2 last:border-b-0'>
+                <div
+                    key={entry.id}
+                    className='space-y-1 border-b border-neutral-800 pb-2 last:border-b-0'
+                >
                     <div className='flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-neutral-400'>
                         <span className={cn('font-semibold', logEntryTypeStyles[entry.logEntryType])}>
                             {entry.logEntryType}
                         </span>
                         <span className='text-neutral-500'>{entry.scope}</span>
-                        {entry.actionType ? (
+                        {entry.actionType ?
                             <span className='text-neutral-500'>{entry.actionType}</span>
-                        ) : null}
+                        :   null}
                     </div>
                     <div className='text-sm text-neutral-100'>{entry.message}</div>
-                    {entry.reasoning ? (
+                    {entry.reasoning ?
                         <div className='text-xs text-neutral-300'>Reasoning: {entry.reasoning}</div>
-                    ) : null}
+                    :   null}
                 </div>
             )),
         [entries]
@@ -107,14 +110,12 @@ export function HistoryPanel() {
             className={cn(
                 'fixed z-50 flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-black shadow-lg',
                 panelPosition ? null : 'right-4',
-                collapsed
-                    ? 'h-8 w-[25vw] min-w-[220px] min-h-[32px] resize'
-                    : 'h-[33vh] w-[25vw] min-w-[220px] min-h-[160px] resize'
+                collapsed ?
+                    'h-8 w-[25vw] min-w-[220px] min-h-[32px] resize'
+                :   'h-[33vh] w-[25vw] min-w-[220px] min-h-[160px] resize'
             )}
             style={
-                panelPosition
-                    ? { left: panelPosition.x, top: panelPosition.y }
-                    : { bottom: Math.max(0, bottomOffset) }
+                panelPosition ? { left: panelPosition.x, top: panelPosition.y } : { bottom: Math.max(0, bottomOffset) }
             }
         >
             <div
@@ -150,16 +151,11 @@ export function HistoryPanel() {
             </div>
             <div
                 ref={scrollRef}
-                className={cn(
-                    'flex-1 space-y-3 overflow-y-auto px-3 py-2 text-xs',
-                    collapsed && 'hidden'
-                )}
+                className={cn('flex-1 space-y-3 overflow-y-auto px-3 py-2 text-xs', collapsed && 'hidden')}
             >
-                {renderedEntries.length > 0 ? (
+                {renderedEntries.length > 0 ?
                     renderedEntries
-                ) : (
-                    <div className='text-sm text-neutral-400'>No history entries yet.</div>
-                )}
+                :   <div className='text-sm text-neutral-400'>No history entries yet.</div>}
             </div>
         </div>
     );

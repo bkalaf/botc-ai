@@ -1,3 +1,4 @@
+// src/store/types/player-types.ts
 import { CharacterTypes, Roles } from '../../data/types';
 
 export type PlayerController = 'ai' | 'human';

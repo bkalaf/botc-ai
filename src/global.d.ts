@@ -22,5 +22,7 @@ declare module '*.webp' {
     export default src;
 }
 
-declare global {}
+declare global {
+    export type Children = React.ReactNode | React.ReactNode[] | undefined;
+}
 export const i = 3;

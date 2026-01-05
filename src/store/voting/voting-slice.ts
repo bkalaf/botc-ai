@@ -130,23 +130,18 @@ export const votingSlice = createSlice({
 const selectVotingState = (state: RootState) => state.voting;
 const selectGrimoireSeats = (state: RootState) => state.grimoire.seats;
 
-export const GetWhoCanVoteToday = createSelector(
-    [selectGrimoireSeats, selectVotingState],
-    (seats, voting) => seats.filter((seat) => canVote(seat, voting.votingPreferences))
+export const GetWhoCanVoteToday = createSelector([selectGrimoireSeats, selectVotingState], (seats, voting) =>
+    seats.filter((seat) => canVote(seat, voting.votingPreferences))
 );
 
-export const GetWhoCanNominateToday = createSelector(
-    [selectGrimoireSeats, selectVotingState],
-    (seats, voting) => seats.filter((seat) => canNominate(seat, voting.votingPreferences))
+export const GetWhoCanNominateToday = createSelector([selectGrimoireSeats, selectVotingState], (seats, voting) =>
+    seats.filter((seat) => canNominate(seat, voting.votingPreferences))
 );
 
-export const VoteThreshold = createSelector(
-    [GetWhoCanVoteToday, selectVotingState],
-    (eligibleVoters, voting) => {
-        const rawThreshold = Math.ceil(eligibleVoters.length * voting.votingPreferences.voteThresholdMultiplier);
-        return Math.max(1, rawThreshold);
-    }
-);
+export const VoteThreshold = createSelector([GetWhoCanVoteToday, selectVotingState], (eligibleVoters, voting) => {
+    const rawThreshold = Math.ceil(eligibleVoters.length * voting.votingPreferences.voteThresholdMultiplier);
+    return Math.max(1, rawThreshold);
+});
 
 export const {
     nominatePlayer,

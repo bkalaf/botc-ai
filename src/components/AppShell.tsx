@@ -5,28 +5,40 @@ import { TopBar } from './TopBar';
 import { BottomBar } from './BottomBar';
 import { HistoryPanel } from './HistoryPanel';
 import { ViewControlsProvider } from './ViewControlsContext';
+import mainBg from '@/town/background.jpg';
+import { ThemeProvider } from './ThemeProvider';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
     return (
-        <ViewControlsProvider>
-            <SidebarProvider>
-                <AppSidebar />
+        <ThemeProvider
+            defaultTheme='dark'
+            storageKey='vite-ui-theme'
+        >
+            <ViewControlsProvider>
+                <SidebarProvider>
+                    <AppSidebar />
 
-                {/* The ONLY place that touches viewport height */}
-                <SidebarInset className='h-svh'>
-                    {/* Chrome + content column */}
-                    <div className='flex h-full flex-col overflow-hidden p-0'>
-                        <TopBar />
+                    {/* The ONLY place that touches viewport height */}
+                    <SidebarInset className='h-svh'>
+                        {/* Chrome + content column */}
+                        <div className='flex h-full flex-col overflow-hidden p-0'>
+                            <TopBar />
 
-                        {/* This is the remaining usable space */}
-                        <main className='min-h-0 flex-1 overflow-hidden'>{children}</main>
+                            {/* This is the remaining usable space */}
+                            <main
+                                style={{ backgroundImage: `url(${mainBg})` }}
+                                className='min-h-0 bg-cover bg-center flex-1 overflow-hidden'
+                            >
+                                {children}
+                            </main>
 
-                        <BottomBar className='bottom-0"' />
-                    </div>
+                            <BottomBar className='bottom-0"' />
+                        </div>
 
-                    <HistoryPanel />
-                </SidebarInset>
-            </SidebarProvider>
-        </ViewControlsProvider>
+                        <HistoryPanel />
+                    </SidebarInset>
+                </SidebarProvider>
+            </ViewControlsProvider>
+        </ThemeProvider>
     );
 }

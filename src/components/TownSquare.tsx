@@ -77,6 +77,8 @@ import virginGoodImg from './../assets/images/virgin_g.png';
 import virginEvilImg from './../assets/images/virgin_e.png';
 import washerwomanGoodImg from './../assets/images/washerwoman_g.png';
 import washerwomanEvilImg from './../assets/images/washerwoman_e.png';
+import { LifeTokenBase } from './CharacterTokenBase';
+import { Ref } from 'react';
 
 const roleToIcon: Record<Roles, [any, any?]> = {
     empath: [empathGoodImg, empathEvilImg],
@@ -112,10 +114,21 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const ref = React.useRef<HTMLDivElement | null>(null);
     const controlsRef = React.useRef<HTMLDivElement | null>(null);
     const { isViewControlsOpen, setIsViewControlsOpen } = useViewControls();
-    const [layout, setLayout] = React.useState(() => ({
-        w: window.innerWidth,
-        h: window.innerHeight
-    }));
+    const [layout, setLayout] = React.useState(() =>
+        window ?
+            {
+                w: window.innerWidth,
+                h: window.innerHeight
+            }
+        :   { w: 0, h: 0 }
+    );
+    const callback = React.useCallback((el?: HTMLElement) => {
+        if (el) {
+            const { height, width } = el.getBoundingClientRect();
+            setLayout({ w: width, h: height });
+        }
+    }, []); 
+
     const [controlsPosition, setControlsPosition] = React.useState({ x: 16, y: 16 });
     const [isDraggingControls, setIsDraggingControls] = React.useState(false);
     const dragStartRef = React.useRef({ x: 0, y: 0, startX: 0, startY: 0 });
@@ -719,13 +732,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                         reminderSlots={reminderSlots}
                         reminderTokenSize={reminderTokenSize}
                     >
-                        <img
-                            // src={tokenBase}
-                            src={tokenImg}
-                            alt=''
-                            className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-0'
-                            draggable={false}
-                        />
+                        <LifeTokenBase />
                         {p.role && img ?
                             <img
                                 src={img}

@@ -34,8 +34,6 @@ export const settingsSlice = createSlice({
     }
 });
 
-export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder } =
-    settingsSlice.actions;
+export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder } = settingsSlice.actions;
 
-export const { selectShowNightOrder, selectShowFirstNightOrder, selectShowOtherNightOrder } =
-    settingsSlice.selectors;
+export const { selectShowNightOrder, selectShowFirstNightOrder, selectShowOtherNightOrder } = settingsSlice.selectors;

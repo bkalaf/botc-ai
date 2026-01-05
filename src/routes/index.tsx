@@ -27,7 +27,7 @@ function App() {
             personality: {} as any,
             hasVote: true,
             alignment: 'evil',
-            isAlive: true,
+            isAlive: false,
             team: 'townsfolk',
             reminders: '',
             isDrunk: false,

@@ -9,15 +9,7 @@ import {
     useSidebar
 } from '@/components/ui/sidebar';
 import { Link } from '@tanstack/react-router';
-import {
-    BookOpen,
-    Clock,
-    ClipboardList,
-    History,
-    Home,
-    Settings,
-    Users
-} from 'lucide-react';
+import { BookOpen, Clock, ClipboardList, History, Home, Settings, Users } from 'lucide-react';
 
 function SidebarBrandToggle() {
     const { toggleSidebar } = useSidebar();

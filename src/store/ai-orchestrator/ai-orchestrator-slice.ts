@@ -69,8 +69,7 @@ const buildPrompt = (item: IAiOrchestratorItem) => {
     );
 };
 
-const estimateTokens = (prompt: string) =>
-    Math.max(1, Math.ceil(prompt.length / TOKEN_ESTIMATE_DIVISOR));
+const estimateTokens = (prompt: string) => Math.max(1, Math.ceil(prompt.length / TOKEN_ESTIMATE_DIVISOR));
 
 const estimateCost = (tokens: number, costPer1kTokens?: number) =>
     (tokens / 1000) * (costPer1kTokens ?? DEFAULT_COST_PER_1K_TOKENS);

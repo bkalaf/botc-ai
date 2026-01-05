@@ -8,7 +8,10 @@ export function BottomBar({ className }: { className: string }) {
     const $cn = [className, 'border-t bg-background'].join(' ');
     const { isViewControlsOpen, toggleViewControls } = useViewControls();
     return (
-        <nav className={$cn} data-bottom-bar>
+        <nav
+            className={$cn}
+            data-bottom-bar
+        >
             <div className='mx-auto flex min-h-14 max-w-screen-sm items-center justify-between gap-4 px-4 py-3 text-sm font-semibold'>
                 <div className='flex flex-1 items-center justify-start'>Chat</div>
                 <div className='flex flex-1 items-center justify-center'>
@@ -19,9 +22,9 @@ export function BottomBar({ className }: { className: string }) {
                         onClick={toggleViewControls}
                         className={cn(
                             'gap-2 text-[11px] font-semibold uppercase tracking-wide',
-                            isViewControlsOpen
-                                ? 'bg-blue-700 text-white hover:bg-blue-600'
-                                : 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-blue-400 focus-visible:outline-offset-2'
+                            isViewControlsOpen ?
+                                'bg-blue-700 text-white hover:bg-blue-600'
+                            :   'focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-blue-400 focus-visible:outline-offset-2'
                         )}
                     >
                         <CogIcon className='h-4 w-4' />

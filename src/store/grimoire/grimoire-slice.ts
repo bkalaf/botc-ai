@@ -101,8 +101,7 @@ const buildRecalibrationQueue = (
         const previousStatus = resolvePrevious(seatId);
         const nextStatus = resolveNext(seatId);
         const statusChanged =
-            previousStatus.isDrunk !== nextStatus.isDrunk ||
-            previousStatus.isPoisoned !== nextStatus.isPoisoned;
+            previousStatus.isDrunk !== nextStatus.isDrunk || previousStatus.isPoisoned !== nextStatus.isPoisoned;
 
         if (!statusChanged) {
             continue;
@@ -141,16 +140,11 @@ export const grimoireSlice = createSlice({
             const previousTokens = { ...state.reminderTokens };
             state.reminderTokens[key] = action.payload;
 
-            const startingTargets = [
-                existing?.target,
-                action.payload.target
-            ].filter((target): target is number => target != null);
-
-            state.recalibrationQueue = buildRecalibrationQueue(
-                previousTokens,
-                state.reminderTokens,
-                startingTargets
+            const startingTargets = [existing?.target, action.payload.target].filter(
+                (target): target is number => target != null
             );
+
+            state.recalibrationQueue = buildRecalibrationQueue(previousTokens, state.reminderTokens, startingTargets);
         },
         removeReminderToken: (state, action: PayloadAction<string>) => {
             const key = action.payload;
@@ -162,11 +156,7 @@ export const grimoireSlice = createSlice({
             const previousTokens = { ...state.reminderTokens };
             delete state.reminderTokens[key];
 
-            state.recalibrationQueue = buildRecalibrationQueue(
-                previousTokens,
-                state.reminderTokens,
-                [existing.target]
-            );
+            state.recalibrationQueue = buildRecalibrationQueue(previousTokens, state.reminderTokens, [existing.target]);
         },
         setSeats: (state, action: PayloadAction<IGrimoireSlice['seats']>) => {
             state.seats = action.payload;
@@ -181,14 +171,10 @@ export const grimoireSlice = createSlice({
     selectors: {
         selectReminderTokens: (state) => state.reminderTokens,
         selectRecalibrationQueue: (state) => state.recalibrationQueue,
-        selectReminderTokensByTarget: (state, target: number) =>
-            getTokensByTarget(state.reminderTokens, target),
-        selectReminderTokensBySource: (state, source: number) =>
-            getTokensBySource(state.reminderTokens, source),
-        selectSeatCondition: (state, seatId: number) =>
-            createSeatConditionResolver(state.reminderTokens)(seatId),
-        selectIsSeatDrunk: (state, seatId: number) =>
-            createSeatConditionResolver(state.reminderTokens)(seatId).isDrunk,
+        selectReminderTokensByTarget: (state, target: number) => getTokensByTarget(state.reminderTokens, target),
+        selectReminderTokensBySource: (state, source: number) => getTokensBySource(state.reminderTokens, source),
+        selectSeatCondition: (state, seatId: number) => createSeatConditionResolver(state.reminderTokens)(seatId),
+        selectIsSeatDrunk: (state, seatId: number) => createSeatConditionResolver(state.reminderTokens)(seatId).isDrunk,
         selectIsSeatPoisoned: (state, seatId: number) =>
             createSeatConditionResolver(state.reminderTokens)(seatId).isPoisoned,
         selectIsReminderTokenFlipped: (state, tokenKey: string) => {
@@ -203,13 +189,7 @@ export const grimoireSlice = createSlice({
     }
 });
 
-export const {
-    addReminderToken,
-    removeReminderToken,
-    setSeats,
-    setOutOfPlay,
-    setDemonBluffs
-} = grimoireSlice.actions;
+export const { addReminderToken, removeReminderToken, setSeats, setOutOfPlay, setDemonBluffs } = grimoireSlice.actions;
 
 export const {
     selectReminderTokens,

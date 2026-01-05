@@ -3,11 +3,7 @@ import { Label } from '@/components/ui/label';
 import { $$ROLES, Roles } from '../data/types';
 
 export function RoleLabel({ role }: { role: Roles }) {
-    return (
-        <Label className=' text-white group-data-[character-type=demon]:bg-red-500 group-data-[character-type=minion]:bg-orange-500 group-data-[character-type=outsider]:bg-cyan-500 group-data-[character-type=townsfolk]:bg-blue-500 group- data-[character-type=traveler]:bg-yellow-500 '>
-            {$$ROLES[role]?.name.toUpperCase()}
-        </Label>
-    );
+    return <Label className=' text-white'>{$$ROLES[role]?.name.toUpperCase()}</Label>;
 }
 
 /*
