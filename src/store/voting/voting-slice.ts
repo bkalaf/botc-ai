@@ -1,6 +1,6 @@
 // src/store/voting/voting-slice.ts
 import { createSelector, createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit';
-import type { ISeat } from '../game/game-slice';
+import type { ISeat } from '../types/player-types';
 import type { RootState } from '..';
 
 export type VotingPhase = 'idle' | 'nominating' | 'argument' | 'voting' | 'resolved';
