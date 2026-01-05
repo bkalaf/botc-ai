@@ -208,6 +208,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     }, [isDraggingControls]);
 
     const N = clamp(players.length, 5, 20);
+    const reminderSlotsPerPlayer = 5;
 
     // Big circle sizing rules (tweakable)
     // "goes about 2/3 way to the vertical edge" -> radius relative to width
@@ -566,6 +567,23 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 const cornerBoost = 1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
                 const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
+                const tokenCenterX = x + tokenSize / 2;
+                const tokenCenterY = y + tokenSize / 2;
+                const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
+                const radialX = tokenCenterX - centerX;
+                const radialY = tokenCenterY - centerY;
+                const radialLength = Math.hypot(radialX, radialY) || 1;
+                const unitRadialX = radialX / radialLength;
+                const unitRadialY = radialY / radialLength;
+                const reminderStart = tokenSize / 2 + reminderTokenSize * 0.6;
+                const reminderSpacing = reminderTokenSize * 0.9;
+                const reminderSlots = Array.from({ length: reminderSlotsPerPlayer }, (_, slotIndex) => {
+                    const distance = reminderStart + slotIndex * reminderSpacing;
+                    return {
+                        x: tokenCenterX + unitRadialX * distance - reminderTokenSize / 2,
+                        y: tokenCenterY + unitRadialY * distance - reminderTokenSize / 2
+                    };
+                });
 
                 const img = (
                     p.alignment === 'good' ?
@@ -595,6 +613,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             alignment={alignment}
                             firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
                             otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
+                            reminderSlots={reminderSlots}
+                            reminderTokenSize={reminderTokenSize}
                         >
                             <img
                                 src={tokenImg}
