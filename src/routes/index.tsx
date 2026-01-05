@@ -1,7 +1,7 @@
 // src/routes/index.tsx
 import { createFileRoute } from '@tanstack/react-router';
 import { TownSquare } from '../components/TownSquare';
-import { ISeatedPlayer } from '../store/game/game-slice';
+import { ISeatedPlayer } from '../store/types/player-types';
 
 export const Route = createFileRoute('/')({ component: App });
 

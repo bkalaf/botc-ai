@@ -1,6 +1,6 @@
 // src/store/grimoire/grimoire-slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IGrimoireSlice, IReminderTokens } from '../game/game-slice';
+import { IGrimoireSlice, IReminderTokens } from '../types/grimoire-types';
 
 type SeatCondition = {
     isDrunk: boolean;

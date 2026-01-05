@@ -1,23 +1,27 @@
 // src/store/index.ts
-import { configureStore, createListenerMiddleware, isRejected } from '@reduxjs/toolkit';
-import { aiOrchestratorSlice, enqueueBack, enqueueFront } from './ai-orchestrator/ai-orchestrator-slice';
+import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
+import { aiOrchestratorSlice } from './ai-orchestrator/ai-orchestrator-slice';
 import { chatsSlice } from './chats/chats-slice';
 import { gameSlice } from './game/game-slice';
 import { grimoireSlice } from './grimoire/grimoire-slice';
-import { addLogEntry, historySlice } from './history/history-slice';
-import { IStorytellerQueueItem, storytellerQueueSlice } from './st-queue/st-queue-slice';
+import { historySlice } from './history/history-slice';
+import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
+import { registerHistoryListener } from './middleware/history-listener';
+import { registerStorytellerBridgeListener } from './middleware/storyteller-bridge-listener';
+import { storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
 import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
 
-const mapStorytellerQueueItem = (item: IStorytellerQueueItem) => ({
-    id: item.id,
-    type: item.type,
-    payload: item.payload,
-    requestedBy: item.requestedBy,
-    httpTarget: 'storyteller' as const
-});
+export const createStoreListeners = () => {
+    const listenerMiddleware = createListenerMiddleware();
 
-const listenerMiddleware = createListenerMiddleware();
+    registerHistoryListener(listenerMiddleware);
+    registerStorytellerBridgeListener(listenerMiddleware);
+
+    return listenerMiddleware;
+};
+
+const listenerMiddleware = createStoreListeners();
 export const dynamicMiddlewareRegistry = createDynamicMiddlewareRegistry();
 
 listenerMiddleware.startListening({

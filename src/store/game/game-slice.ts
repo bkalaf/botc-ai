@@ -1,9 +1,8 @@
 // src/store/game/game-slice.ts
-import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { RootState } from '..';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CharacterTypes, Roles } from '../../data/types';
-import { generateHex24 } from '../../utils/generateHex24';
 import { toProperCase } from '../../utils/getWordsForNumber.ts/toProperCase';
+import { GameStates } from '../types/game-types';
 
 // src/store/game/slice.ts
 export interface IGameSlice {
@@ -51,12 +50,10 @@ export interface IReminderTokens {
     source: number;
     target: number;
     isChanneled: boolean;
-    label?: string;
-    typeKey?: string;
 }
 
 export interface IGrimoireSlice {
-    seats: ISeatedPlayer[];
+    seats: ISeat[];
     demonBluffs: [Roles, Roles, Roles] | undefined;
     outOfPlay: Roles[];
     reminderTokens: Record<string, IReminderTokens>;
@@ -80,11 +77,6 @@ export interface ISeatedPlayer {
 }
 
 export type PlayerId = ISeatedPlayer['ID'];
-
-const MIN_SEATED_PLAYERS = 5;
-
-const isValidGameStart = (script: Roles[], seats: ISeatedPlayer[]) =>
-    script.length > 0 && seats.length >= MIN_SEATED_PLAYERS;
 
 export interface DailyDemocracyManager {
     nomineePool: PlayerId[];
