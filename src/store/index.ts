@@ -46,14 +46,14 @@ listenerMiddleware.startListening({
 });
 
 listenerMiddleware.startListening({
-    actionCreator: storytellerQueueSlice.actions.enqueueTask,
+    actionCreator: storytellerQueueSlice.actions.enqueueBack,
     effect: (action, listenerApi) => {
         listenerApi.dispatch(enqueueBack(mapStorytellerQueueItem(action.payload)));
     }
 });
 
 listenerMiddleware.startListening({
-    actionCreator: storytellerQueueSlice.actions.pushtask,
+    actionCreator: storytellerQueueSlice.actions.enqueueFront,
     effect: (action, listenerApi) => {
         listenerApi.dispatch(enqueueFront(mapStorytellerQueueItem(action.payload)));
     }
