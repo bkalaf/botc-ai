@@ -68,10 +68,6 @@ export function CharacterTokenParent({
                 type='button'
                 onClick={() => alert('CLICKED')}
             >
-                {/* <div
-                        className='absolute inset-0 h-full w-full rounded-full border-0 ring-0 outline-0 data-[character-type="demon"]:bg-rose-300/80 data-[character-type="minion"]:bg-orange-300/80 data-[character-type="outsider"]:bg-purple-300/80 data-[character-type="townsfolk"]:bg-blue-300/80'
-                        data-character-type={characterType}
-                    /> */}
                 <ShadedOverlay />
                 <img
                     src={shroudImg}
@@ -117,23 +113,22 @@ export function CharacterTokenParent({
                     order={displayOtherNightOrder}
                     reminder={otherNightReminder}
                 />
-                <div className='absolute bottom-0 text-base text-white flex flex-col'>
+                <div className='absolute bottom-0 text-white flex flex-col w-full text-2xl py-2 transform translate-y-1/2'>
                     <span
                         // className='flex place-self-center text-center bg-transparent mx-auto transform -translate-y-full w-full top-1/7 z-30 font-black px-1.5 py-0.5 justify-center'
-                        // id='role'
-                        className='flex text-center transform font-black text-lg justify-center'
+                        className='font-rubik flex text-center transform font-extrabold text-base justify-center z-30 font-lg px-1.5 py-0.5 group-data-[character-type="demon"]bg-red-500 group-data-[character-type="demon"]:bg-rose-500 group-data-[character-type="minion"]:bg-fuchsia-400  group-data-[character-type="townsfolk"]:bg-blue-500 group-data-[character-type="traveler"]:bg-yellow-500 group-data-[character-type="outsider"]:bg-teal-500 text-black'
                         id='role'
                     >
-                        <RoleLabel role={role} />
+                        <RoleLabel role={'undertaker'} />
                     </span>
                     <Label
                         // className='w-full min-w-fit rounded-md shadow-inner border-white border-2 bg-black text-white text-center text-sm absolute bottom-0 font-bold transform translate-y-1/2 data-[character-type=demon]:bg-red-500 data-[character-type=minion]:bg-orange-500 data-[character-type=outsider]:bg-cyan-500 data-[character-type=townsfolk]:bg-blue-500 data-[character-type=traveler]:bg-yellow-500 px-1.5 py-0.5 justify-center z-30'
-                        className='flex bg-black w-full min-w-fit rounded-md shadow-inner text-white text-center font-extrabold text-base'
+                        className='font-rubik flex bg-black w-full min-w-fit rounded-md shadow-inner text-white text-center font-extrabold text-base z-30 justify-center items-center border-2 border-gray-400 '
                         htmlFor=''
                         id='team'
                         data-character-type={$$ROLES[role].team}
                     >
-                        {name}
+                        NAME
                     </Label>
                 </div>
             </button>
