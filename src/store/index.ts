@@ -5,6 +5,7 @@ import { chatsSlice } from './chats/chats-slice';
 import { gameSlice } from './game/game-slice';
 import { grimoireSlice } from './grimoire/grimoire-slice';
 import { addLogEntry, historySlice } from './history/history-slice';
+import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
 import { IStorytellerQueueItem, storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
 
