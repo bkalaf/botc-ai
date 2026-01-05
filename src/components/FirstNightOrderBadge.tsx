@@ -8,5 +8,7 @@ export const FirstNightOrderBadge = ({ order, reminder }: { order: number; remin
         reminder={reminder}
         bgColor='bg-blue-500'
         side='left-0 -translate-x-1/2 -translate-y-1/2'
+        headerBgColor='bg-blue-500'
+        nightHeaderText='First Night'
     />
 );
