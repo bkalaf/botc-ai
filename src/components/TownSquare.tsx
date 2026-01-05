@@ -13,6 +13,7 @@ import baronGoodImg from './../assets/images/baron_g.png';
 import baronEvilImg from './../assets/images/baron_e.png';
 import { useViewControls } from './ViewControlsContext';
 import { XIcon } from 'lucide-react';
+import { selectGrimoireShape } from '@/store/settings/settings-slice';
 // import beggarGoodImg from './../assets/images/beggar_g.png';
 // import beggarEvilImg from './../assets/images/beggar_e.png';
 // import beggarImg from './../assets/images/beggar.png';
@@ -107,8 +108,192 @@ function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
 
+type ViewSettings = {
+    zoom: number;
+    offsetX: number;
+    offsetY: number;
+    topOffset: number;
+    ringOffset: number;
+    stretch: number;
+    tension: number;
+    tokenScale: number;
+};
+
+type SeatPosition = {
+    x: number;
+    y: number;
+    reminderSlots: Array<{ x: number; y: number }>;
+    reminderTokenSize: number;
+};
+
+const buildReminderSlots = ({
+    tokenCenterX,
+    tokenCenterY,
+    outwardX,
+    outwardY,
+    tokenSize,
+    reminderTokenSize,
+    reminderSlotsPerPlayer
+}: {
+    tokenCenterX: number;
+    tokenCenterY: number;
+    outwardX: number;
+    outwardY: number;
+    tokenSize: number;
+    reminderTokenSize: number;
+    reminderSlotsPerPlayer: number;
+}) => {
+    const length = Math.hypot(outwardX, outwardY) || 1;
+    const unitX = outwardX / length;
+    const unitY = outwardY / length;
+    const reminderStart = tokenSize / 2 + reminderTokenSize * 0.6;
+    const reminderSpacing = reminderTokenSize * 0.9;
+    return Array.from({ length: reminderSlotsPerPlayer }, (_, slotIndex) => {
+        const distance = reminderStart + slotIndex * reminderSpacing;
+        return {
+            x: tokenCenterX + unitX * distance - reminderTokenSize / 2,
+            y: tokenCenterY + unitY * distance - reminderTokenSize / 2
+        };
+    });
+};
+
+const getCircleSeatPositions = ({
+    count,
+    centerX,
+    centerY,
+    radiusX,
+    radiusY,
+    tokenSize,
+    ringOffset,
+    tension,
+    reminderSlotsPerPlayer
+}: {
+    count: number;
+    centerX: number;
+    centerY: number;
+    radiusX: number;
+    radiusY: number;
+    tokenSize: number;
+    ringOffset: number;
+    tension: number;
+    reminderSlotsPerPlayer: number;
+}): SeatPosition[] => {
+    const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
+    const ringRx = radiusX - tokenSize * 0.55 + ringOffset;
+    const ringRy = radiusY - tokenSize * 0.55 + ringOffset;
+
+    return Array.from({ length: count }, (_, i) => {
+        const angle = -Math.PI / 2 + (i * 2 * Math.PI) / count;
+        const cornerBoost = 1 + tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
+        const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
+        const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
+        const tokenCenterX = x + tokenSize / 2;
+        const tokenCenterY = y + tokenSize / 2;
+        const reminderSlots = buildReminderSlots({
+            tokenCenterX,
+            tokenCenterY,
+            outwardX: tokenCenterX - centerX,
+            outwardY: tokenCenterY - centerY,
+            tokenSize,
+            reminderTokenSize,
+            reminderSlotsPerPlayer
+        });
+        return {
+            x,
+            y,
+            reminderSlots,
+            reminderTokenSize
+        };
+    });
+};
+
+const getSquareSeatPositions = ({
+    count,
+    centerX,
+    centerY,
+    radiusX,
+    radiusY,
+    tokenSize,
+    ringOffset,
+    reminderSlotsPerPlayer
+}: {
+    count: number;
+    centerX: number;
+    centerY: number;
+    radiusX: number;
+    radiusY: number;
+    tokenSize: number;
+    ringOffset: number;
+    reminderSlotsPerPlayer: number;
+}): SeatPosition[] => {
+    const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
+    const ringHalfWidth = Math.max(tokenSize * 0.6, radiusX - tokenSize * 0.55 + ringOffset);
+    const ringHalfHeight = Math.max(tokenSize * 0.6, radiusY - tokenSize * 0.55 + ringOffset);
+    const leftX = centerX - ringHalfWidth;
+    const rightX = centerX + ringHalfWidth;
+    const topY = centerY - ringHalfHeight;
+    const bottomY = centerY + ringHalfHeight;
+    const topCount = 6;
+    const bottomCount = 6;
+    const sideCount = 4;
+    const topStep = topCount > 1 ? (rightX - leftX) / (topCount - 1) : 0;
+    const sideStep = (bottomY - topY) / (sideCount + 1);
+
+    const topSeats = Array.from({ length: topCount }, (_, index) => ({
+        x: leftX + index * topStep,
+        y: topY,
+        outward: { x: 0, y: -1 }
+    }));
+
+    const rightSeats = Array.from({ length: sideCount }, (_, index) => ({
+        x: rightX,
+        y: topY + sideStep * (index + 1),
+        outward: { x: 1, y: 0 }
+    }));
+
+    const bottomSeats = Array.from({ length: bottomCount }, (_, index) => ({
+        x: leftX + index * topStep,
+        y: bottomY,
+        outward: { x: 0, y: 1 }
+    }));
+
+    const leftSeats = Array.from({ length: sideCount }, (_, index) => ({
+        x: leftX,
+        y: topY + sideStep * (index + 1),
+        outward: { x: -1, y: 0 }
+    }));
+
+    const orderedSeats = [
+        ...topSeats,
+        ...rightSeats,
+        ...bottomSeats.slice().reverse(),
+        ...leftSeats.slice().reverse()
+    ];
+
+    return orderedSeats.slice(0, count).map((seat) => {
+        const x = seat.x - tokenSize / 2;
+        const y = seat.y - tokenSize / 2;
+        const reminderSlots = buildReminderSlots({
+            tokenCenterX: seat.x,
+            tokenCenterY: seat.y,
+            outwardX: seat.outward.x,
+            outwardY: seat.outward.y,
+            tokenSize,
+            reminderTokenSize,
+            reminderSlotsPerPlayer
+        });
+        return {
+            x,
+            y,
+            reminderSlots,
+            reminderTokenSize
+        };
+    });
+};
+
 export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const script = useAppSelector(selectScript);
+    const grimoireShape = useAppSelector(selectGrimoireShape);
     const ref = React.useRef<HTMLDivElement | null>(null);
     const controlsRef = React.useRef<HTMLDivElement | null>(null);
     const { isViewControlsOpen, setIsViewControlsOpen } = useViewControls();
@@ -120,7 +305,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const [isDraggingControls, setIsDraggingControls] = React.useState(false);
     const dragStartRef = React.useRef({ x: 0, y: 0, startX: 0, startY: 0 });
     const [userIdentifier, setUserIdentifier] = React.useState('');
-    const [viewSettings, setViewSettings] = React.useState({
+    const [viewSettings, setViewSettings] = React.useState<ViewSettings>({
         zoom: 1,
         offsetX: 0,
         offsetY: 0,
@@ -260,6 +445,43 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     // Token size: scales with screen, bounded
     const baseTokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 160);
     const tokenSize = clamp(baseTokenSize * viewSettings.tokenScale, 48, 220);
+    const seatPositions = React.useMemo(() => {
+        if (grimoireShape === 'square') {
+            return getSquareSeatPositions({
+                count: N,
+                centerX,
+                centerY,
+                radiusX,
+                radiusY,
+                tokenSize,
+                ringOffset: viewSettings.ringOffset,
+                reminderSlotsPerPlayer
+            });
+        }
+
+        return getCircleSeatPositions({
+            count: N,
+            centerX,
+            centerY,
+            radiusX,
+            radiusY,
+            tokenSize,
+            ringOffset: viewSettings.ringOffset,
+            tension: viewSettings.tension,
+            reminderSlotsPerPlayer
+        });
+    }, [
+        N,
+        centerX,
+        centerY,
+        radiusX,
+        radiusY,
+        tokenSize,
+        viewSettings.ringOffset,
+        viewSettings.tension,
+        reminderSlotsPerPlayer,
+        grimoireShape
+    ]);
 
     const handleControlsPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) {
@@ -658,32 +880,10 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
 
             {/* Tokens around circumference */}
             {(players as any[]).slice(0, N).map((p, i) => {
-                // Start at top (-90deg) so first token is at 12 o’clock
-                const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
-
-                // Place tokens on the rim (slightly outside looks better)
-                const ringRx = radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
-                const ringRy = radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
-                const cornerBoost = 1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
-                const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
-                const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
-                const tokenCenterX = x + tokenSize / 2;
-                const tokenCenterY = y + tokenSize / 2;
-                const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
-                const radialX = tokenCenterX - centerX;
-                const radialY = tokenCenterY - centerY;
-                const radialLength = Math.hypot(radialX, radialY) || 1;
-                const unitRadialX = radialX / radialLength;
-                const unitRadialY = radialY / radialLength;
-                const reminderStart = tokenSize / 2 + reminderTokenSize * 0.6;
-                const reminderSpacing = reminderTokenSize * 0.9;
-                const reminderSlots = Array.from({ length: reminderSlotsPerPlayer }, (_, slotIndex) => {
-                    const distance = reminderStart + slotIndex * reminderSpacing;
-                    return {
-                        x: tokenCenterX + unitRadialX * distance - reminderTokenSize / 2,
-                        y: tokenCenterY + unitRadialY * distance - reminderTokenSize / 2
-                    };
-                });
+                const seat = seatPositions[i];
+                if (!seat) {
+                    return null;
+                }
 
                 const roleKey = p.role as keyof typeof roleToIcon;
                 const iconEntry = roleKey ? roleToIcon[roleKey] : undefined;
@@ -700,8 +900,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     <CharacterTokenParent
                         key={p.id}
                         tokenSize={tokenSize}
-                        x={x}
-                        y={y}
+                        x={seat.x}
+                        y={seat.y}
                         role={p.role as Roles}
                         name={p?.name}
                         seatID={parseInt(p.id, 10)}
@@ -716,8 +916,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                         alignment={alignment}
                         firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
                         otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
-                        reminderSlots={reminderSlots}
-                        reminderTokenSize={reminderTokenSize}
+                        reminderSlots={seat.reminderSlots}
+                        reminderTokenSize={seat.reminderTokenSize}
                     >
                         <img
                             // src={tokenBase}
