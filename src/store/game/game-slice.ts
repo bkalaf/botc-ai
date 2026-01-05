@@ -1,8 +1,10 @@
 // src/store/game/game-slice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CharacterTypes, Roles } from '../../data/types';
 import { toProperCase } from '../../utils/getWordsForNumber.ts/toProperCase';
+import { generateHex24 } from '../../utils/generateHex24';
 import { GameStates } from '../types/game-types';
+import { RootState } from '..';
 
 // src/store/game/slice.ts
 export interface IGameSlice {
@@ -15,7 +17,6 @@ export interface IGameSlice {
 }
 
 export type TimerStates = 'running' | 'paused' | 'expired';
-export type GameStates = 'idle' | 'reveal' | 'in-progress' | 'setup';
 
 export interface ITimerSlice {
     alarm: boolean;
@@ -161,10 +162,6 @@ export interface IGameSetupSlice {
     players: IPlayer[];
     outOfPlay: Roles[];
 }
-export interface IGrimoireSlice {
-    seats: ISeatedPlayer[];
-    demonBluffs: [Roles, Roles, Roles] | undefined;
-}
 
 export const gameSlice = createSlice({
     name: 'game',
@@ -229,32 +226,32 @@ export const gameSlice = createSlice({
 
 const selectGameScript = (state: RootState) => state.game.script;
 const selectSeatedPlayers = (state: RootState) => state.grimoire.seats;
+const MIN_SEATED_PLAYERS = 5;
+const isValidGameStart = (script: Roles[], seats: ISeat[]) => script.length > 0 && seats.length >= MIN_SEATED_PLAYERS;
 
-export const selectCanStartGame = createSelector(
-    [selectGameScript, selectSeatedPlayers],
-    (script, seats) => isValidGameStart(script, seats)
+export const selectCanStartGame = createSelector([selectGameScript, selectSeatedPlayers], (script, seats) =>
+    isValidGameStart(script, seats)
 );
 
-export const buildAndStartGame = createAsyncThunk<
-    { gameID: string },
-    void,
-    { state: RootState; rejectValue: string }
->('game/buildAndStartGame', async (_, { getState, dispatch, rejectWithValue }) => {
-    const state = getState();
-    const script = state.game.script;
-    const seats = state.grimoire.seats;
+export const buildAndStartGame = createAsyncThunk<{ gameID: string }, void, { state: RootState; rejectValue: string }>(
+    'game/buildAndStartGame',
+    async (_, { getState, dispatch, rejectWithValue }) => {
+        const state = getState();
+        const script = state.game.script;
+        const seats = state.grimoire.seats;
 
-    if (script.length === 0) {
-        return rejectWithValue('A script is required to start a new game.');
+        if (script.length === 0) {
+            return rejectWithValue('A script is required to start a new game.');
+        }
+
+        if (seats.length < MIN_SEATED_PLAYERS) {
+            return rejectWithValue(`At least ${MIN_SEATED_PLAYERS} players must be seated to start.`);
+        }
+
+        const gameID = generateHex24();
+        dispatch(gameSlice.actions.startNewGame({ gameID }));
+        return { gameID };
     }
-
-    if (seats.length < MIN_SEATED_PLAYERS) {
-        return rejectWithValue(`At least ${MIN_SEATED_PLAYERS} players must be seated to start.`);
-    }
-
-    const gameID = generateHex24();
-    dispatch(gameSlice.actions.startNewGame({ gameID }));
-    return { gameID };
-});
+);
 
 export const { selectScript } = gameSlice.selectors;

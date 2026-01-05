@@ -25,7 +25,6 @@ export function CharacterTokenParent({
     alignment,
     isDrunk,
     isPoisoned,
-    reminders,
     reminderSlots,
     reminderTokenSize,
     firstNightOrder,
@@ -103,11 +102,7 @@ export function CharacterTokenParent({
                     ))
                 :   null}
                 <Tooltip>
-                    <TooltipTrigger asChild>
-                        <span className='place-self-center text-center bg-transparent mx-auto transform -translate-y-full absolute w-full top-1/7 z-30 font-black px-1.5 py-0.5 justify-center'>
-                            <RoleLabel role={role} />
-                        </span>
-                    </TooltipTrigger>
+                    <TooltipTrigger asChild></TooltipTrigger>
                     <TooltipContent className='z-40'>
                         <Label className='bg-slate-700 px-1.5 py-0.5 rounded-lg text-white text-lg text-wrap '>
                             {ability}
@@ -122,13 +117,25 @@ export function CharacterTokenParent({
                     order={displayOtherNightOrder}
                     reminder={otherNightReminder}
                 />
-                <Label
-                    className='w-full min-w-fit rounded-md shadow-inner border-white border-2 bg-black text-white text-center text-sm absolute bottom-0 font-bold transform translate-y-1/2 data-[character-type=demon]:bg-red-500 data-[character-type=minion]:bg-orange-500 data-[character-type=outsider]:bg-cyan-500 data-[character-type=townsfolk]:bg-blue-500 data-[character-type=traveler]:bg-yellow-500 px-1.5 py-0.5 justify-center z-30'
-                    htmlFor=''
-                    data-character-type={$$ROLES[role].team}
-                >
-                    {name}
-                </Label>
+                <div className='absolute bottom-0 text-base text-white flex flex-col'>
+                    <span
+                        // className='flex place-self-center text-center bg-transparent mx-auto transform -translate-y-full w-full top-1/7 z-30 font-black px-1.5 py-0.5 justify-center'
+                        // id='role'
+                        className='flex text-center transform font-black text-lg justify-center'
+                        id='role'
+                    >
+                        <RoleLabel role={role} />
+                    </span>
+                    <Label
+                        // className='w-full min-w-fit rounded-md shadow-inner border-white border-2 bg-black text-white text-center text-sm absolute bottom-0 font-bold transform translate-y-1/2 data-[character-type=demon]:bg-red-500 data-[character-type=minion]:bg-orange-500 data-[character-type=outsider]:bg-cyan-500 data-[character-type=townsfolk]:bg-blue-500 data-[character-type=traveler]:bg-yellow-500 px-1.5 py-0.5 justify-center z-30'
+                        className='flex bg-black w-full min-w-fit rounded-md shadow-inner text-white text-center font-extrabold text-base'
+                        htmlFor=''
+                        id='team'
+                        data-character-type={$$ROLES[role].team}
+                    >
+                        {name}
+                    </Label>
+                </div>
             </button>
         </>
     );

@@ -587,51 +587,54 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
 
                 const roleKey = p.role as keyof typeof roleToIcon;
                 const iconEntry = roleKey ? roleToIcon[roleKey] : undefined;
-                const img = iconEntry ? (p.alignment === 'good' ? iconEntry[0] : iconEntry[1]) : undefined;
+                const img =
+                    iconEntry ?
+                        p.alignment === 'good' ?
+                            iconEntry[0]
+                        :   iconEntry[1]
+                    :   undefined;
 
                 const characterType = $$ROLES[p.role as Roles]?.team as CharacterTypes;
                 const alignment = p?.alignment ?? 'good';
                 return (
-                        <CharacterTokenParent
-                            key={p.id}
-                            tokenSize={tokenSize}
-                            x={x}
-                            y={y}
-                            role={p.role as Roles}
-                            role={p.role as any}
-                            name={p?.name}
-                            seatID={parseInt(p.id, 10)}
-                            data-is-alive={p?.isAlive ?? true}
-                            data-is-dead={!(p?.isAlive ?? true)}
-                            data-is-marked={false}
-                            thinks={undefined}
-                            data-character-type={characterType}
-                            data-alignment={'good'}
-                            data-alignment={alignment}
-                            isAlive={p?.isAlive ?? true}
-                            characterType={characterType}
-                            alignment={alignment}
-                            firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
-                            otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
-                            reminderSlots={reminderSlots}
-                            reminderTokenSize={reminderTokenSize}
-                        >
+                    <CharacterTokenParent
+                        key={p.id}
+                        tokenSize={tokenSize}
+                        x={x}
+                        y={y}
+                        role={p.role as Roles}
+                        name={p?.name}
+                        seatID={parseInt(p.id, 10)}
+                        data-is-alive={p?.isAlive ?? true}
+                        data-is-dead={!(p?.isAlive ?? true)}
+                        data-is-marked={false}
+                        thinks={undefined}
+                        data-character-type={characterType}
+                        data-alignment={'good'}
+                        isAlive={p?.isAlive ?? true}
+                        characterType={characterType}
+                        alignment={alignment}
+                        firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
+                        otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
+                        reminderSlots={reminderSlots}
+                        reminderTokenSize={reminderTokenSize}
+                    >
+                        <img
+                            // src={tokenBase}
+                            src={tokenImg}
+                            alt=''
+                            className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-0'
+                            draggable={false}
+                        />
+                        {p.role && img ?
                             <img
-                                src={tokenBase}
-                                src={tokenImg}
-                                alt=''
-                                className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-0'
+                                src={img}
+                                alt={p.role}
+                                className='z-10 relative object-contain scale-125'
                                 draggable={false}
                             />
-                            {p.role && img ?
-                                <img
-                                    src={img}
-                                    alt={p.role}
-                                    className='z-10 relative object-contain scale-125'
-                                    draggable={false}
-                                />
-                            :   null}
-                        </CharacterTokenParent>
+                        :   null}
+                    </CharacterTokenParent>
                 );
             })}
         </div>
