@@ -1,0 +1,15 @@
+../src/assets/fonts/rubik/Rubik-SemiBoldItalic.ttf
+../src/assets/fonts/rubik/Rubik-BoldItalic.ttf
+../src/assets/fonts/rubik/Rubik-ExtraBoldItalic.ttf
+../src/assets/fonts/rubik/Rubik-Black.ttf
+../src/assets/fonts/rubik/Rubik-Bold.ttf
+../src/assets/fonts/rubik/Rubik-Italic.ttf
+../src/assets/fonts/rubik/fonts.txt
+../src/assets/fonts/rubik/Rubik-BlackItalic.ttf
+../src/assets/fonts/rubik/Rubik-Light.ttf
+../src/assets/fonts/rubik/Rubik-MediumItalic.ttf
+../src/assets/fonts/rubik/Rubik-Regular.ttf
+../src/assets/fonts/rubik/Rubik-ExtraBold.ttf
+../src/assets/fonts/rubik/Rubik-Medium.ttf
+../src/assets/fonts/rubik/Rubik-SemiBold.ttf
+../src/assets/fonts/rubik/Rubik-LightItalic.ttf
