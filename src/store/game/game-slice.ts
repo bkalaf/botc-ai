@@ -1,19 +1,9 @@
 // src/store/game/game-slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Roles } from '../../data/types';
 import { toProperCase } from '../../utils/getWordsForNumber.ts/toProperCase';
-import { GameStates } from '../types/game-types';
+import { IGameSlice } from '../types/game-types';
 
 // src/store/game/slice.ts
-export interface IGameSlice {
-    gameID: string;
-    winner?: 'evil' | 'good';
-    day: number;
-    phase: 'day' | 'night';
-    gameState: GameStates;
-    script: Roles[];
-}
-
 export const initialState: IGameSlice = {
     winner: undefined,
     day: 0,
