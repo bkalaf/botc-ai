@@ -17,6 +17,7 @@ export function HistoryPanel() {
     const scrollRef = useRef<HTMLDivElement | null>(null);
     const panelRef = useRef<HTMLDivElement | null>(null);
     const [panelPosition, setPanelPosition] = useState<{ x: number; y: number } | null>(null);
+    const [bottomOffset, setBottomOffset] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const dragStartRef = useRef({ x: 0, y: 0, startX: 0, startY: 0 });
 
@@ -57,10 +58,18 @@ export function HistoryPanel() {
             return;
         }
 
-        const rect = panelRef.current.getBoundingClientRect();
-        const defaultX = Math.max(16, window.innerWidth - rect.width - 16);
-        const defaultY = Math.max(16, window.innerHeight - rect.height - 64);
-        setPanelPosition({ x: defaultX, y: defaultY });
+        const updateBottomOffset = () => {
+            const bottomBar = document.querySelector('[data-bottom-bar]');
+            const barHeight = bottomBar ? bottomBar.getBoundingClientRect().height : 0;
+            setBottomOffset(barHeight + 8);
+        };
+
+        updateBottomOffset();
+        window.addEventListener('resize', updateBottomOffset);
+
+        return () => {
+            window.removeEventListener('resize', updateBottomOffset);
+        };
     }, [panelPosition]);
 
     useEffect(() => {
@@ -97,17 +106,21 @@ export function HistoryPanel() {
             ref={panelRef}
             className={cn(
                 'fixed z-50 flex flex-col overflow-hidden rounded-lg border border-neutral-800 bg-black shadow-lg',
-                panelPosition ? null : collapsed ? 'bottom-0 right-4' : 'bottom-16 right-4',
+                panelPosition ? null : 'right-4',
                 collapsed
                     ? 'h-8 w-[25vw] min-w-[220px] min-h-[32px] resize'
                     : 'h-[33vh] w-[25vw] min-w-[220px] min-h-[160px] resize'
             )}
-            style={panelPosition ? { left: panelPosition.x, top: panelPosition.y } : undefined}
+            style={
+                panelPosition
+                    ? { left: panelPosition.x, top: panelPosition.y }
+                    : { bottom: Math.max(0, bottomOffset) }
+            }
         >
             <div
-                className='flex cursor-move select-none items-center justify-between border-b border-neutral-800 px-3 py-2 text-xs uppercase tracking-wide text-neutral-200'
+                className='flex select-none items-center gap-2 border-b border-neutral-800 px-3 py-2 text-xs uppercase tracking-wide text-neutral-200'
                 onPointerDown={(event) => {
-                    if (!panelRef.current) {
+                    if (!panelRef.current || !event.ctrlKey) {
                         return;
                     }
                     const rect = panelRef.current.getBoundingClientRect();
@@ -117,14 +130,18 @@ export function HistoryPanel() {
                         startX: event.clientX,
                         startY: event.clientY
                     };
+                    if (!panelPosition) {
+                        setPanelPosition({ x: rect.left, y: rect.top });
+                    }
                     setIsDragging(true);
                 }}
                 style={{ touchAction: 'none' }}
             >
                 <span>History</span>
+                <span className='text-[10px] font-normal normal-case text-neutral-500'>Hold Ctrl to drag</span>
                 <button
                     type='button'
-                    className='text-[10px] uppercase tracking-wider text-neutral-400 hover:text-white'
+                    className='ml-auto text-[10px] uppercase tracking-wider text-neutral-400 hover:text-white'
                     onClick={() => setCollapsed((prev) => !prev)}
                     onPointerDown={(event) => event.stopPropagation()}
                 >
