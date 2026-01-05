@@ -1,5 +1,5 @@
 // src/components/NightOrderBadge.tsx
-import { Badge } from './ui/badge'  ;
+        'absolute top-1/2 min-w-6 h-6 z-0 transform text-white font-extrabold text-lg group-hover:z-20 group-data-[is-dead=true]:invisible data-[order="0"]:invisible tabular-nums',
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Label } from './ui/label';
 

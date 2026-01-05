@@ -8,6 +8,7 @@ import { addLogEntry, historySlice } from './history/history-slice';
 import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
 import { registerHistoryListener } from './middleware/history-listener';
 import { registerStorytellerBridgeListener } from './middleware/storyteller-bridge-listener';
+import { settingsSlice } from './settings/settings-slice';
 import { storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
 
@@ -55,6 +56,7 @@ export const store = configureStore({
         game: gameSlice.reducer,
         grimoire: grimoireSlice.reducer,
         history: historySlice.reducer,
+        settings: settingsSlice.reducer,
         storytellerQueue: storytellerQueueSlice.reducer,
         voting: votingSlice.reducer
     },

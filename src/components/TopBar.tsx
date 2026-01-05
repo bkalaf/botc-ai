@@ -1,6 +1,15 @@
 // src/components/TopBar.tsx
+import * as React from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle
+} from '@/components/ui/dialog';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,9 +20,18 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Menu } from 'lucide-react';
+import { Menu, Settings } from 'lucide-react';
 import { SidebarTrigger } from './ui/sidebar';
 import editions from '@/data/editions.json';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+    selectShowFirstNightOrder,
+    selectShowNightOrder,
+    selectShowOtherNightOrder,
+    setShowFirstNightOrder,
+    setShowNightOrder,
+    setShowOtherNightOrder
+} from '@/store/settings/settings-slice';
 
 const popularScriptIds = ['tb', 'snv'];
 const popularScripts = editions.filter((script) => popularScriptIds.includes(script.id));
@@ -57,6 +75,12 @@ function SidebarNav() {
 }
 
 export function TopBar() {
+    const dispatch = useAppDispatch();
+    const showNightOrder = useAppSelector(selectShowNightOrder);
+    const showFirstNightOrder = useAppSelector(selectShowFirstNightOrder);
+    const showOtherNightOrder = useAppSelector(selectShowOtherNightOrder);
+    const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+
     return (
         <header className='sticky top-0 z-40 flex h-14 items-center gap-3 border-b bg-background px-3'>
             <div className='hidden md:flex'>
@@ -126,12 +150,66 @@ export function TopBar() {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Button
-                    variant='ghost'
-                    className='h-9 px-3'
-                >
-                    Settings (Preferences)
-                </Button>
+                <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                    <Button
+                        variant='ghost'
+                        className='h-9 px-3 gap-2'
+                        type='button'
+                        onClick={() => setIsSettingsOpen(true)}
+                    >
+                        <Settings className='h-4 w-4' />
+                        Settings (Preferences)
+                    </Button>
+                    <DialogContent className='sm:max-w-lg'>
+                        <DialogHeader>
+                            <DialogTitle>Preferences</DialogTitle>
+                            <DialogDescription>
+                                Adjust game UI visibility settings.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className='space-y-4'>
+                            <div className='border-b border-border/60 pb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+                                Night order badges
+                            </div>
+                            <div className='flex items-center justify-between gap-4'>
+                                <div>
+                                    <div className='text-sm font-semibold'>Show night order badges</div>
+                                    <div className='text-xs text-muted-foreground'>
+                                        Toggle all night order indicators.
+                                    </div>
+                                </div>
+                                <Switch
+                                    checked={showNightOrder}
+                                    onCheckedChange={(value) => dispatch(setShowNightOrder(value))}
+                                />
+                            </div>
+                            <div className='flex items-center justify-between gap-4'>
+                                <div>
+                                    <div className='text-sm font-semibold'>Show first-night order</div>
+                                    <div className='text-xs text-muted-foreground'>
+                                        Show the blue first-night badges.
+                                    </div>
+                                </div>
+                                <Switch
+                                    checked={showFirstNightOrder}
+                                    onCheckedChange={(value) => dispatch(setShowFirstNightOrder(value))}
+                                />
+                            </div>
+                            <div className='flex items-center justify-between gap-4'>
+                                <div>
+                                    <div className='text-sm font-semibold'>Show other-night order</div>
+                                    <div className='text-xs text-muted-foreground'>
+                                        Show the red other-night badges.
+                                    </div>
+                                </div>
+                                <Switch
+                                    checked={showOtherNightOrder}
+                                    onCheckedChange={(value) => dispatch(setShowOtherNightOrder(value))}
+                                />
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </header>
     );
