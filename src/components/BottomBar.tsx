@@ -1,22 +1,28 @@
 // src/components/BottomBar.tsx
 import { CogIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useViewControls } from './ViewControlsContext';
 
 export function BottomBar({ className }: { className: string }) {
     const $cn = [className, 'border-t bg-background'].join(' ');
     const { isViewControlsOpen, toggleViewControls } = useViewControls();
     return (
-        <nav className={$cn}>
+        <nav className={$cn} data-bottom-bar>
             <div className='mx-auto flex min-h-14 max-w-screen-sm items-center justify-between gap-4 px-4 py-3 text-sm font-semibold'>
                 <div className='flex flex-1 items-center justify-start'>Chat</div>
                 <div className='flex flex-1 items-center justify-center'>
                     <Button
                         size='sm'
-                        variant={isViewControlsOpen ? 'secondary' : 'outline'}
+                        variant={isViewControlsOpen ? 'default' : 'outline'}
                         type='button'
                         onClick={toggleViewControls}
-                        className='gap-2 text-[11px] font-semibold uppercase tracking-wide'
+                        className={cn(
+                            'gap-2 text-[11px] font-semibold uppercase tracking-wide',
+                            isViewControlsOpen
+                                ? 'bg-blue-700 text-white hover:bg-blue-600'
+                                : 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-blue-400 focus-visible:outline-offset-2'
+                        )}
                     >
                         <CogIcon className='h-4 w-4' />
                         View Controls

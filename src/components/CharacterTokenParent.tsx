@@ -10,6 +10,12 @@ import { ShadedOverlay } from './ShadedOverlay';
 import { FirstNightOrderBadge } from './FirstNightOrderBadge';
 import { OtherNightOrderBadge } from './OtherNightOrderBadge';
 import { RoleLabel } from './RoleLabel';
+import { useAppSelector } from '@/store/hooks';
+import {
+    selectShowFirstNightOrder,
+    selectShowNightOrder,
+    selectShowOtherNightOrder
+} from '@/store/settings/settings-slice';
 
 // src/components/CharacterTokenParent.tsx
 export function CharacterTokenParent({
@@ -53,6 +59,9 @@ export function CharacterTokenParent({
     const { firstNight, firstNightReminder, otherNight, otherNightReminder, ability } = $$ROLES[role];
     const displayFirstNightOrder = firstNightOrder ?? firstNight;
     const displayOtherNightOrder = otherNightOrder ?? otherNight;
+    const showNightOrder = useAppSelector(selectShowNightOrder);
+    const showFirstNightOrder = useAppSelector(selectShowFirstNightOrder);
+    const showOtherNightOrder = useAppSelector(selectShowOtherNightOrder);
     return (
         <>
             <button
@@ -76,14 +85,18 @@ export function CharacterTokenParent({
                     draggable={false}
                     data-is-alive={isAlive}
                 />
-                <SkullIcon
-                    className='absolute inset-0 w-full h-full object-over pointer-events-none invisible data-[is-marked=true]:visible z-20 opacity-50 group-data-[is-alive=false]:invisible'
-                    data-is-marked={isMarked}
-                />
-                {children}
-                {reminderSlots && reminderTokenSize ?
-                    reminderSlots.map((slot, index) => (
-                        <span
+                {showNightOrder && showFirstNightOrder ? (
+                    <FirstNightOrderBadge
+                        order={displayFirstNightOrder}
+                        reminder={firstNightReminder}
+                    />
+                ) : null}
+                {showNightOrder && showOtherNightOrder ? (
+                    <OtherNightOrderBadge
+                        order={displayOtherNightOrder}
+                        reminder={otherNightReminder}
+                    />
+                ) : null}
                             key={`reminder-slot-${index}`}
                             className='absolute rounded-full border border-dashed border-muted-foreground/40 opacity-0'
                             style={{
