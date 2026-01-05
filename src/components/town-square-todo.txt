@@ -1,0 +1,49 @@
+//src/components/town-square-todo.txt
+Let's look at the current TownSquare and compare that to what we were looking forward to compleeting. The biggest thing that we need to implement are reminder tokens. The necessary image files are located in this direcotry. The folder should be /home/bobby/clocktower/assets/images/ as the base and the files are as such:
+    
+    IMAGE_FILES:
+    * plus.png // appears where a new reminder would be 'slated' to appear when hovered [PICTURED]
+    * reminder.png // the background image for the small reminder tokens [PICTURED]
+    * token.png // the background for the large character tokens  [PICTURED]
+    * x.png // the X that get's overlayed onto a moused over reminder token to indicate it can be deleted [PICTURED]
+    * life.png // the background that should be used when a player is not dead [PICTURED]
+    * death.png // the background that should be used when a player is dead [PICTURED]
+    * custom.png // the foreground that should be used for a custom token [PICTURED]
+    * vote.png // symbolizes a ghost vote [PICTURED]
+
+    So, the things that Town Square needs...
+    TO DO:
+    * Functioning Reminder tokens
+    * Reminder Tokens just have a scaled down icon token in the center and a label with 
+        the text of the token on it
+    * Ways to removed Reminder tokens (hover + X)
+    * Ways to Add Reminder Tokens (the + sign)
+    * Shading of the tokens based on alive or dead
+    * Reminder tokens need text as well (but it is just a few words)
+    * I'd estimate that Remind Tokens are just about 1/4 the size of the big tokens
+    * We need a way to flip the tokens as well on the horizontal axis basically
+    * We'll represent a ghost vote by the BookmarkCheckIcon and try to put this on the end of year events.
+
+    FINISHING TOUCHES:
+    * Long clock hand turns in a 360 degree mootion during voting
+    * Long hand points to the nominee 
+    * Short hand points to the nominator
+    * Voting always begins to the immediate left of the nominee - so the neight has the first vote and the nominee always has the last vote ont themselves. the long hand of the clock should spin 0 not with 12 stops. There will be times where 21 spots are apprropriate delay between ticks is a custom setting
+    * The center of the cricle is the where the clockhands spin froom.
+    * A normal clock has 12 stops one on its trip around the clockface
+        * Our clock has a varied amount of stops = to the number of players in the game
+        * Voting is not a fluid motion in a circle, it's an x number of seconds to move 
+            from pointing to 1 player and then to their neighbor on their left.
+            And then a brief pause (like 1 sec) and then resumes.
+
+    GOALS:
+    * Implement Reminder Tokens for all characters
+    * A functioning add/remove system
+    * Functioning evals for sobrierty and health and a functioning flipping system
+    * Functioning shading of the large token by death
+    * A visble ghost vote icon
+    * A visible marked for execution icon 
+    * A functioning clock voting system
+    * A functioning ability and night order text system with tooltips
+    * A custom reminder system that basically uses the custom icon for the Custom Token 
+        * And displays the custom reminder in a tooltip when hovered

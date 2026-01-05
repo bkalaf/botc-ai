@@ -566,20 +566,19 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
                 const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
 
-                const img = (
-                    p.alignment === 'good' ?
-                        roleToIcon[p.role as any as keyof typeof roleToIcon][0]
-                    :   roleToIcon[p.role as any as keyof typeof roleToIcon][1]) as any;
-                // const cc = {};
+                const roleKey = p.role as keyof typeof roleToIcon;
+                const iconEntry = roleKey ? roleToIcon[roleKey] : undefined;
+                const img = iconEntry ? (p.alignment === 'good' ? iconEntry[0] : iconEntry[1]) : undefined;
 
                 const characterType = $$ROLES[p.role as Roles]?.team as CharacterTypes;
                 const alignment = p?.alignment ?? 'good';
                 return (
-                    <>
                         <CharacterTokenParent
+                            key={p.id}
                             tokenSize={tokenSize}
                             x={x}
                             y={y}
+                            role={p.role as Roles}
                             role={p.role as any}
                             name={p?.name}
                             seatID={parseInt(p.id, 10)}
@@ -589,6 +588,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             thinks={undefined}
                             data-character-type={characterType}
                             data-alignment={'good'}
+                            data-alignment={alignment}
                             isAlive={p?.isAlive ?? true}
                             characterType={characterType}
                             alignment={alignment}
@@ -596,12 +596,13 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                             otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
                         >
                             <img
+                                src={tokenBase}
                                 src={tokenImg}
                                 alt=''
                                 className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-0'
                                 draggable={false}
                             />
-                            {p.role ?
+                            {p.role && img ?
                                 <img
                                     src={img}
                                     alt={p.role}
@@ -610,7 +611,6 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                                 />
                             :   null}
                         </CharacterTokenParent>
-                    </>
                 );
             })}
         </div>

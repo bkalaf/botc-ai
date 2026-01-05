@@ -7,6 +7,7 @@ import { grimoireSlice } from './grimoire/grimoire-slice';
 import { addLogEntry, historySlice } from './history/history-slice';
 import { IStorytellerQueueItem, storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
+import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
 
 const mapStorytellerQueueItem = (item: IStorytellerQueueItem) => ({
     id: item.id,

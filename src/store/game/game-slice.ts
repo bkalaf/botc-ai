@@ -1,6 +1,8 @@
 // src/store/game/game-slice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { RootState } from '..';
 import { CharacterTypes, Roles } from '../../data/types';
+import { generateHex24 } from '../../utils/generateHex24';
 import { toProperCase } from '../../utils/getWordsForNumber.ts/toProperCase';
 
 // src/store/game/slice.ts
@@ -49,6 +51,8 @@ export interface IReminderTokens {
     source: number;
     target: number;
     isChanneled: boolean;
+    label?: string;
+    typeKey?: string;
 }
 
 export interface IGrimoireSlice {
@@ -76,6 +80,11 @@ export interface ISeatedPlayer {
 }
 
 export type PlayerId = ISeatedPlayer['ID'];
+
+const MIN_SEATED_PLAYERS = 5;
+
+const isValidGameStart = (script: Roles[], seats: ISeatedPlayer[]) =>
+    script.length > 0 && seats.length >= MIN_SEATED_PLAYERS;
 
 export interface DailyDemocracyManager {
     nomineePool: PlayerId[];
@@ -183,6 +192,13 @@ export const gameSlice = createSlice({
         setScript: (state, action: PayloadAction<Roles[]>) => {
             state.script = action.payload;
         },
+        startNewGame: (state, action: PayloadAction<{ gameID: string }>) => {
+            state.gameID = action.payload.gameID;
+            state.winner = undefined;
+            state.day = 0;
+            state.phase = 'day';
+            state.gameState = 'in-progress';
+        },
         cycleGameState: (state) => {
             switch (state.gameState) {
                 case 'idle':
@@ -217,6 +233,36 @@ export const gameSlice = createSlice({
         selectPhase: (state) => state.phase,
         selectDisplayTime: (state) => toProperCase(`${state.phase} ${state.day.toString()}`)
     }
+});
+
+const selectGameScript = (state: RootState) => state.game.script;
+const selectSeatedPlayers = (state: RootState) => state.grimoire.seats;
+
+export const selectCanStartGame = createSelector(
+    [selectGameScript, selectSeatedPlayers],
+    (script, seats) => isValidGameStart(script, seats)
+);
+
+export const buildAndStartGame = createAsyncThunk<
+    { gameID: string },
+    void,
+    { state: RootState; rejectValue: string }
+>('game/buildAndStartGame', async (_, { getState, dispatch, rejectWithValue }) => {
+    const state = getState();
+    const script = state.game.script;
+    const seats = state.grimoire.seats;
+
+    if (script.length === 0) {
+        return rejectWithValue('A script is required to start a new game.');
+    }
+
+    if (seats.length < MIN_SEATED_PLAYERS) {
+        return rejectWithValue(`At least ${MIN_SEATED_PLAYERS} players must be seated to start.`);
+    }
+
+    const gameID = generateHex24();
+    dispatch(gameSlice.actions.startNewGame({ gameID }));
+    return { gameID };
 });
 
 export const { selectScript } = gameSlice.selectors;
