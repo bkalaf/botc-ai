@@ -27,6 +27,8 @@ export function CharacterTokenParent({
     isDrunk,
     isPoisoned,
     reminders,
+    reminderSlots,
+    reminderTokenSize,
     firstNightOrder,
     otherNightOrder
 }: {
@@ -45,6 +47,8 @@ export function CharacterTokenParent({
     isDrunk?: boolean;
     isPoisoned?: boolean;
     reminders?: string;
+    reminderSlots?: Array<{ x: number; y: number }>;
+    reminderTokenSize?: number;
     firstNightOrder?: number;
     otherNightOrder?: number;
 }) {
@@ -83,6 +87,22 @@ export function CharacterTokenParent({
                     data-is-marked={isMarked}
                 />
                 {children}
+                {reminderSlots && reminderTokenSize ?
+                    reminderSlots.map((slot, index) => (
+                        <span
+                            key={`reminder-slot-${index}`}
+                            className='absolute rounded-full border border-dashed border-muted-foreground/40 opacity-0'
+                            style={{
+                                width: reminderTokenSize,
+                                height: reminderTokenSize,
+                                left: slot.x - x,
+                                top: slot.y - y
+                            }}
+                            aria-hidden='true'
+                            data-reminder-slot
+                        />
+                    ))
+                :   null}
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <span className='place-self-center text-center bg-transparent mx-auto transform -translate-y-full absolute w-full top-1/7 z-30 font-black px-1.5 py-0.5 justify-center'>
