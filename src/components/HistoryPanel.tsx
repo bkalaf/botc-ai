@@ -1,8 +1,9 @@
 // src/components/HistoryPanel.tsx
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectHistoryEntries } from '@/store/history/history-slice';
+import { selectShowHistoryExpanded, setHistoryExpanded } from '../store/settings/settings-slice';
 
 const logEntryTypeStyles: Record<string, string> = {
     success: 'text-emerald-300',
@@ -13,7 +14,14 @@ const logEntryTypeStyles: Record<string, string> = {
 
 export function HistoryPanel() {
     const entries = useAppSelector(selectHistoryEntries);
-    const [collapsed, setCollapsed] = useState(false);
+    const collapsed = useAppSelector(selectShowHistoryExpanded);
+    const dispatch = useAppDispatch();
+    const setCollapsed = useCallback(
+        (value: boolean) => {
+            dispatch(setHistoryExpanded(value));
+        },
+        [dispatch]
+    );
     const scrollRef = useRef<HTMLDivElement | null>(null);
     const panelRef = useRef<HTMLDivElement | null>(null);
     const [panelPosition, setPanelPosition] = useState<{ x: number; y: number } | null>(null);
@@ -143,7 +151,7 @@ export function HistoryPanel() {
                 <button
                     type='button'
                     className='ml-auto text-[10px] uppercase tracking-wider text-neutral-400 hover:text-white'
-                    onClick={() => setCollapsed((prev) => !prev)}
+                    onClick={() => setCollapsed(!collapsed)}
                     onPointerDown={(event) => event.stopPropagation()}
                 >
                     {collapsed ? 'Expand' : 'Collapse'}

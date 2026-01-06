@@ -13,6 +13,9 @@ const tsconfigRootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
     js.configs.recommended,
+    {
+        ignores: ['.output/**']
+    },
     // 1. Specific config for Node JS files (commitlint, jest, etc.)
     {
         files: ['*.js'],
@@ -29,7 +32,7 @@ export default [
         languageOptions: {
             parser: tsParser,
             parserOptions: {
-                project: './tsconfig.eslint.json',
+                project: './tsconfig.json',
                 tsconfigRootDir
             },
             globals: {

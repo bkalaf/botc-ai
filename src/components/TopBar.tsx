@@ -19,12 +19,14 @@ import { SidebarTrigger } from './ui/sidebar';
 import editions from '@/data/editions.json';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
+    selectShowHistoryExpanded,
     selectShowFirstNightOrder,
     selectShowNightOrder,
     selectShowOtherNightOrder,
     setShowFirstNightOrder,
     setShowNightOrder,
-    setShowOtherNightOrder
+    setShowOtherNightOrder,
+    setHistoryExpanded
 } from '@/store/settings/settings-slice';
 
 const popularScriptIds = ['tb', 'snv'];
@@ -143,17 +145,19 @@ export function TopBar() {
                         </DropdownMenuGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
-
-                
             </div>
+
+            <SettingsDialog />
         </header>
     );
 }
 
 export function SettingsSubheader({ subheader }: { subheader: string }) {
-    return <div className='border-b border-border/60 pb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
-                        {subheader}
-                    </div>
+    return (
+        <div className='border-b border-border/60 pb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
+            {subheader}
+        </div>
+    );
 }
 
 export function SettingsDialog() {
@@ -161,6 +165,7 @@ export function SettingsDialog() {
     const showNightOrder = useAppSelector(selectShowNightOrder);
     const showFirstNightOrder = useAppSelector(selectShowFirstNightOrder);
     const showOtherNightOrder = useAppSelector(selectShowOtherNightOrder);
+    const showHistoryExpanded = !useAppSelector(selectShowHistoryExpanded);
     const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
     return (
         <Dialog
@@ -182,6 +187,16 @@ export function SettingsDialog() {
                     <DialogDescription>Adjust game UI visibility settings.</DialogDescription>
                 </DialogHeader>
                 <div className='space-y-4'>
+                    <SettingsSubheader subheader='History' />
+                    <div className='flex items-center justify-between gap-4'>
+                        <div>
+                            <div className='text-sm font-semibold'>Show history</div>
+                        </div>
+                        <Switch
+                            checked={showHistoryExpanded}
+                            onCheckedChange={(value) => dispatch(setHistoryExpanded(!value))}
+                        />
+                    </div>
                     <SettingsSubheader subheader='Night order badges' />
                     <div className='flex items-center justify-between gap-4'>
                         <div>
@@ -190,7 +205,11 @@ export function SettingsDialog() {
                         </div>
                         <Switch
                             checked={showNightOrder}
-                            onCheckedChange={(value) => dispatch(setShowNightOrder(value))}
+                            onCheckedChange={(value) => {
+                                dispatch(setShowNightOrder(value));
+                                dispatch(setShowFirstNightOrder(value));
+                                dispatch(setShowOtherNightOrder(value));
+                            }}
                         />
                     </div>
                     <div className='flex items-center justify-between gap-4'>

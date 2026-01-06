@@ -1,5 +1,6 @@
 // src/components/FirstNightOrderBadge.tsx
 
+import { selectShowFirstNightOrder } from '../store/settings/settings-slice';
 import { NightOrderBadge } from './NightOrderBadge';
 
 export const FirstNightOrderBadge = ({ order, reminder }: { order: number; reminder: string }) => (
@@ -10,5 +11,6 @@ export const FirstNightOrderBadge = ({ order, reminder }: { order: number; remin
         side='left-0 -translate-x-1/2 -translate-y-1/2'
         headerBgColor='bg-blue-500'
         nightHeaderText='First Night'
+        selector={selectShowFirstNightOrder}
     />
 );

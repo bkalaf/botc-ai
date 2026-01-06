@@ -5,12 +5,14 @@ export interface SettingsState {
     showNightOrder: boolean;
     showFirstNightOrder: boolean;
     showOtherNightOrder: boolean;
+    historyExpanded: boolean;
 }
 
 const initialState: SettingsState = {
     showNightOrder: true,
     showFirstNightOrder: true,
-    showOtherNightOrder: true
+    showOtherNightOrder: true,
+    historyExpanded: false
 };
 
 export const settingsSlice = createSlice({
@@ -25,15 +27,21 @@ export const settingsSlice = createSlice({
         },
         setShowOtherNightOrder: (state, action: PayloadAction<boolean>) => {
             state.showOtherNightOrder = action.payload;
+        },
+        setHistoryExpanded: (state, action: PayloadAction<boolean>) => {
+            state.historyExpanded = action.payload;
         }
     },
     selectors: {
         selectShowNightOrder: (state) => state.showNightOrder,
         selectShowFirstNightOrder: (state) => state.showFirstNightOrder,
-        selectShowOtherNightOrder: (state) => state.showOtherNightOrder
+        selectShowOtherNightOrder: (state) => state.showOtherNightOrder,
+        selectShowHistoryExpanded: (state) => state.historyExpanded
     }
 });
 
-export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder } = settingsSlice.actions;
+export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder, setHistoryExpanded } =
+    settingsSlice.actions;
 
-export const { selectShowNightOrder, selectShowFirstNightOrder, selectShowOtherNightOrder } = settingsSlice.selectors;
+export const { selectShowNightOrder, selectShowFirstNightOrder, selectShowOtherNightOrder, selectShowHistoryExpanded } =
+    settingsSlice.selectors;

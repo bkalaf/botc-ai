@@ -1,6 +1,5 @@
 // src/components/TownSquare.tsx
 import * as React from 'react';
-import tokenImg from './../assets/images/town/token.png';
 import { CharacterTokenParent } from './CharacterTokenParent';
 import { $$ROLES, CharacterTypes, Roles } from '../data/types';
 import { selectScript } from '../store/game/game-slice';
@@ -79,6 +78,7 @@ import washerwomanGoodImg from './../assets/images/washerwoman_g.png';
 import washerwomanEvilImg from './../assets/images/washerwoman_e.png';
 import { LifeTokenBase } from './CharacterTokenBase';
 import { Ref } from 'react';
+import { hasWindow } from './hasWindow';
 
 const roleToIcon: Record<Roles, [any, any?]> = {
     empath: [empathGoodImg, empathEvilImg],
@@ -115,19 +115,19 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const controlsRef = React.useRef<HTMLDivElement | null>(null);
     const { isViewControlsOpen, setIsViewControlsOpen } = useViewControls();
     const [layout, setLayout] = React.useState(() =>
-        window ?
+        hasWindow() ?
             {
                 w: window.innerWidth,
                 h: window.innerHeight
             }
         :   { w: 0, h: 0 }
     );
-    const callback = React.useCallback((el?: HTMLElement) => {
+    const callback = React.useCallback((el: HTMLDivElement | null) => {
         if (el) {
             const { height, width } = el.getBoundingClientRect();
             setLayout({ w: width, h: height });
         }
-    }, []); 
+    }, []);
 
     const [controlsPosition, setControlsPosition] = React.useState({ x: 16, y: 16 });
     const [isDraggingControls, setIsDraggingControls] = React.useState(false);
@@ -599,8 +599,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
 
     return (
         <div
-            ref={ref}
-            className='relative h-full w-full overflow-hidden bg-background'
+            ref={callback}
+            className='relative h-full w-full overflow-hidden bg-transparent'
         >
             {isViewControlsOpen && !shouldUseDrawer ?
                 <div

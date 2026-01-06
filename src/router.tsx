@@ -1,5 +1,5 @@
 // src/router.tsx
-import { createRouter } from '@tanstack/react-router';
+import { createRouter, Link } from '@tanstack/react-router';
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query';
 import * as TanstackQuery from './integrations/tanstack-query/root-provider';
 
@@ -16,7 +16,15 @@ export const getRouter = () => {
             ...rqContext
         },
 
-        defaultPreload: 'intent'
+        defaultPreload: 'intent',
+        defaultNotFoundComponent: () => {
+            return (
+                <div>
+                    <p>Not found!</p>
+                    <Link to='/'>Go home</Link>
+                </div>
+            );
+        }
     });
 
     setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient });
