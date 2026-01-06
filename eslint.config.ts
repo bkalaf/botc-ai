@@ -47,7 +47,7 @@ export default [
             react: reactPlugin,
             'react-hooks': hooksPlugin
         },
-        ignores: ['esling.config.ts', 'assets/**/*.*'],
+        ignores: ['eslint.config.ts', 'assets/**/*.*'],
         rules: {
             ...reactPlugin.configs.recommended.rules,
             ...hooksPlugin.configs.recommended.rules,

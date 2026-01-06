@@ -84,11 +84,11 @@ export interface IntoxicationWorldModel {
     notes?: string;
 }
 
-export type TrustModels = 'all_trusting' | 'skeptical' | 'doubting_thomas';
-export type TableImpactStyles = 'disruptive' | 'stabilizing' | 'procedural';
-export type ReasoningModes = 'deductive' | 'associative' | 'surface';
-export type InformationHandlingStyle = 'archivist' | 'impressionistic' | 'signal_driven';
-export type VoiceStyles = 'quiet' | 'conversational' | 'dominant';
+export type TrustModels = 'all_trusting' | 'cautiously_trusting' | 'skeptical' | 'guarded' | 'doubting_thomas';
+export type TableImpactStyles = 'disruptive' | 'provocative' | 'stabilizing' | 'organized' | 'procedural';
+export type ReasoningModes = 'deductive' | 'systematic' | 'associative' | 'intuitive' | 'surface';
+export type InformationHandlingStyle = 'archivist' | 'curator' | 'impressionistic' | 'triage' | 'signal_driven';
+export type VoiceStyles = 'quiet' | 'reserved' | 'conversational' | 'assertive' | 'dominant';
 
 export type Personality = {
     trustModel: TrustModels;
