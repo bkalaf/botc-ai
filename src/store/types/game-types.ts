@@ -1,3 +1,4 @@
+// src/store/types/game-types.ts
 import { Roles } from '../../data/types';
 
 export type GameStates = 'idle' | 'reveal' | 'in-progress' | 'setup';

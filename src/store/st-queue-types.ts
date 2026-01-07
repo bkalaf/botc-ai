@@ -1,4 +1,6 @@
 // src/store/st-queue-types.ts
+import { AppDispatch, RootState } from '.';
+
 export type STStepType =
     | 'wake_choice' // wake player, they choose target(s)
     | 'wake_info' // wake player, give info only
@@ -33,11 +35,11 @@ export type STTask = {
 };
 
 export type StorytellerInteraction = 'human' | 'auto' | 'system';
+export type StorytellerTaskType = 'night_step' | 'log' | 'custom' | 'prompt';
 
 export interface IStorytellerQueueItem {
     id: string;
-    type: string;
-    kind?: string;
+    type: StorytellerTaskType;
     interaction?: StorytellerInteraction;
     payload?: Record<string, unknown>;
     requestedBy?: string;
@@ -50,4 +52,13 @@ export interface StorytellerQueueState {
     awaitingHumanTaskId: string | null;
     error: string | null;
     lastRunAtMs: number | null;
+}
+
+export type StorytellerTaskHandler = (
+    task: IStorytellerQueueItem,
+    api: { dispatch: AppDispatch; getState: () => RootState }
+) => Promise<void> | void;
+
+export interface StorytellerQueueThunkExtra {
+    stHandlers?: Record<string, StorytellerTaskHandler>;
 }

@@ -16,6 +16,7 @@ import {
 } from './settings/settings-slice';
 import { storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
+import { stQueueThunkExtra } from './st-queue/stQueueThunkExtra';
 
 export const createStoreListeners = () => {
     const listenerMiddleware = createListenerMiddleware();
@@ -75,7 +76,11 @@ export const store = configureStore({
         voting: votingSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware()
+        getDefaultMiddleware({
+            thunk: {
+                extraArgument: stQueueThunkExtra
+            }
+        })
             .prepend(listenerMiddleware.middleware, listenerMiddleware2.middleware)
             .concat(dynamicMiddlewareRegistry.middleware)
 });

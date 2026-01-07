@@ -18,6 +18,7 @@ export interface ISeat {
     thinks?: Roles;
     isAlive: boolean;
     hasVote: boolean;
+    alignment: 'good' | 'evil';
 }
 
 export interface ISeatedPlayer {

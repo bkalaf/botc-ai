@@ -6,10 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectScript } from '@/store/game/game-slice';
-import { setSeats } from '@/store/grimoire/grimoire-slice';
-import { enqueueBack } from '@/store/st-queue/st-queue-slice';
+import { setOutOfPlay, setSeats } from '@/store/grimoire/grimoire-slice';
+import { enqueueBack, enqueueFront, runTasks } from '@/store/st-queue/st-queue-slice';
 import { IPlayer, ISeat, Personality } from '@/store/types/player-types';
-import { CharacterCounts, CharacterTokens, CharacterTypes, Roles } from '@/data/types';
+import { $$ROLES, CharacterCounts, CharacterTokens, CharacterTypes, Roles } from '@/data/types';
 import namesJson from '@/data/names.json';
 import rolesData from '@/data/roles.json';
 import gameDefinitions from '@/data/game.json';
@@ -245,6 +245,7 @@ export function SetupGameDialog() {
         };
 
         let drunkTaskQueued = false;
+        let fortunetellerTaskQueued = false;
 
         const applyModifiers = (role: CharacterTokens) => {
             if (role.id === 'baron') {
@@ -260,19 +261,27 @@ export function SetupGameDialog() {
                     drunkTaskQueued = true;
                     dispatch(
                         enqueueBack({
-                            id: 'drunk_choice',
-                            type: 'custom',
-                            kind: 'custom',
+                            id: 'drunkchoice',
+                            type: 'prompt',
                             interaction: 'system',
                             payload: {
-                                phase: 'setup',
-                                roleId: 'drunk',
-                                stepType: 'resolve_effect',
-                                nightNumber: 1
+                                id: 'drunk_choice'
                             }
                         })
                     );
                 }
+            }
+
+            if (role.id === 'fortuneteller' && !fortunetellerTaskQueued) {
+                fortunetellerTaskQueued = true;
+                dispatch(
+                    enqueueBack({
+                        id: 'fortuneteller_redherring',
+                        type: 'prompt',
+                        interaction: 'system',
+                        payload: { id: 'fortuneteller_redherring' }
+                    })
+                );
             }
         };
 
@@ -308,17 +317,60 @@ export function SetupGameDialog() {
         const randomizedBag = shuffleArray(bag);
         const randomizedPlayers = shuffleArray(players);
 
-        const seats: ISeat[] = randomizedBag.map((role, index) => ({
+        const seats: ISeat[] = []; /* randomizedBag.map((role, index) => ({
             ID: index + 1,
             player: randomizedPlayers[index],
             role,
             isAlive: true,
-            hasVote: true
-        }));
+            hasVote: true,
+            alignment: $$ROLES[role].team === 'townsfolk' ? 'good' : $$ROLES[role].team === 'outsider' ? 'good' : $$ROLES[role].team === 'demon' ? 'evil' : 
+        }));  */
+        for (const [index, role] of randomizedBag.map((role, index) => [index, role] as [number, Roles])) {
+            const ID = index + 1;
+            const player = randomizedPlayers[index];
+            const { team } = $$ROLES[role];
+            let alignment: 'good' | 'evil' = 'good';
+            if (['demon', 'minion'].includes(team)) {
+                alignment = 'evil';
+            } else if (team === 'traveler') {
+                dispatch(
+                    enqueueFront({
+                        id: 'traveler_alignment',
+                        type: 'prompt',
+                        interaction: 'system',
+                        payload: {
+                            ID: 'traveler_alignment',
+                            travelerID: ID
+                        }
+                    })
+                );
+            }
+            seats.push({
+                ID,
+                player,
+                role,
+                isAlive: true,
+                hasVote: true,
+                alignment
+            });
+        }
+        const outOfPlay = script.filter(
+            (id) => !bag.includes(id as Roles) && !['fabled', 'lorid', 'traveler'].includes($$ROLES[id].team)
+        );
+        dispatch(setOutOfPlay(outOfPlay));
+        dispatch(
+            enqueueFront({
+                id: 'demonbluffs',
+                type: 'prompt',
+                interaction: 'system',
+                payload: { id: 'demonbluffs' }
+            })
+        );
 
         dispatch(setSeats(seats));
         setHasSubmittedSetup(true);
         setIsOpen(false);
+        return dispatch(runTasks());
     };
 
     return (

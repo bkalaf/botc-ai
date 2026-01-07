@@ -1,16 +1,7 @@
 // src/store/st-queue/st-queue-slice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AppDispatch, RootState } from '../index';
-import type { IStorytellerQueueItem, StorytellerQueueState } from '../st-queue-types';
-
-export type StorytellerTaskHandler = (
-    task: IStorytellerQueueItem,
-    api: { dispatch: AppDispatch; getState: () => RootState }
-) => Promise<void> | void;
-
-export interface StorytellerQueueThunkExtra {
-    stHandlers?: Record<string, StorytellerTaskHandler>;
-}
+import type { IStorytellerQueueItem, StorytellerQueueState, StorytellerQueueThunkExtra } from '../st-queue-types';
 
 export const initialState: StorytellerQueueState = {
     items: [],
@@ -58,7 +49,7 @@ export const runNextTask = createAsyncThunk<
     dispatch(setAwaitingHumanTaskId(null));
 
     const handlers = thunkAPI.extra?.stHandlers;
-    const taskKind = task.kind ?? task.type;
+    const taskKind = task.type;
     const handler = handlers?.[taskKind];
 
     try {
@@ -107,7 +98,7 @@ export const runTasks = createAsyncThunk<
                 return { ranCount, stoppedBecause: 'empty' };
             }
 
-            const res = await dispatch(runNextTask()).unwrap();
+            const res = await dispatch(runNextTask() as any).unwrap();
             if (res.paused === 'human') {
                 dispatch(setRunning(false));
                 return { ranCount, stoppedBecause: 'human' };

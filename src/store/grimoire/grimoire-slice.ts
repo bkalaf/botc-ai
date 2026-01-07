@@ -1,6 +1,8 @@
 // src/store/grimoire/grimoire-slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IGrimoireSlice, IReminderTokens } from '../types/grimoire-types';
+import { CharacterTypes, $$ROLES, Roles } from '../../data/types';
+import { toProperCase } from '../../utils/getWordsForNumber.ts/toProperCase';
 
 type SeatCondition = {
     isDrunk: boolean;
@@ -163,6 +165,13 @@ export const grimoireSlice = createSlice({
         setSeats: (state, action: PayloadAction<IGrimoireSlice['seats']>) => {
             state.seats = action.payload;
         },
+        setMaskedRole: (state, action: PayloadAction<{ seatID: number; mask: Roles }>) => {
+            state.seats[action.payload.seatID].thinks = state.seats[action.payload.seatID].role;
+            state.seats[action.payload.seatID].role = action.payload.mask;
+        },
+        setAlignment: (state, action: PayloadAction<{ seatID: number; alignment: 'good' | 'evil' }>) => {
+            state.seats[action.payload.seatID].alignment = action.payload.alignment;
+        },
         setOutOfPlay: (state, action: PayloadAction<IGrimoireSlice['outOfPlay']>) => {
             state.outOfPlay = action.payload;
         },
@@ -177,6 +186,8 @@ export const grimoireSlice = createSlice({
         }
     },
     selectors: {
+        selectDemonBluffs: (state) => state.demonBluffs,
+        selectOutOfPlay: (state) => state.outOfPlay,
         selectReminderTokens: (state) => state.reminderTokens,
         selectRecalibrationQueue: (state) => state.recalibrationQueue,
         selectReminderTokensByTarget: (state, target: number) => getTokensByTarget(state.reminderTokens, target),
@@ -195,14 +206,48 @@ export const grimoireSlice = createSlice({
             return sourceCondition.isDrunk || sourceCondition.isPoisoned;
         },
         selectLoricPlayers: (state) => state.loricPlayers,
-        selectFabledPlayers: (state) => state.fabledPlayers
+        selectFabledPlayers: (state) => state.fabledPlayers,
+        selectSeatedPlayer: (state, seatID: number) => {
+            const seat = state.seats[seatID];
+            const team: CharacterTypes = $$ROLES[seat.role].team as any;
+            const reminders = grimoireSlice.getSelectors().selectReminderTokensByTarget(state, seat.ID);
+            const conditions = grimoireSlice.getSelectors().selectSeatCondition(state, seat.ID);
+            return {
+                ID: seat.ID,
+                hasVote: seat.hasVote,
+                isAlive: seat.isAlive,
+                role: seat.role,
+                thinks: seat.thinks,
+                personality: seat.player.personality!,
+                pronouns: seat.player.pronouns,
+                name: seat.player.name,
+                alignment: seat.alignment,
+                team,
+                reminders: reminders.map((token) => toProperCase(token.key.split('_').slice(1).join(' '))).join(', '),
+                ...conditions
+            };
+        },
+        selectSeatedPlayers: (state) => {
+            return state.seats.map((seat) => grimoireSlice.getSelectors().selectSeatedPlayer(state, seat.ID));
+        }
     }
 });
 
-export const { addReminderToken, removeReminderToken, setSeats, setOutOfPlay, setDemonBluffs, setLoricPlayers, setFabledPlayers } =
-    grimoireSlice.actions;
+export const {
+    addReminderToken,
+    removeReminderToken,
+    setSeats,
+    setMaskedRole,
+    setOutOfPlay,
+    setDemonBluffs,
+    setLoricPlayers,
+    setFabledPlayers,
+    setAlignment
+} = grimoireSlice.actions;
 
 export const {
+    selectDemonBluffs,
+    selectOutOfPlay,
     selectReminderTokens,
     selectRecalibrationQueue,
     selectReminderTokensByTarget,
@@ -212,5 +257,7 @@ export const {
     selectIsSeatPoisoned,
     selectIsReminderTokenFlipped,
     selectLoricPlayers,
-    selectFabledPlayers
+    selectFabledPlayers,
+    selectSeatedPlayers,
+    selectSeatedPlayer
 } = grimoireSlice.selectors;
