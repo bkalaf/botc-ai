@@ -182,6 +182,10 @@ body {
     font-weight: 700;
 }
 
+.font-small-caps {
+    font-variant: small-caps;
+}
+
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

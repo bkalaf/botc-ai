@@ -1,8 +1,7 @@
 // src/store/st-queue/st-queue-slice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AppDispatch, RootState } from '../index';
-
-export type StorytellerInteraction = 'human' | 'auto' | 'system';
+import type { IStorytellerQueueItem, StorytellerQueueState } from '../st-queue-types';
 
 export type StorytellerTaskHandler = (
     task: IStorytellerQueueItem,
@@ -11,24 +10,6 @@ export type StorytellerTaskHandler = (
 
 export interface StorytellerQueueThunkExtra {
     stHandlers?: Record<string, StorytellerTaskHandler>;
-}
-
-export interface IStorytellerQueueItem {
-    id: string;
-    type: string;
-    kind?: string;
-    interaction?: StorytellerInteraction;
-    payload?: Record<string, unknown>;
-    requestedBy?: string;
-}
-
-export interface StorytellerQueueState {
-    items: IStorytellerQueueItem[];
-    currentItem: IStorytellerQueueItem | null;
-    isRunning: boolean;
-    awaitingHumanTaskId: string | null;
-    error: string | null;
-    lastRunAtMs: number | null;
 }
 
 export const initialState: StorytellerQueueState = {

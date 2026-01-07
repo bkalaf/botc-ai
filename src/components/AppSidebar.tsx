@@ -1,15 +1,7 @@
 // src/components/AppSidebar.tsx
-import {
-    Sidebar,
-    SidebarHeader,
-    SidebarContent,
-    SidebarMenu,
-    SidebarMenuItem,
-    SidebarMenuButton,
-    useSidebar
-} from '@/components/ui/sidebar';
-import { Link } from '@tanstack/react-router';
-import { BookOpen, Clock, ClipboardList, History, Home, Settings, Users } from 'lucide-react';
+import { Sidebar, SidebarHeader, SidebarContent } from '@/components/ui/sidebar';
+import { SidebarBrandToggle } from './sidebar/SidebarBrandToggle';
+import { SidebarMenuLinks } from './sidebar/SidebarMenuLinks';
 
 export function AppSidebar() {
     return (

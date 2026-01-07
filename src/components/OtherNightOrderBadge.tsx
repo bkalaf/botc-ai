@@ -1,5 +1,4 @@
 // src/components/OtherNightOrderBadge.tsx
-import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectShowOtherNightOrder } from '../store/settings/settings-slice';
 import { NightOrderBadge } from './NightOrderBadge';
 

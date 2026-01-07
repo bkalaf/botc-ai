@@ -31,3 +31,23 @@ export type STTask = {
     /** scratch / prepared results stored somewhere (not in task if big) */
     payload?: Record<string, any>;
 };
+
+export type StorytellerInteraction = 'human' | 'auto' | 'system';
+
+export interface IStorytellerQueueItem {
+    id: string;
+    type: string;
+    kind?: string;
+    interaction?: StorytellerInteraction;
+    payload?: Record<string, unknown>;
+    requestedBy?: string;
+}
+
+export interface StorytellerQueueState {
+    items: IStorytellerQueueItem[];
+    currentItem: IStorytellerQueueItem | null;
+    isRunning: boolean;
+    awaitingHumanTaskId: string | null;
+    error: string | null;
+    lastRunAtMs: number | null;
+}

@@ -16,6 +16,8 @@ const initialState: IGrimoireState = {
     demonBluffs: undefined,
     outOfPlay: [],
     reminderTokens: {},
+    loricPlayers: [],
+    fabledPlayers: [],
     recalibrationQueue: []
 };
 
@@ -166,6 +168,12 @@ export const grimoireSlice = createSlice({
         },
         setDemonBluffs: (state, action: PayloadAction<IGrimoireSlice['demonBluffs']>) => {
             state.demonBluffs = action.payload;
+        },
+        setLoricPlayers: (state, action: PayloadAction<IGrimoireSlice['loricPlayers']>) => {
+            state.loricPlayers = action.payload;
+        },
+        setFabledPlayers: (state, action: PayloadAction<IGrimoireSlice['fabledPlayers']>) => {
+            state.fabledPlayers = action.payload;
         }
     },
     selectors: {
@@ -185,11 +193,14 @@ export const grimoireSlice = createSlice({
 
             const sourceCondition = createSeatConditionResolver(state.reminderTokens)(token.source);
             return sourceCondition.isDrunk || sourceCondition.isPoisoned;
-        }
+        },
+        selectLoricPlayers: (state) => state.loricPlayers,
+        selectFabledPlayers: (state) => state.fabledPlayers
     }
 });
 
-export const { addReminderToken, removeReminderToken, setSeats, setOutOfPlay, setDemonBluffs } = grimoireSlice.actions;
+export const { addReminderToken, removeReminderToken, setSeats, setOutOfPlay, setDemonBluffs, setLoricPlayers, setFabledPlayers } =
+    grimoireSlice.actions;
 
 export const {
     selectReminderTokens,
@@ -199,5 +210,7 @@ export const {
     selectSeatCondition,
     selectIsSeatDrunk,
     selectIsSeatPoisoned,
-    selectIsReminderTokenFlipped
+    selectIsReminderTokenFlipped,
+    selectLoricPlayers,
+    selectFabledPlayers
 } = grimoireSlice.selectors;

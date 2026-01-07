@@ -1,9 +1,9 @@
 // src/components/NightOrderBadge.tsx
 import { Badge } from './ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { Label } from './ui/label';
 import { toProperCase } from '../utils/getWordsForNumber.ts/toProperCase';
 import { useAppSelector } from '../store/hooks';
+import { TooltipText } from './TooltipText';
 
 export function NightOrderBadge({
     order,
@@ -34,7 +34,8 @@ export function NightOrderBadge({
     const value = useAppSelector(selector);
 
     return (
-        value && (
+        value &&
+        order > 0 && (
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Badge
@@ -44,13 +45,10 @@ export function NightOrderBadge({
                         <span className='text-white text-base'>{order}</span>
                     </Badge>
                 </TooltipTrigger>
-                <TooltipContent>
-                    <div className='flex flex-row w-100 justify-start items-center'>
+                <TooltipContent className='bg-transparent'>
+                    <TooltipText text={reminder}>
                         <span className={className2}>{toProperCase(nightHeaderText).replace(/ /g, '\n')}</span>
-                        <p className='px-2.5 py-1.5 flex bg-slate-700 rounded-lg text-white text-lg w-full'>
-                            {reminder}
-                        </p>
-                    </div>
+                    </TooltipText>
                 </TooltipContent>
             </Tooltip>
         )

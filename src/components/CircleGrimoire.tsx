@@ -1,3 +1,4 @@
+// src/components/CircleGrimoire.tsx
 import * as React from 'react';
 import tokenImg from './../assets/images/town/token.png';
 import { CharacterTokenParent } from './CharacterTokenParent';

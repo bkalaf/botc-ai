@@ -1,7 +1,8 @@
 // src/store/middleware/storyteller-bridge-listener.ts
 import type { ListenerMiddlewareInstance } from '@reduxjs/toolkit';
 import { enqueueBack, enqueueFront } from '../ai-orchestrator/ai-orchestrator-slice';
-import { storytellerQueueSlice, type IStorytellerQueueItem } from '../st-queue/st-queue-slice';
+import { storytellerQueueSlice } from '../st-queue/st-queue-slice';
+import type { IStorytellerQueueItem } from '../st-queue-types';
 
 const mapStorytellerQueueItem = (item: IStorytellerQueueItem) => ({
     id: item.id,

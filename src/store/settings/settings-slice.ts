@@ -13,8 +13,7 @@ const initialState: SettingsState = {
     showNightOrder: true,
     showFirstNightOrder: true,
     showOtherNightOrder: true,
-    historyExpanded: false
-    showOtherNightOrder: true,
+    historyExpanded: true,
     grimoireShape: 'circle'
 };
 
@@ -42,21 +41,25 @@ export const settingsSlice = createSlice({
         selectShowNightOrder: (state) => state.showNightOrder,
         selectShowFirstNightOrder: (state) => state.showFirstNightOrder,
         selectShowOtherNightOrder: (state) => state.showOtherNightOrder,
-        selectShowHistoryExpanded: (state) => state.historyExpanded
-        selectShowOtherNightOrder: (state) => state.showOtherNightOrder,
+        selectShowHistoryExpanded: (state) => state.historyExpanded,
         selectGrimoireShape: (state) => state.grimoireShape
     }
 });
 
-export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder, setHistoryExpanded } =
-export const { setShowNightOrder, setShowFirstNightOrder, setShowOtherNightOrder, setGrimoireShape } =
-    settingsSlice.actions;
+export const {
+    setShowNightOrder,
+    setShowFirstNightOrder,
+    setShowOtherNightOrder,
+    setHistoryExpanded,
+    setGrimoireShape
+} = settingsSlice.actions;
 
-export const { selectShowNightOrder, selectShowFirstNightOrder, selectShowOtherNightOrder, selectShowHistoryExpanded } =
-    settingsSlice.selectors;
 export const {
     selectShowNightOrder,
     selectShowFirstNightOrder,
     selectShowOtherNightOrder,
+    selectShowHistoryExpanded,
     selectGrimoireShape
 } = settingsSlice.selectors;
+
+export default settingsSlice.reducer;

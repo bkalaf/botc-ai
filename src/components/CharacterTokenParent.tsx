@@ -4,36 +4,29 @@ import { $$ROLES, CharacterTypes, Roles } from '../data/types';
 import { Label } from './ui/label';
 import { Children } from '../types';
 import shroudImg from './../assets/images/town/shroud.png';
-import { ShadedOverlay } from './ShadedOverlay';
 import { FirstNightOrderBadge } from './FirstNightOrderBadge';
 import { OtherNightOrderBadge } from './OtherNightOrderBadge';
-import { RoleLabel } from './RoleLabel';
-import { useAppSelector } from '@/store/hooks';
-import {
-    selectShowFirstNightOrder,
-    selectShowNightOrder,
-    selectShowOtherNightOrder
-} from '@/store/settings/settings-slice';
-import { CharacterTokenBase, DeathTokenBase, TokenBase } from './CharacterTokenBase';
+import { NameLabel, RoleLabel } from './RoleLabel';
+import { CharacterTokenBase, DeathTokenBase } from './CharacterTokenBase';
+import { TooltipText } from './TooltipText';
 
 export function CharacterTokenParent({
-    ImgSize,
     x,
     y,
     name,
     role,
-    children,
     isMarked,
     isAlive,
     characterType,
     alignment,
     isDrunk,
     isPoisoned,
-    // reminderSlots,
-    // reminderTokenSize,
+    reminderSlots,
+    reminderTokenSize,
     firstNightOrder,
     otherNightOrder,
-    tokenSize
+    tokenSize,
+    children
 }: {
     tokenSize: number;
     x: number;
@@ -55,12 +48,7 @@ export function CharacterTokenParent({
     firstNightOrder?: number;
     otherNightOrder?: number;
 }) {
-    const { firstNight, firstNightReminder, otherNight, otherNightReminder, ability } = $$ROLES[role];
-    const displayFirstNightOrder = firstNightOrder ?? firstNight;
-    const displayOtherNightOrder = otherNightOrder ?? otherNight;
-    const showNightOrder = useAppSelector(selectShowNightOrder);
-    const showFirstNightOrder = useAppSelector(selectShowFirstNightOrder);
-    const showOtherNightOrder = useAppSelector(selectShowOtherNightOrder);
+    const { firstNightReminder, otherNightReminder, ability } = $$ROLES[role];
     return (
         <>
             <button
@@ -80,7 +68,7 @@ export function CharacterTokenParent({
                 <CharacterTokenBase />
                 <DeathTokenBase />
                 {/* <ShadedOverlay /> */}
-
+                {children}
                 <img
                     src={shroudImg}
                     alt=''
@@ -88,86 +76,51 @@ export function CharacterTokenParent({
                     draggable={false}
                     data-is-alive={isAlive}
                 />
-                {showNightOrder && showFirstNightOrder ?
-                    <FirstNightOrderBadge
-                        order={displayFirstNightOrder}
-                        reminder={firstNightReminder}
-                    />
-                    {children}
-                    {showNightOrder && showFirstNightOrder ?
-                        <FirstNightOrderBadge
-                            order={displayFirstNightOrder}
-                            reminder={firstNightReminder}
+
+                {reminderSlots && reminderTokenSize ?
+                    reminderSlots.map((slot, index) => (
+                        <div
+                            key={`reminder-slot-${index}`}
+                            className='absolute rounded-full border border-dashed border-muted-foreground/40 opacity-0'
+                            style={{
+                                width: reminderTokenSize,
+                                height: reminderTokenSize,
+                                left: slot.x - x,
+                                top: slot.y - y
+                            }}
+                            aria-hidden='true'
+                            data-reminder-slot
                         />
-                    :   null}
-                    {showNightOrder && showOtherNightOrder ?
-                        <OtherNightOrderBadge
-                            order={displayOtherNightOrder}
-                            reminder={otherNightReminder}
-                        />
-                    :   null}
-                    {reminderSlots && reminderTokenSize ?
-                        reminderSlots.map((slot, index) => (
-                            <div
-                                key={`reminder-slot-${index}`}
-                                className='absolute rounded-full border border-dashed border-muted-foreground/40 opacity-0'
-                                style={{
-                                    width: reminderTokenSize,
-                                    height: reminderTokenSize,
-                                    left: slot.x - x,
-                                    top: slot.y - y
-                                }}
-                                aria-hidden='true'
-                                data-reminder-slot
-                            />
-                        ))
-                    :   null}
-                    <div className='absolute bottom-0 text-base text-white flex flex-col'>
-                        <span
-                            // className='flex place-self-center text-center bg-transparent mx-auto transform -translate-y-full w-full top-1/7 z-30 font-black px-1.5 py-0.5 justify-center'
-                            // id='role'
-                            className='flex text-center transform font-black text-lg justify-center'
-                            id='role'
-                        >
-                            <RoleLabel role={role} />
-                        </span>
-                        <Label
-                            // className='w-full min-w-fit rounded-md shadow-inner border-white border-2 bg-black text-white text-center text-sm absolute bottom-0 font-bold transform translate-y-1/2 data-[character-type=demon]:bg-red-500 data-[character-type=minion]:bg-orange-500 data-[character-type=outsider]:bg-cyan-500 data-[character-type=townsfolk]:bg-blue-500 data-[character-type=traveler]:bg-yellow-500 px-1.5 py-0.5 justify-center z-30'
-                            className='flex bg-black w-full min-w-fit rounded-md shadow-inner text-white text-center font-extrabold text-base'
-                            htmlFor=''
-                            id='team'
-                            data-character-type={$$ROLES[role].team}
-                        >
-                            {name}
-                        </Label>
+                    ))
+                :   null}
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <RoleLabel role={role} />
+                    </TooltipTrigger>
+                    <TooltipContent className='bg-transparent w-auto'>
+                        <TooltipText text={ability} />
                     </TooltipContent>
                 </Tooltip>
+                <NameLabel name={name ?? ''} />
+                {/* <div className='absolute bottom-0 text-white flex flex-col w-full text-2xl transform'>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <RoleLabel role={role} />
+                        </TooltipTrigger>
+                        <TooltipContent className='bg-transparent w-auto'>
+                            <TooltipText text={ability} />
+                        </TooltipContent>
+                    </Tooltip>
+                    <NameLabel name={name ?? ''} />
+                </div> */}
                 <FirstNightOrderBadge
-                    order={displayFirstNightOrder}
+                    order={firstNightOrder ?? 0}
                     reminder={firstNightReminder}
                 />
                 <OtherNightOrderBadge
-                    order={displayOtherNightOrder}
+                    order={otherNightOrder ?? 0}
                     reminder={otherNightReminder}
                 />
-                <div className='absolute bottom-0 text-white flex flex-col w-full text-2xl py-2 transform translate-y-1/2'>
-                    <span
-                        // className='flex place-self-center text-center bg-transparent mx-auto transform -translate-y-full w-full top-1/7 z-30 font-black px-1.5 py-0.5 justify-center'
-                        className='font-rubik flex text-center transform font-extrabold text-base justify-center z-30 font-lg px-1.5 py-0.5 bg-black text-white'
-                        id='role'
-                    >
-                        <RoleLabel role={'undertaker'} />
-                    </span>
-                    <Label
-                        // className='w-full min-w-fit rounded-md shadow-inner border-white border-2 bg-black text-white text-center text-sm absolute bottom-0 font-bold transform translate-y-1/2 data-[character-type=demon]:bg-red-500 data-[character-type=minion]:bg-orange-500 data-[character-type=outsider]:bg-cyan-500 data-[character-type=townsfolk]:bg-blue-500 data-[character-type=traveler]:bg-yellow-500 px-1.5 py-0.5 justify-center z-30'
-                        className='font-rubik flex bg-black w-full min-w-fit rounded-md shadow-inner text-white text-center font-extrabold text-base z-30 justify-center items-center border-2 border-gray-400 group-data-[character-type="demon"]:bg-rose-500 group-data-[character-type="minion"]:bg-fuchsia-400  group-data-[character-type="townsfolk"]:bg-blue-500 group-data-[character-type="traveler"]:bg-yellow-500 group-data-[character-type="outsider"]:bg-teal-500'
-                        htmlFor=''
-                        id='team'
-                        data-character-type={$$ROLES[role].team}
-                    >
-                        NAME
-                    </Label>
-                </div>
             </button>
         </>
     );

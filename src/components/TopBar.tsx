@@ -3,7 +3,24 @@ import { SidebarTrigger } from './ui/sidebar';
 import { TopBarMobileMenu } from '@/components/top-bar/TopBarMobileMenu';
 import { TopBarBreadcrumbs } from '@/components/top-bar/TopBarBreadcrumbs';
 import { TopBarScriptsMenu } from '@/components/top-bar/TopBarScriptsMenu';
+import { SetupGameDialog } from './SetupGameDialog';
 import { TopBarPreferencesDialog } from '@/components/top-bar/TopBarPreferencesDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Switch } from '@radix-ui/react-switch';
+import { Settings } from 'lucide-react';
+import React from 'react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+    selectShowNightOrder,
+    selectShowFirstNightOrder,
+    selectShowOtherNightOrder,
+    selectShowHistoryExpanded,
+    setHistoryExpanded,
+    setShowNightOrder,
+    setShowFirstNightOrder,
+    setShowOtherNightOrder
+} from '../store/settings/settings-slice';
+import { Button } from './ui/button';
 
 export function TopBar() {
     return (
@@ -14,6 +31,7 @@ export function TopBar() {
             <TopBarMobileMenu />
             <TopBarBreadcrumbs />
             <div className='ml-auto flex items-center gap-2'>
+                <SetupGameDialog />
                 <TopBarScriptsMenu />
                 <TopBarPreferencesDialog />
             </div>
@@ -34,7 +52,7 @@ export function SettingsDialog() {
     const showNightOrder = useAppSelector(selectShowNightOrder);
     const showFirstNightOrder = useAppSelector(selectShowFirstNightOrder);
     const showOtherNightOrder = useAppSelector(selectShowOtherNightOrder);
-    const showHistoryExpanded = !useAppSelector(selectShowHistoryExpanded);
+    const showHistoryExpanded = useAppSelector(selectShowHistoryExpanded);
     const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
     return (
         <Dialog
@@ -63,7 +81,7 @@ export function SettingsDialog() {
                         </div>
                         <Switch
                             checked={showHistoryExpanded}
-                            onCheckedChange={(value) => dispatch(setHistoryExpanded(!value))}
+                            onCheckedChange={(value) => dispatch(setHistoryExpanded(value))}
                         />
                     </div>
                     <SettingsSubheader subheader='Night order badges' />

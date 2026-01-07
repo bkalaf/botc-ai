@@ -3,7 +3,6 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { TopBar } from './TopBar';
 import { BottomBar } from './BottomBar';
-import { HistoryPanel } from './HistoryPanel';
 import { ViewControlsProvider } from './ViewControlsContext';
 import mainBg from '@/town/background.jpg';
 import { ThemeProvider } from './ThemeProvider';
@@ -34,8 +33,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
                             <BottomBar className='bottom-0"' />
                         </div>
-
-                        <HistoryPanel />
                     </SidebarInset>
                 </SidebarProvider>
             </ViewControlsProvider>

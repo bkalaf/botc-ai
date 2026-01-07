@@ -8,7 +8,12 @@ import { addLogEntry, historySlice } from './history/history-slice';
 import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
 import { registerHistoryListener } from './middleware/history-listener';
 import { registerStorytellerBridgeListener } from './middleware/storyteller-bridge-listener';
-import { settingsSlice } from './settings/settings-slice';
+import {
+    setShowFirstNightOrder,
+    setShowNightOrder,
+    setShowOtherNightOrder,
+    settingsSlice
+} from './settings/settings-slice';
 import { storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
 
@@ -49,6 +54,15 @@ listenerMiddleware.startListening({
     }
 });
 
+export const listenerMiddleware2 = createStoreListeners();
+listenerMiddleware.startListening({
+    predicate: (action: any) => setShowNightOrder.match(action),
+    effect: (action, listenerApi) => {
+        listenerApi.dispatch(setShowFirstNightOrder(action.payload));
+        listenerApi.dispatch(setShowOtherNightOrder(action.payload));
+    }
+});
+
 export const store = configureStore({
     reducer: {
         aiOrchestrator: aiOrchestratorSlice.reducer,
@@ -61,7 +75,9 @@ export const store = configureStore({
         voting: votingSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(dynamicMiddlewareRegistry.middleware)
+        getDefaultMiddleware()
+            .prepend(listenerMiddleware.middleware, listenerMiddleware2.middleware)
+            .concat(dynamicMiddlewareRegistry.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;

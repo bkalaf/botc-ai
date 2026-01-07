@@ -1,3 +1,4 @@
+// src/store/types/grimoire-types.ts
 import { Roles } from '../../data/types';
 import { ISeat } from './player-types';
 
@@ -13,4 +14,6 @@ export interface IGrimoireSlice {
     demonBluffs: [Roles, Roles, Roles] | undefined;
     outOfPlay: Roles[];
     reminderTokens: Record<string, IReminderTokens>;
+    loricPlayers: Roles[];
+    fabledPlayers: Roles[];
 }

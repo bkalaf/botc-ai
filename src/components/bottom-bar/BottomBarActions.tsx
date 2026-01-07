@@ -2,9 +2,14 @@ import { CogIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useViewControls } from '@/components/ViewControlsContext';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectShowHistoryExpanded, setHistoryExpanded } from '@/store/settings/settings-slice';
+import { HistoryPanel } from '@/components/HistoryPanel';
 
 export function BottomBarActions() {
     const { isViewControlsOpen, toggleViewControls } = useViewControls();
+    const dispatch = useAppDispatch();
+    const isHistoryExpanded = useAppSelector(selectShowHistoryExpanded);
 
     return (
         <div className='mx-auto flex min-h-14 max-w-screen-sm items-center justify-between gap-4 px-4 py-3 text-sm font-semibold'>
@@ -26,7 +31,23 @@ export function BottomBarActions() {
                     View Controls
                 </Button>
             </div>
-            <div className='flex flex-1 items-center justify-end'>Population</div>
+            <div className='relative flex flex-1 items-center justify-end'>
+                <Button
+                    size='sm'
+                    variant={isHistoryExpanded ? 'secondary' : 'outline'}
+                    type='button'
+                    onClick={() => dispatch(setHistoryExpanded(!isHistoryExpanded))}
+                    className={[
+                        'gap-2 text-[11px] font-semibold uppercase tracking-wide',
+                        isHistoryExpanded && 'bg-blue-700 text-white hover:bg-blue-600'
+                    ]
+                        .filter(Boolean)
+                        .join(' ')}
+                >
+                    History
+                </Button>
+                <HistoryPanel />
+            </div>
         </div>
     );
 }

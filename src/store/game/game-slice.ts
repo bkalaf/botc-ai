@@ -124,4 +124,6 @@ export const buildAndStartGame = createAsyncThunk<{ gameID: string }, void, { st
     }
 );
 
-export const { selectScript } = gameSlice.selectors;
+export const { setGameID, setScript, nextDayPhase, cycleGameState, goodWon, evilWon } = gameSlice.actions;
+export const { selectScript, selectCanCycleGameState, selectDay, selectPhase, selectDisplayTime, selectGameState } =
+    gameSlice.selectors;
