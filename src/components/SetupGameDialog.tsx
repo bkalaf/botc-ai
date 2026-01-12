@@ -13,7 +13,7 @@ import { $$ROLES, CharacterCounts, CharacterTokens, CharacterTypes, Roles } from
 import namesJson from '@/data/names.json';
 import rolesData from '@/data/roles.json';
 import gameDefinitions from '@/data/game.json';
-import { showDialog } from '../store/ui/ui-slice';
+import { openDialog } from '@/lib/dialogs';
 
 type NameEntry = { name: string; pronouns: 'he/him' | 'she/her' | 'they/them' };
 
@@ -365,22 +365,12 @@ export function SetupGameDialog() {
         dispatch(setSeats(seatMap));
         setHasSubmittedSetup(true);
         setIsOpen(false);
-        dispatch(
-            showDialog({
-                options: {
-                    title: 'Setup Complete',
-                    message: 'Start Game?',
-                    Controls: () => <></>
-                },
-                resolve: () => {
-                    dispatch(runTasks());
-                    dispatch(runFirstNight());
-                },
-                reject: (reason: string) => {
-                    console.log(reason);
-                }
-            })
-        );
+        void openDialog({ dispatch, dialogType: 'setupComplete', data: {} }).then((result) => {
+            if (result.confirmed) {
+                dispatch(runTasks());
+                dispatch(runFirstNight());
+            }
+        });
     };
 
     return (

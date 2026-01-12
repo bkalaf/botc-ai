@@ -10,8 +10,7 @@ import { RootState, AppDispatch } from '../store';
 import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
 import { addClaim } from '../store/memory/memory-slice';
 import { buildHandler } from './buildHandler';
-import { getIcon } from './getIcon';
-import { closeDialog, showDialog } from '../store/ui/ui-slice';
+import { openDialog } from '@/lib/dialogs';
 import { clearTask } from './clearTask';
 
 const EmpathInfoReturnSchema = z.object({
@@ -47,7 +46,7 @@ export const empathNumberServerFn = createServerFn({ method: 'POST' })
     });
 
 export const empathHandler = (state: RootState, dispatch: AppDispatch) => {
-    const func = ({ confirmed, value }: { confirmed: boolean; value: { shown: { count: number } } }) => {
+    const func = async ({ confirmed, value }: { confirmed: boolean; value: { shown: { count: number } } }) => {
         const seat = selectSeatByRole(state, 'empath');
         if (seat == null) throw new Error(`no empath seat`);
         const {
@@ -64,23 +63,10 @@ export const empathHandler = (state: RootState, dispatch: AppDispatch) => {
             );
             clearTask(dispatch);
         } else {
-            const Icon = getIcon(value?.shown.count);
-            const controls = () => <Icon />;
-            dispatch(
-                showDialog({
-                    options: {
-                        title: 'Night Info',
-                        message: 'You are shown:',
-                        Controls: controls
-                    },
-                    resolve: () => {
-                        clearTask(dispatch);
-                    },
-                    reject: (reason: string) => {
-                        console.log(reason);
-                    }
-                })
-            );
+            const result = await openDialog({ dispatch, dialogType: 'empathInfo', data: { count: value.shown.count } });
+            if (result.confirmed) {
+                clearTask(dispatch);
+            }
         }
     };
     return buildHandler(empathNumberServerFn, func);

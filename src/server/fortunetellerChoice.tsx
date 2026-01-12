@@ -9,10 +9,8 @@ import { fortuneTellerNightAction } from '../prompts/fortuneTellerNightAction';
 import { RootState, AppDispatch } from '../store';
 import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
 import { addClaim } from '../store/memory/memory-slice';
-import { closeDialog, showDialog } from '../store/ui/ui-slice';
+import { openDialog } from '@/lib/dialogs';
 import { FortuneTellerInfoInputSchema, fortuneTellerInfoServerFn } from './fortunetellerInfo';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { getBooleanIcon } from './getIcon';
 import { clearTask } from './clearTask';
 
 const FortuneTellerChoiceReturnSchema = z.object({
@@ -69,23 +67,10 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
             );
             clearTask(dispatch);
         } else {
-            const Icon = getBooleanIcon(shown);
-            const controls = () => <Icon />;
-            dispatch(
-                showDialog({
-                    options: {
-                        title: 'Night Info',
-                        message: 'You are shown:',
-                        Controls: controls
-                    },
-                    resolve: () => {
-                        clearTask(dispatch);
-                    },
-                    reject: (reason: string) => {
-                        console.log(reason);
-                    }
-                })
-            );
+            const result = await openDialog({ dispatch, dialogType: 'fortunetellerInfo', data: { shown } });
+            if (result.confirmed) {
+                clearTask(dispatch);
+            }
         }
     };
     const makeChoice = async (data: z.infer<typeof InputSchema>) => {
@@ -102,80 +87,23 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
             } = response;
             await getInfo({ ...data, ID, controledBy, seats });
         } else {
-            const controls = () => (
-                <div className='grid grid-cols-2'>
-                    <div className='flex'>
-                        <Select
-                            name='seat1'
-                            required
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder='Select a seat...' />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {data.extractedSeats.map((el, ix) => (
-                                    <SelectItem
-                                        key={ix}
-                                        value={el.ID.toString()}
-                                    >
-                                        {el.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className='flex'>
-                        <Select
-                            name='seat2'
-                            required
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder='Select a seat...' />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {data.extractedSeats.map((el, ix) => (
-                                    <SelectItem
-                                        key={ix}
-                                        value={el.ID.toString()}
-                                    >
-                                        {el.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-            );
-            dispatch(
-                showDialog({
-                    options: {
-                        title: 'Make a choice',
-                        message: 'Pick 2 different players',
-                        Controls: controls
-                    },
-                    resolve: async ({
-                        confirmed,
-                        value: { seat1, seat2 }
-                    }: {
-                        confirmed: boolean;
-                        value: {
-                            seat1: string;
-                            seat2: string;
-                        };
-                    }) => {
-                        dispatch(closeDialog());
-                        await getInfo({
-                            ...data,
-                            ID,
-                            controledBy,
-                            seats: [parseInt(seat1, 10), parseInt(seat2, 10)]
-                        });
-                    },
-                    reject: (reason: string) => {
-                        console.log(reason);
-                    }
-                })
-            );
+            const result = await openDialog({
+                dispatch,
+                dialogType: 'fortunetellerChoice',
+                data: {
+                    seatOptions: data.extractedSeats.map((seat) => ({ id: seat.ID, name: seat.name }))
+                }
+            });
+            if (!result.confirmed) {
+                return;
+            }
+            const { seat1, seat2 } = result.value as { seat1: string; seat2: string };
+            await getInfo({
+                ...data,
+                ID,
+                controledBy,
+                seats: [parseInt(seat1, 10), parseInt(seat2, 10)]
+            });
         }
     };
 

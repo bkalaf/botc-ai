@@ -2,20 +2,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AppDispatch, RootState } from '../index';
 import type { IStorytellerQueueItem, StorytellerQueueState, StorytellerQueueThunkExtra } from '../st-queue-types';
-import {
-    selectDemonBluffs,
-    selectFirstNightOrder,
-    selectOutOfPlay,
-    selectSeatedPlayers
-} from '../grimoire/grimoire-slice';
-import { Roles } from '../../data/types';
-import { nextDayPhase, selectDay, selectPhase } from '../game/game-slice';
+import { selectFirstNightOrder } from '../grimoire/grimoire-slice';
+import { nextDayPhase } from '../game/game-slice';
 
 export const initialState: StorytellerQueueState = {
     items: [],
     currentItem: null,
     isRunning: false,
-    awaitingHumanTaskId: null,
     error: null,
     lastRunAtMs: null
 };
@@ -30,7 +23,6 @@ export const runFirstNight = createAsyncThunk<
     const { getState, dispatch } = thunkAPI;
     const order = selectFirstNightOrder(getState());
     console.log(`order`, order);
-    dispatch(setAwaitingHumanTaskId('night-breaks'));
     dispatch(nextDayPhase());
 
     // const extractedSeats = selectSeatedPlayers(getState());
@@ -57,15 +49,6 @@ export const runFirstNight = createAsyncThunk<
     }
 });
 
-export const setUnpause = createAsyncThunk<
-    void,
-    void,
-    { state: RootState; dispatch: AppDispatch; extra: StorytellerQueueThunkExtra }
->('storyTellerQueue/setPause', async (_, thunkAPI) => {
-    thunkAPI.dispatch(setAwaitingHumanTaskId(null));
-    thunkAPI.dispatch(runTasks());
-});
-
 /**
  * Run a single task from the front (if any).
  * - Pops it from state
@@ -79,7 +62,6 @@ export const runNextTask = createAsyncThunk<
 >('storytellerQueue/runNextTask', async (_, thunkAPI) => {
     const { dispatch, getState } = thunkAPI;
 
-    if (selectAwaitingHumanTaskId(thunkAPI.getState())) return { ran: false, paused: 'human' };
     const state = selectSTQueueState(getState());
     const pendingTask = state.currentItem ?? state.items[0] ?? null;
     if (!pendingTask) return { ran: false };
@@ -94,12 +76,9 @@ export const runNextTask = createAsyncThunk<
     if (task.interaction === 'human') {
         const hasResponse = !!task.payload?.humanResponse;
         if (!hasResponse) {
-            dispatch(setAwaitingHumanTaskId(task.id));
             return { ran: false, paused: 'human', taskId: task.id };
         }
     }
-
-    dispatch(setAwaitingHumanTaskId(task.id));
 
     const handlers = thunkAPI.extra?.stHandlers;
     const taskKind = task.type;
@@ -199,9 +178,6 @@ export const storytellerQueueSlice = createSlice({
         setError: (state, action: PayloadAction<string | null>) => {
             state.error = action.payload;
         },
-        setAwaitingHumanTaskId: (state, action: PayloadAction<string | null>) => {
-            state.awaitingHumanTaskId = action.payload;
-        },
         setLastRunAtMs: (state, action: PayloadAction<number | null>) => {
             state.lastRunAtMs = action.payload;
         }
@@ -213,7 +189,6 @@ export const storytellerQueueSlice = createSlice({
         selectCurrentQueueItem: (state) => state.currentItem,
         selectRunning: (state) => state.isRunning,
         selectError: (state) => state.error,
-        selectAwaitingHumanTaskId: (state) => state.awaitingHumanTaskId,
         selectLastRunAtMs: (state) => state.lastRunAtMs
     }
 });
@@ -226,7 +201,6 @@ export const {
     clearCurrent,
     setRunning,
     setError,
-    setAwaitingHumanTaskId,
     setLastRunAtMs
 } = storytellerQueueSlice.actions;
 
@@ -237,7 +211,6 @@ export const {
     selectCurrentQueueItem,
     selectRunning,
     selectError,
-    selectAwaitingHumanTaskId,
     selectLastRunAtMs
 } = storytellerQueueSlice.selectors;
 

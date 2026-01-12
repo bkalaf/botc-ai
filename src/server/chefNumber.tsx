@@ -9,9 +9,8 @@ import { chefNumber } from '../prompts/chefNumber';
 import { RootState, AppDispatch } from '../store';
 import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
 import { addClaim } from '../store/memory/memory-slice';
-import { closeDialog, showDialog } from '../store/ui/ui-slice';
+import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
-import { getIcon } from './getIcon';
 import { clearTask } from './clearTask';
 
 const ChefNumberReturnSchema = z.object({
@@ -45,7 +44,7 @@ export const chefNumberServerFn = createServerFn({ method: 'POST' })
     });
 
 export const chefHandler = (state: RootState, dispatch: AppDispatch) => {
-    const func = ({ value }: { value: { count: number } }) => {
+    const func = async ({ value }: { value: { count: number } }) => {
         const seat = selectSeatByRole(state, 'chef');
         if (seat == null) throw new Error(`no chef seat`);
         const {
@@ -62,23 +61,10 @@ export const chefHandler = (state: RootState, dispatch: AppDispatch) => {
             );
             clearTask(dispatch);
         } else {
-            const Icon = getIcon(value.count);
-            const controls = () => <Icon />;
-            dispatch(
-                showDialog({
-                    options: {
-                        title: 'Night Info',
-                        message: 'You are shown:',
-                        Controls: controls
-                    },
-                    resolve: () => {
-                        clearTask(dispatch);
-                    },
-                    reject: (reason: string) => {
-                        console.log(reason);
-                    }
-                })
-            );
+            const result = await openDialog({ dispatch, dialogType: 'chefInfo', data: { count: value.count } });
+            if (result.confirmed) {
+                clearTask(dispatch);
+            }
         }
     };
     return buildHandler(chefNumberServerFn, func);
