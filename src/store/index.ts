@@ -2,7 +2,7 @@
 import { configureStore, createListenerMiddleware, isRejected } from '@reduxjs/toolkit';
 import { aiOrchestratorSlice } from './ai-orchestrator/ai-orchestrator-slice';
 import { chatsSlice } from './chats/chats-slice';
-import { gameSlice } from './game/game-slice';
+import { gameSlice, nextDayPhase } from './game/game-slice';
 import { grimoireSlice } from './grimoire/grimoire-slice';
 import { addLogEntry, historySlice } from './history/history-slice';
 import { createDynamicMiddlewareRegistry } from './middleware/dynamic-middleware';
@@ -14,9 +14,11 @@ import {
     setShowOtherNightOrder,
     settingsSlice
 } from './settings/settings-slice';
-import { storytellerQueueSlice } from './st-queue/st-queue-slice';
+import { setAwaitingHumanTaskId, storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
 import { stQueueThunkExtra } from './st-queue/stQueueThunkExtra';
+import uiSlice, { showDayBreakDialog, showNightBreakDialog } from './ui/ui-slice';
+import { list } from 'postcss';
 
 export const createStoreListeners = () => {
     const listenerMiddleware = createListenerMiddleware();
@@ -64,6 +66,21 @@ listenerMiddleware.startListening({
     }
 });
 
+export const listenerMiddleware3 = createStoreListeners();
+listenerMiddleware3.startListening({
+    predicate: (action) => nextDayPhase.match(action),
+    effect: (action, listenerApi) => {
+        const phase = (listenerApi.getState() as RootState).game.phase;
+        if (phase === 'day') {
+            listenerApi.dispatch(setAwaitingHumanTaskId('show-day-break'));
+            listenerApi.dispatch(showDayBreakDialog());
+        } else {
+            listenerApi.dispatch(setAwaitingHumanTaskId('show-night-break'));
+            listenerApi.dispatch(showNightBreakDialog());
+        }
+    }
+});
+
 export const store = configureStore({
     reducer: {
         aiOrchestrator: aiOrchestratorSlice.reducer,
@@ -73,7 +90,8 @@ export const store = configureStore({
         history: historySlice.reducer,
         settings: settingsSlice.reducer,
         storytellerQueue: storytellerQueueSlice.reducer,
-        voting: votingSlice.reducer
+        voting: votingSlice.reducer,
+        ui: uiSlice.reducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -82,7 +100,7 @@ export const store = configureStore({
             }
         })
             .prepend(listenerMiddleware.middleware, listenerMiddleware2.middleware)
-            .concat(dynamicMiddlewareRegistry.middleware)
+            .concat(dynamicMiddlewareRegistry.middleware, listenerMiddleware3.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;

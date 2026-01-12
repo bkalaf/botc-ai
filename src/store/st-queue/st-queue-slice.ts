@@ -2,6 +2,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AppDispatch, RootState } from '../index';
 import type { IStorytellerQueueItem, StorytellerQueueState, StorytellerQueueThunkExtra } from '../st-queue-types';
+import {
+    selectDemonBluffs,
+    selectFirstNightOrder,
+    selectOutOfPlay,
+    selectSeatedPlayers
+} from '../grimoire/grimoire-slice';
+import { Roles } from '../../data/types';
+import { nextDayPhase, selectDay, selectPhase } from '../game/game-slice';
 
 export const initialState: StorytellerQueueState = {
     items: [],
@@ -13,6 +21,50 @@ export const initialState: StorytellerQueueState = {
 };
 
 // ---------- Thunks ----------
+
+export const runFirstNight = createAsyncThunk<
+    void,
+    void,
+    { state: RootState; dispatch: AppDispatch; extra: StorytellerQueueThunkExtra }
+>('storytellerQueue/runFirstNight', async (_, thunkAPI) => {
+    const { getState, dispatch } = thunkAPI;
+    const order = selectFirstNightOrder(getState());
+    console.log(`order`, order);
+    dispatch(setAwaitingHumanTaskId('night-breaks'));
+    dispatch(nextDayPhase());
+
+    // const extractedSeats = selectSeatedPlayers(getState());
+    // const demonBluffs = selectDemonBluffs(getState());
+    // const outOfPlay = selectOutOfPlay(getState());
+    // const nightNumber = selectDay(getState());
+    // const phase = selectPhase(getState());
+    // const input = {
+    //     extractedSeats,
+    //     demonBluffs,
+    //     outOfPlay,
+    //     nightNumber,
+    //     phase
+    // };
+    const fullOrder = ['minionInfo', 'demonInfo', ...order];
+    for (const element of fullOrder) {
+        dispatch(
+            enqueueBack({
+                id: element,
+                type: 'first_night',
+                interaction: 'auto'
+            })
+        );
+    }
+});
+
+export const setUnpause = createAsyncThunk<
+    void,
+    void,
+    { state: RootState; dispatch: AppDispatch; extra: StorytellerQueueThunkExtra }
+>('storyTellerQueue/setPause', async (_, thunkAPI) => {
+    thunkAPI.dispatch(setAwaitingHumanTaskId(null));
+    thunkAPI.dispatch(runTasks());
+});
 
 /**
  * Run a single task from the front (if any).
@@ -27,6 +79,7 @@ export const runNextTask = createAsyncThunk<
 >('storytellerQueue/runNextTask', async (_, thunkAPI) => {
     const { dispatch, getState } = thunkAPI;
 
+    if (selectAwaitingHumanTaskId(thunkAPI.getState())) return { ran: false, paused: 'human' };
     const state = selectSTQueueState(getState());
     const pendingTask = state.currentItem ?? state.items[0] ?? null;
     if (!pendingTask) return { ran: false };
@@ -46,7 +99,7 @@ export const runNextTask = createAsyncThunk<
         }
     }
 
-    dispatch(setAwaitingHumanTaskId(null));
+    dispatch(setAwaitingHumanTaskId(task.id));
 
     const handlers = thunkAPI.extra?.stHandlers;
     const taskKind = task.type;
@@ -64,6 +117,7 @@ export const runNextTask = createAsyncThunk<
         dispatch(setLastRunAtMs(Date.now()));
         return { ran: true, taskId: task.id };
     } catch (err: any) {
+        console.log(err as any);
         dispatch(setError(err?.message ?? String(err)));
         dispatch(setLastRunAtMs(Date.now()));
         return { ran: true, taskId: task.id };
@@ -80,8 +134,8 @@ export const runTasks = createAsyncThunk<
     { ranCount: number; stoppedBecause: 'empty' | 'maxSteps' | 'error' | 'human' },
     { maxSteps?: number } | void,
     { state: RootState; dispatch: AppDispatch; extra: StorytellerQueueThunkExtra }
->('storytellerQueue/runTasks', async (arg, thunkAPI) => {
-    const maxSteps = arg && typeof arg === 'object' && 'maxSteps' in arg && arg.maxSteps ? arg.maxSteps : 500;
+>('storytellerQueue/runTasks', async (input, thunkAPI) => {
+    const { maxSteps } = { maxSteps: 500, ...(input ?? {}) };
 
     const { dispatch, getState } = thunkAPI;
 
@@ -99,6 +153,7 @@ export const runTasks = createAsyncThunk<
             }
 
             const res = await dispatch(runNextTask() as any).unwrap();
+            console.log(`res`, res);
             if (res.paused === 'human') {
                 dispatch(setRunning(false));
                 return { ranCount, stoppedBecause: 'human' };

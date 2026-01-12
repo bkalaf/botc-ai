@@ -1,5 +1,6 @@
 // src/prompts/washerwomanTokens.ts
 import { genericStorytellerCore } from './_genericStorytellerCore';
+import { PromptSpec } from './prompt-types';
 
 export const washerwomanTokens: PromptSpec = {
     id: 'st-washerwoman-tokens',
@@ -20,7 +21,11 @@ export const washerwomanTokens: PromptSpec = {
         `NARRATIVE VALUE: Prefer pings that create interesting cross-checks rather than isolated facts.`
     ],
 
-    input: [`Full grimoire`, `Washerwoman sober/healthy state`, `Script context (which Townsfolk roles exist on-script)`],
+    input: [
+        `Full grimoire`,
+        `Washerwoman sober/healthy state`,
+        `Script context (which Townsfolk roles exist on-script)`
+    ],
 
     output: {
         shown: `object: { role: string, seats: [number, number] } (what the Washerwoman is shown)`,

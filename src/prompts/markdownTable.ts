@@ -1,22 +1,24 @@
+// src/prompts/markdownTable.ts
 //src/prompts/markdownTable.ts
 import { markdownTable } from 'markdown-table';
-import { toProperCase } from '../utils/stringUtils';
+import { toProperCase } from '../utils/getWordsForNumber.ts/toProperCase';
+import { ISeatedPlayer } from '../store/types/player-types';
 
 const headers = [
-    'seatID',
-    'player',
+    'ID',
+    'name',
+    'alignment',
     'team',
-    'characterType',
     'role',
-    'perceivedAs',
+    'thinks',
     'isAlive',
     'hasVote',
     'isDrunk',
     'isPoisoned',
-    'reminderTokens'
+    'reminders'
 ];
 
-export function toMdTable(rawData: IExtractedSeat[]) {
+export function toMdTable(rawData: ISeatedPlayer[]) {
     return markdownTable([
         headers.map((h) => toProperCase(h).toUpperCase()), // Header row
         ...rawData.map((obj) => headers.map((key) => String(obj[key as keyof typeof obj] ?? ''))) // Data rows

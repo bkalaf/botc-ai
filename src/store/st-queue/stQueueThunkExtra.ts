@@ -1,11 +1,10 @@
 // src/store/st-queue/stQueueThunkExtra.ts
 import { Roles } from '../../data/types';
-import {
-    drunkChoiceServerFn,
-    fortunetellerRedHerringServerFn,
-    demonBluffsServerFn,
-    travelerAlignmentServerFn
-} from '../../server/serverFns';
+import { $$serverFirstFns } from '../../server';
+import { demonBluffsServerFn } from '../../server/demonBluffs';
+import { drunkChoiceServerFn } from '../../server/drunkChoice';
+import { fortuneTellerRedHerringServerFn } from '../../server/fortunetellerRedHerring';
+import { travelerAlignmentServerFn } from '../../server/travelerAlignment';
 import { selectDay, selectPhase } from '../game/game-slice';
 import {
     selectSeatedPlayers,
@@ -20,17 +19,40 @@ import type { StorytellerQueueThunkExtra, IStorytellerQueueItem } from '../st-qu
 
 export const stQueueThunkExtra: StorytellerQueueThunkExtra = {
     stHandlers: {
+        first_night: async (task: IStorytellerQueueItem, api) => {
+            console.log(`task`, task);
+            const func = $$serverFirstFns[task.id as keyof typeof $$serverFirstFns];
+            if (func == null) throw new Error(`could not find: ${task.id}`);
+            const extractedSeats = selectSeatedPlayers(api.getState());
+            const demonBluffs = selectDemonBluffs(api.getState());
+            const outOfPlay = selectOutOfPlay(api.getState());
+            const nightNumber = selectDay(api.getState());
+            const phase = selectPhase(api.getState());
+            const input = {
+                extractedSeats,
+                demonBluffs,
+                outOfPlay,
+                nightNumber,
+                phase,
+                ...task.payload
+            };
+
+            console.log(`input`, input);
+            const result = await func(api.getState(), api.dispatch)({ data: input } as any);
+            console.log(`result`, result);
+            return result;
+        },
         prompt: async (task: IStorytellerQueueItem, api) => {
             const extractedSeats = selectSeatedPlayers(api.getState());
             const demonBluffs = selectDemonBluffs(api.getState());
             const outOfPlay = selectOutOfPlay(api.getState());
             const nightNumber = selectDay(api.getState());
             const phase = selectPhase(api.getState());
-            const calls = {
+            const storytellerRoutes: Record<string, typeof drunkChoiceServerFn> = {
                 drunkchoice: drunkChoiceServerFn,
-                fortuneteller_redherring: fortunetellerRedHerringServerFn,
+                fortuneteller_redherring: fortuneTellerRedHerringServerFn,
                 demonbluffs: demonBluffsServerFn,
-                traveler_alignment: travelerAlignmentServerFn
+                traveler_alignment: travelerAlignmentServerFn as any
             };
             const callbacks = {
                 drunkchoice: async ({ shown: { seat }, reasoning }: { shown: { seat: number }; reasoning: string }) => {
@@ -49,15 +71,15 @@ export const stQueueThunkExtra: StorytellerQueueThunkExtra = {
                 }) => {
                     console.log(`reasoning: `, reasoning);
                     const result = selectSeatedPlayers(api.getState()).find(
-                        (player) => player.role === 'fortuneteller'
+                        (player) => player.role === 'fortuneteller' || player.thinks === 'fortuneteller'
                     );
                     if (result == null) throw new Error('could not find the fortuneteller');
                     const { ID: source } = result;
                     api.dispatch(
-                        addReminderToken({ key: 'fortuneteller_redherring', source, target: seat, isChanneled: false })
+                        addReminderToken({ key: 'fortuneteller_red_herring', source, target: seat, isChanneled: false })
                     );
                 },
-                demonblufs: async ({
+                demonbluffs: async ({
                     shown: { roles },
                     reasoning
                 }: {
@@ -89,9 +111,16 @@ export const stQueueThunkExtra: StorytellerQueueThunkExtra = {
                 ...task.payload
             };
 
-            const func = calls[task.id as keyof typeof calls];
-            const retFunc = callbacks[task.id as keyof typeof callbacks];
-            const response = await func({ data: input as any });
+            console.log(`input`, input);
+            const routeKey = task.id as keyof typeof storytellerRoutes;
+            const retFunc = callbacks[routeKey as keyof typeof callbacks];
+            if (retFunc == null) {
+                throw new Error(`unknown storyteller route ${task.id}`);
+            }
+            const route = storytellerRoutes[routeKey];
+            console.log(`route`, route.url);
+            const response = await route({ data: input });
+            console.log(`response`, response);
             return retFunc(response);
         }
     }

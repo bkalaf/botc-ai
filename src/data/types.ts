@@ -53,4 +53,14 @@ export type Roles =
     | 'spy'
     | 'baron'
     | 'poisoner'
-    | 'imp';
+    | 'imp'
+    | 'bootlegger'
+    | 'gunslinger'
+    | 'beggar'
+    | 'scapegoat'
+    | 'thief'
+    | 'bureaucrat'
+    | 'spiritofivory'
+    | 'sentinel'
+    | 'fibbin'
+    | 'gardener';

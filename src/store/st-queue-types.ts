@@ -35,7 +35,7 @@ export type STTask = {
 };
 
 export type StorytellerInteraction = 'human' | 'auto' | 'system';
-export type StorytellerTaskType = 'night_step' | 'log' | 'custom' | 'prompt';
+export type StorytellerTaskType = 'night_step' | 'log' | 'custom' | 'prompt' | 'first_night';
 
 export interface IStorytellerQueueItem {
     id: string;

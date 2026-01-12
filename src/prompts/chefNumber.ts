@@ -11,10 +11,11 @@ export const chefNumber: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Determine the Chef's number: the count of adjacent pairs of Evil players sitting next to each other (seating is circular).`,
+    goal: `Determine the Chef's number: the count of immediately adjacent pairs of Evil players sitting next to each other (seating is circular).`,
 
     additionalConsiderations: [
         `SEATING IS CIRCULAR: The last seat is adjacent to seat 0.`,
+        `ADJACENT PAIRS ARE THOSE IMMEDIATELY ADJACENT: Meaning that seat 3 and 4 being evil is a pair, seat 3 and 5 being evil is not a pair, unless 4 is evil as well and then that would be 2 pairs (3 and 4 & 4 and 5)`,
         `COUNTING RULE: Each adjacent Evil-Evil connection counts as 1 pair. Three Evils in a row produces 2 pairs.`,
         `MISREGISTRATION: Recluse may register as Evil; Spy may register as Good. Apply selectively to create useful ambiguity.`,
         `SOBER/HEALTHY CHEF: Default to the true count unless you have a strong reason to deviate legally.`,

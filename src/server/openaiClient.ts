@@ -1,6 +1,8 @@
+// src/server/openaiClient.ts
 import OpenAI from 'openai';
-import { env } from '@/env';
+import { createServerOnlyFn } from '@tanstack/react-start';
 
-export const client = new OpenAI({
-    apiKey: env.OPENAI_API_KEY
+export const getClient = createServerOnlyFn(() => {
+    console.log(`env`, import.meta.env);
+    return new OpenAI({ apiKey: import.meta.env.OPENAI_API_KEY });
 });

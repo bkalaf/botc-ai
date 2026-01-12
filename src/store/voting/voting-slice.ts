@@ -128,7 +128,7 @@ export const votingSlice = createSlice({
 });
 
 const selectVotingState = (state: RootState) => state.voting;
-const selectGrimoireSeats = (state: RootState) => state.grimoire.seats;
+const selectGrimoireSeats = (state: RootState) => Object.values(state.grimoire.seats);
 
 export const GetWhoCanVoteToday = createSelector([selectGrimoireSeats, selectVotingState], (seats, voting) =>
     seats.filter((seat) => canVote(seat, voting.votingPreferences))

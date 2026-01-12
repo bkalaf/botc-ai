@@ -17,7 +17,8 @@ export const demonBluffs: PromptSpec = {
         `COVERAGE: Provide three bluffs that support different lie styles (early claim, reactive defense, late pivot).`,
         `PLAUSIBILITY: Bluffs must survive basic mechanical scrutiny given the current setup.`,
         `COUNTERPLAY: Good should be able to interrogate claims without instant collapse.`,
-        `PLAYER EXPERIENCE: Match bluff complexity to the Demon’s expected comfort level.`
+        `PLAYER EXPERIENCE: Match bluff complexity to the Demon’s expected comfort level.`,
+        `ONLY PICK FROM THE OUT OF PLAY BLUFFS PROVIDED`
     ],
 
     input: [

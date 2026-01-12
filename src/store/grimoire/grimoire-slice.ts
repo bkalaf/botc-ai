@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IGrimoireSlice, IReminderTokens } from '../types/grimoire-types';
 import { CharacterTypes, $$ROLES, Roles } from '../../data/types';
 import { toProperCase } from '../../utils/getWordsForNumber.ts/toProperCase';
+import { buildNightOrderIndex } from '../../utils/nightOrder';
 
 type SeatCondition = {
     isDrunk: boolean;
@@ -14,13 +15,27 @@ export interface IGrimoireState extends IGrimoireSlice {
 }
 
 const initialState: IGrimoireState = {
-    seats: [],
+    seats: {},
     demonBluffs: undefined,
     outOfPlay: [],
     reminderTokens: {},
     loricPlayers: [],
     fabledPlayers: [],
     recalibrationQueue: []
+};
+
+const getSeatOrThrow = (state: IGrimoireState, seatID: number) => {
+    const seat = state.seats[seatID];
+    if (!seat) {
+        throw new Error(`Seat ${seatID} not found`);
+    }
+    return seat;
+};
+
+const getSeatArray = (state: IGrimoireState) => {
+    const seats = Object.values(state.seats);
+    seats.sort((a, b) => a.ID - b.ID);
+    return seats;
 };
 
 const isDrunkEffect = (tokenKey: string) => tokenKey.toLowerCase().includes('drunk');
@@ -166,11 +181,14 @@ export const grimoireSlice = createSlice({
             state.seats = action.payload;
         },
         setMaskedRole: (state, action: PayloadAction<{ seatID: number; mask: Roles }>) => {
-            state.seats[action.payload.seatID].thinks = state.seats[action.payload.seatID].role;
-            state.seats[action.payload.seatID].role = action.payload.mask;
+            const seat = getSeatOrThrow(state, action.payload.seatID);
+            seat.thinks = seat.role;
+            seat.role = action.payload.mask;
+            state.outOfPlay = state.outOfPlay.filter((x) => x !== action.payload.mask);
         },
         setAlignment: (state, action: PayloadAction<{ seatID: number; alignment: 'good' | 'evil' }>) => {
-            state.seats[action.payload.seatID].alignment = action.payload.alignment;
+            const seat = getSeatOrThrow(state, action.payload.seatID);
+            seat.alignment = action.payload.alignment;
         },
         setOutOfPlay: (state, action: PayloadAction<IGrimoireSlice['outOfPlay']>) => {
             state.outOfPlay = action.payload;
@@ -188,6 +206,9 @@ export const grimoireSlice = createSlice({
     selectors: {
         selectDemonBluffs: (state) => state.demonBluffs,
         selectOutOfPlay: (state) => state.outOfPlay,
+        selectRoleBySeat: (state, seatID: number) => getSeatOrThrow(state, seatID).role,
+        selectSeatByRole: (state, role: Roles) =>
+            getSeatArray(state).find((seat) => seat.thinks === role || seat.role === role),
         selectReminderTokens: (state) => state.reminderTokens,
         selectRecalibrationQueue: (state) => state.recalibrationQueue,
         selectReminderTokensByTarget: (state, target: number) => getTokensByTarget(state.reminderTokens, target),
@@ -207,11 +228,37 @@ export const grimoireSlice = createSlice({
         },
         selectLoricPlayers: (state) => state.loricPlayers,
         selectFabledPlayers: (state) => state.fabledPlayers,
+        selectInPlayRoles: (state) =>
+            grimoireSlice
+                .getSelectors()
+                .selectSeatedPlayers(state)
+                .map((player) => player.thinks ?? player.role)
+                .filter((role): role is Roles => Boolean(role)),
+        selectFirstNightOrder: (state) =>
+            Object.entries(buildNightOrderIndex(grimoireSlice.getSelectors().selectInPlayRoles(state), 'firstNight'))
+                .sort((a, b) =>
+                    a[1] < b[1] ? -1
+                    : a[1] > b[1] ? 1
+                    : 0
+                )
+                .map((x) => x[0]),
+        selectOtherNightOrder: (state) =>
+            Object.entries(buildNightOrderIndex(grimoireSlice.getSelectors().selectInPlayRoles(state), 'otherNight'))
+                .sort((a, b) =>
+                    a[1] < b[1] ? -1
+                    : a[1] > b[1] ? 1
+                    : 0
+                )
+                .map((x) => x[0]),
         selectSeatedPlayer: (state, seatID: number) => {
-            const seat = state.seats[seatID];
+            const seat = getSeatOrThrow(state, seatID);
             const team: CharacterTypes = $$ROLES[seat.role].team as any;
             const reminders = grimoireSlice.getSelectors().selectReminderTokensByTarget(state, seat.ID);
             const conditions = grimoireSlice.getSelectors().selectSeatCondition(state, seat.ID);
+            const reminderTokens = reminders.map((x) => ({
+                role: grimoireSlice.getSelectors().selectRoleBySeat(state, x.source),
+                text: toProperCase(x.key.split('_').slice(1).join(' '))
+            }));
             return {
                 ID: seat.ID,
                 hasVote: seat.hasVote,
@@ -222,13 +269,15 @@ export const grimoireSlice = createSlice({
                 pronouns: seat.player.pronouns,
                 name: seat.player.name,
                 alignment: seat.alignment,
+                controledBy: seat.player.controledBy,
                 team,
+                reminderTokens,
                 reminders: reminders.map((token) => toProperCase(token.key.split('_').slice(1).join(' '))).join(', '),
                 ...conditions
             };
         },
         selectSeatedPlayers: (state) => {
-            return state.seats.map((seat) => grimoireSlice.getSelectors().selectSeatedPlayer(state, seat.ID));
+            return getSeatArray(state).map((seat) => grimoireSlice.getSelectors().selectSeatedPlayer(state, seat.ID));
         }
     }
 });
@@ -246,6 +295,7 @@ export const {
 } = grimoireSlice.actions;
 
 export const {
+    selectSeatByRole,
     selectDemonBluffs,
     selectOutOfPlay,
     selectReminderTokens,
@@ -259,5 +309,8 @@ export const {
     selectLoricPlayers,
     selectFabledPlayers,
     selectSeatedPlayers,
-    selectSeatedPlayer
+    selectSeatedPlayer,
+    selectFirstNightOrder,
+    selectOtherNightOrder,
+    selectInPlayRoles
 } = grimoireSlice.selectors;

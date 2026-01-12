@@ -78,21 +78,11 @@ export type PromptSpec = {
     schema?: JsonSchema;
 };
 
-export const ExtractSeatInput = z.object({
-    seatID: z.int(),
-    player: z.string(),
-    team: z.enum(['good', 'evil']),
-    characterType: z.enum(['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled', 'loric']),
-    role: z.string(),
-    perceivedAs: z.string().optional(),
-    isAlive: z.boolean().default(true),
-    hasVote: z.boolean().default(true),
-    isDrunk: z.boolean().default(false),
-    isPoisoned: z.boolean().default(false),
-    reminderTokens: z.string(),
-    name: z.string(),
-    abilityText: z.string()
-});
+const voiceStyles = z.enum(['quiet', 'reserved', 'conversational', 'assertive', 'dominant']);
+const informationHandlingStyles = z.enum(['archivist', 'curator', 'impressionistic', 'triage', 'signal_driven']);
+const reasoningModes = z.enum(['deductive', 'systematic', 'associative', 'intuitive', 'surface']);
+const tableImpactStyles = z.enum(['disruptive', 'provocative', 'stabilizing', 'organized', 'procedural']);
+const trustModels = z.enum(['all_trusting', 'cautiously_trusting', 'skeptical', 'guarded', 'doubting_thomas']);
 
 export const rolesSchema = z.enum([
     'imp',
@@ -129,9 +119,36 @@ export const rolesSchema = z.enum([
     'fibbin'
 ]);
 
+export const ExtractSeatInput = z.object({
+    ID: z.int(),
+    name: z.string(),
+    alignment: z.enum(['good', 'evil']),
+    team: z.enum(['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled', 'loric']),
+    role: rolesSchema,
+    thinks: z.string().optional(),
+    isAlive: z.boolean().default(true),
+    hasVote: z.boolean().default(true),
+    isDrunk: z.boolean().default(false),
+    isPoisoned: z.boolean().default(false),
+    controledBy: z.enum(['ai', 'human']),
+    pronouns: z.string().optional(),
+    reminders: z.string().optional(),
+    personality: z
+        .object({
+            trustModel: trustModels,
+            tableImpact: tableImpactStyles,
+            reasoningMode: reasoningModes,
+            informationHandling: informationHandlingStyles,
+            voiceStyle: voiceStyles
+        })
+        .optional()
+});
+
+
+
 export const InputSchema = z.object({
     extractedSeats: z.array(ExtractSeatInput),
-    demonBluffs: z.array(z.string()),
+    demonBluffs: z.array(z.string()).optional(),
     outOfPlay: z.array(rolesSchema),
     nightNumber: z.int(),
     phase: z.enum(['day', 'night'])

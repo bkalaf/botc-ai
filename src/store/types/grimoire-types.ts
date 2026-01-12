@@ -10,7 +10,7 @@ export interface IReminderTokens {
 }
 
 export interface IGrimoireSlice {
-    seats: ISeat[];
+    seats: Record<number, ISeat>;
     demonBluffs: [Roles, Roles, Roles] | undefined;
     outOfPlay: Roles[];
     reminderTokens: Record<string, IReminderTokens>;

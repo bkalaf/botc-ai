@@ -95,7 +95,7 @@ export const gameSlice = createSlice({
 });
 
 const selectGameScript = (state: RootState) => state.game.script;
-const selectSeatedPlayers = (state: RootState) => state.grimoire.seats;
+const selectSeatedPlayers = (state: RootState) => Object.values(state.grimoire.seats).sort((a, b) => a.ID - b.ID);
 const MIN_SEATED_PLAYERS = 5;
 const isValidGameStart = (script: Roles[], seats: ISeat[]) => script.length > 0 && seats.length >= MIN_SEATED_PLAYERS;
 
@@ -108,7 +108,7 @@ export const buildAndStartGame = createAsyncThunk<{ gameID: string }, void, { st
     async (_, { getState, dispatch, rejectWithValue }) => {
         const state = getState();
         const script = state.game.script;
-        const seats = state.grimoire.seats;
+        const seats = Object.values(state.grimoire.seats);
 
         if (script.length === 0) {
             return rejectWithValue('A script is required to start a new game.');

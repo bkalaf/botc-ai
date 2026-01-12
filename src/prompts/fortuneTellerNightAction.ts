@@ -85,13 +85,7 @@ export const fortuneTellerNightAction: PromptSpec = {
     ],
 
     output: {
-        shown: `object: { seats: [number, number] } (the two seats you choose to check tonight)`,
-        hypothesis: `object: {
-      likelyRedHerringSeats: number[],
-      likelyDemonSeats: number[],
-      corruptionRisk: "low" | "medium" | "high"
-    }`,
-        todos: 'number[] (seat numbers you want to talk to tomorrow, in priority order)',
+        picks: `object: { seats: [number, number] } (the two seats you choose to check tonight)`,
         reasoning:
             'In-character explanation of the test design and how it advances Demon/RH/misregistration/poison inference.'
     },

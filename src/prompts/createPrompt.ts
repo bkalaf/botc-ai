@@ -3,10 +3,25 @@ import { InputSchema, PromptSpec } from './prompt-types';
 import { toMdTable } from './markdownTable';
 import z from 'zod';
 import { toProperCase } from '../utils/getWordsForNumber.ts/toProperCase';
+import { Personality } from '../store/types/player-types';
+
+export function fromPersonality(personality?: Personality) {
+    if (personality == null) return '';
+    return [
+        'YOUR PERSONALITY:',
+        '-----------------',
+        ['Information Handling: ', toProperCase(personality.informationHandling)].join(''),
+        ['Reasoning Mode: ', toProperCase(personality.reasoningMode)].join(''),
+        ['Table Impact: ', toProperCase(personality.tableImpact)].join(''),
+        ['Trust Model: ', toProperCase(personality.trustModel)].join(''),
+        ['Voice Style: ', toProperCase(personality.voiceStyle)].join('')
+    ].join('\n');
+}
 
 export function createPrompt(
     promptSpec: PromptSpec,
-    { extractedSeats, outOfPlay, demonBluffs, nightNumber, phase }: z.infer<typeof InputSchema>
+    { extractedSeats, outOfPlay, demonBluffs, nightNumber, phase }: z.infer<typeof InputSchema>,
+    opts?: { personality?: Personality }
 ) {
     const {
         goal,
@@ -26,7 +41,7 @@ export function createPrompt(
         tags,
         schema
     } = promptSpec;
-
+    const { personality } = opts ?? { personality: undefined };
     const addBullet = (s: string) => `* ${s}`;
     const personalityMod = (title: string, obj?: Record<string, string>) =>
         obj ? [toProperCase(title), ...Object.entries(obj).map(([k, v]) => addBullet(`${k}: ${v}`))] : [];
@@ -70,7 +85,7 @@ export function createPrompt(
         ...(outOfPlay ? ['OUT OF PLAY: '.concat(outOfPlay.join(', '))] : []),
         ...(demonBluffs ? ['DEMON BLUFFS: '.concat(demonBluffs.join(', '))] : []),
         ...(nightNumber ? [`IT IS ${phase.toUpperCase()} NUMBER ${nightNumber.toString()}`] : []),
-        'FINAL NOTE: The first column of the table is the SEAT number. Player # may appear as a generic name in the 2nd column. These values are not interchangable. SEAT # is a 0 based index.'
+        fromPersonality(personality)
     ];
 
     return result.join('\n');

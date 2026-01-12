@@ -21,10 +21,15 @@ export interface ISeat {
     alignment: 'good' | 'evil';
 }
 
+export interface IReminderTokenSimple {
+    role: Roles;
+    text: string;
+}
+
 export interface ISeatedPlayer {
     name: string;
     ID: number;
-    personality: Personality;
+    personality?: Personality;
     pronouns?: string;
     role: Roles;
     thinks?: Roles;
@@ -33,6 +38,7 @@ export interface ISeatedPlayer {
     alignment: 'good' | 'evil';
     team: CharacterTypes;
     reminders: string;
+    reminderTokens?: IReminderTokenSimple[];
     isDrunk: boolean;
     isPoisoned: boolean;
     worldBuildingWorksheet?: WorldBuildingWorksheet;
