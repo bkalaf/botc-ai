@@ -1,34 +1,34 @@
 // src/server/getIcon.tsx
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faSquare0,
-    faSquare1,
-    faSquare2,
-    faSquare3,
-    faSquare4,
-    faSquare5,
-    faSquare6,
+    faDiceFive,
+    faDiceFour,
+    faDiceOne,
+    faDiceSix,
+    faDiceThree,
+    faDiceTwo,
+    faSquare,
     faThumbsDown,
     faThumbsUp
-} from '@fortawesome/pro-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+} from '@fortawesome/free-solid-svg-icons';
 
 export function getIcon(num: number) {
     function inner() {
         switch (num) {
             case 0:
-                return faSquare0;
+                return faSquare;
             case 1:
-                return faSquare1;
+                return faDiceOne;
             case 2:
-                return faSquare2;
+                return faDiceTwo;
             case 3:
-                return faSquare3;
+                return faDiceThree;
             case 4:
-                return faSquare4;
+                return faDiceFour;
             case 5:
-                return faSquare5;
+                return faDiceFive;
             case 6:
-                return faSquare6;
+                return faDiceSix;
             default:
                 throw new Error(`no number: ${num}`);
         }
