@@ -30,7 +30,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             >
                                 {children}
                             </main>
-
                             <BottomBar className='bottom-0"' />
                         </div>
                     </SidebarInset>

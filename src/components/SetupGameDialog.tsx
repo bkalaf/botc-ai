@@ -7,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { selectScript } from '@/store/game/game-slice';
 import { setOutOfPlay, setSeats } from '@/store/grimoire/grimoire-slice';
-import { enqueueBack, enqueueFront, runTasks } from '@/store/st-queue/st-queue-slice';
+import { enqueueBack, enqueueFront, runFirstNight, runTasks } from '@/store/st-queue/st-queue-slice';
 import { IPlayer, ISeat, Personality } from '@/store/types/player-types';
 import { $$ROLES, CharacterCounts, CharacterTokens, CharacterTypes, Roles } from '@/data/types';
 import namesJson from '@/data/names.json';
 import rolesData from '@/data/roles.json';
 import gameDefinitions from '@/data/game.json';
+import { showDialog } from '../store/ui/ui-slice';
 
 type NameEntry = { name: string; pronouns: 'he/him' | 'she/her' | 'they/them' };
 
@@ -75,8 +76,7 @@ const buildRandomPersonality = (): Personality => ({
     voiceStyle: randomFrom(voiceStyles)
 });
 
-const normalizeTeam = (team: CharacterTypes): CharacterTypes =>
-    team === 'traveler' || team === 'loric' || team === 'fabled' ? 'townsfolk' : team;
+const normalizeTeam = (team: CharacterTypes): CharacterTypes => team;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -153,6 +153,7 @@ export function SetupGameDialog() {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        event.stopPropagation();
         if (!isFormValid) {
             return;
         }
@@ -247,15 +248,14 @@ export function SetupGameDialog() {
         let drunkTaskQueued = false;
         let fortunetellerTaskQueued = false;
 
-        const applyModifiers = (role: CharacterTokens) => {
+        const applyModifiers = (role: CharacterTokens, currentBag: Roles[]) => {
             if (role.id === 'baron') {
                 const addedOutsiders = adjustPopulation('outsider', 2);
                 if (addedOutsiders > 0) {
                     adjustPopulation('townsfolk', -addedOutsiders);
                 }
-            }
-
-            if (role.id === 'drunk') {
+                currentBag.push(role.id);
+            } else if (role.id === 'drunk') {
                 adjustPopulation('townsfolk', 1);
                 if (!drunkTaskQueued) {
                     drunkTaskQueued = true;
@@ -270,9 +270,7 @@ export function SetupGameDialog() {
                         })
                     );
                 }
-            }
-
-            if (role.id === 'fortuneteller' && !fortunetellerTaskQueued) {
+            } else if (role.id === 'fortuneteller' && !fortunetellerTaskQueued) {
                 fortunetellerTaskQueued = true;
                 dispatch(
                     enqueueBack({
@@ -282,6 +280,9 @@ export function SetupGameDialog() {
                         payload: { id: 'fortuneteller_redherring' }
                     })
                 );
+                currentBag.push(role.id);
+            } else {
+                currentBag.push(role.id);
             }
         };
 
@@ -300,8 +301,7 @@ export function SetupGameDialog() {
                 if (added >= desired) {
                     break;
                 }
-                bag.push(candidate.id as Roles);
-                applyModifiers(candidate);
+                applyModifiers(candidate, bag);
                 added += 1;
             }
 
@@ -317,14 +317,7 @@ export function SetupGameDialog() {
         const randomizedBag = shuffleArray(bag);
         const randomizedPlayers = shuffleArray(players);
 
-        const seats: ISeat[] = []; /* randomizedBag.map((role, index) => ({
-            ID: index + 1,
-            player: randomizedPlayers[index],
-            role,
-            isAlive: true,
-            hasVote: true,
-            alignment: $$ROLES[role].team === 'townsfolk' ? 'good' : $$ROLES[role].team === 'outsider' ? 'good' : $$ROLES[role].team === 'demon' ? 'evil' : 
-        }));  */
+        const seatMap: Record<number, ISeat> = {};
         for (const [index, role] of randomizedBag.map((role, index) => [index, role] as [number, Roles])) {
             const ID = index + 1;
             const player = randomizedPlayers[index];
@@ -345,21 +338,23 @@ export function SetupGameDialog() {
                     })
                 );
             }
-            seats.push({
+            seatMap[ID] = {
                 ID,
                 player,
                 role,
                 isAlive: true,
                 hasVote: true,
                 alignment
-            });
+            };
         }
         const outOfPlay = script.filter(
-            (id) => !bag.includes(id as Roles) && !['fabled', 'lorid', 'traveler'].includes($$ROLES[id].team)
+            (id) =>
+                !bag.includes(id as Roles) &&
+                !['fabled', 'lorid', 'traveler', 'demon', 'minion'].includes($$ROLES[id].team)
         );
         dispatch(setOutOfPlay(outOfPlay));
         dispatch(
-            enqueueFront({
+            enqueueBack({
                 id: 'demonbluffs',
                 type: 'prompt',
                 interaction: 'system',
@@ -367,10 +362,25 @@ export function SetupGameDialog() {
             })
         );
 
-        dispatch(setSeats(seats));
+        dispatch(setSeats(seatMap));
         setHasSubmittedSetup(true);
         setIsOpen(false);
-        return dispatch(runTasks());
+        dispatch(
+            showDialog({
+                options: {
+                    title: 'Setup Complete',
+                    message: 'Start Game?',
+                    Controls: () => <></>
+                },
+                resolve: () => {
+                    dispatch(runTasks());
+                    dispatch(runFirstNight());
+                },
+                reject: (reason: string) => {
+                    console.log(reason);
+                }
+            })
+        );
     };
 
     return (

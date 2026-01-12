@@ -1,20 +1,23 @@
 // src/components/CharacterTokenParent.tsx
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { $$ROLES, CharacterTypes, Roles } from '../data/types';
-import { Label } from './ui/label';
 import { Children } from '../types';
 import shroudImg from './../assets/images/town/shroud.png';
 import { FirstNightOrderBadge } from './FirstNightOrderBadge';
 import { OtherNightOrderBadge } from './OtherNightOrderBadge';
 import { NameLabel, RoleLabel } from './RoleLabel';
-import { CharacterTokenBase, DeathTokenBase } from './CharacterTokenBase';
+import { CharacterTokenBase, DeathTokenBase, TokenBase } from './CharacterTokenBase';
 import { TooltipText } from './TooltipText';
+import { IReminderTokenSimple } from '../store/types/player-types';
+import tokenPng from './../assets/images/town/token.png';
+import { roleToIcon } from './roleToIcon';
 
 export function CharacterTokenParent({
     x,
     y,
     name,
     role,
+    thinks,
     isMarked,
     isAlive,
     characterType,
@@ -26,7 +29,8 @@ export function CharacterTokenParent({
     firstNightOrder,
     otherNightOrder,
     tokenSize,
-    children
+    children,
+    reminderTokens
 }: {
     tokenSize: number;
     x: number;
@@ -47,6 +51,7 @@ export function CharacterTokenParent({
     reminderTokenSize?: number;
     firstNightOrder?: number;
     otherNightOrder?: number;
+    reminderTokens?: IReminderTokenSimple[];
 }) {
     const { firstNightReminder, otherNightReminder, ability } = $$ROLES[role];
     return (
@@ -78,41 +83,76 @@ export function CharacterTokenParent({
                 />
 
                 {reminderSlots && reminderTokenSize ?
-                    reminderSlots.map((slot, index) => (
-                        <div
-                            key={`reminder-slot-${index}`}
-                            className='absolute rounded-full border border-dashed border-muted-foreground/40 opacity-0'
-                            style={{
-                                width: reminderTokenSize,
-                                height: reminderTokenSize,
-                                left: slot.x - x,
-                                top: slot.y - y
-                            }}
-                            aria-hidden='true'
-                            data-reminder-slot
-                        />
-                    ))
+                    reminderSlots.map(
+                        (slot, index) => {
+                            const tokenInfo = reminderTokens?.[index];
+                            if (tokenInfo == null) return null;
+                            const { role, text } = tokenInfo;
+                            const icons = roleToIcon[role];
+                            const ix = ['imp', 'baron', 'scarletwoman', 'spy', 'poisoner'].includes(role) ? 1 : 0;
+                            const icon = icons[ix];
+                            return (
+                                <>
+                                    <img
+                                        key={`token-${index}`}
+                                        className='absolute z-0 rounded-full'
+                                        style={{
+                                            width: reminderTokenSize,
+                                            height: reminderTokenSize,
+                                            left: slot.x - x,
+                                            top: slot.y - y
+                                        }}
+                                        src={tokenPng}
+                                        title={text}
+                                    />
+                                    <img
+                                        key={`reminder-slot-${index}`}
+                                        className='absolute z-10 rounded-full'
+                                        style={{
+                                            width: reminderTokenSize,
+                                            height: reminderTokenSize,
+                                            left: slot.x - x,
+                                            top: slot.y - y
+                                        }}
+                                        src={icon}
+                                    />
+                                </>
+                            );
+                        }
+                        // <div
+                        //     key={`reminder-slot-${index}`}
+                        //     className='absolute rounded-full border border-dashed border-muted-foreground/40 opacity-0'
+                        //     style={{
+                        //         width: reminderTokenSize,
+                        //         height: reminderTokenSize,
+                        //         left: slot.x - x,
+                        //         top: slot.y - y
+                        //     }}
+                        //     aria-hidden='true'
+                        //     data-reminder-slot
+                        // >
+                        //     {reminderTokens ?
+                        //         reminderTokens[index] != null ?
+                        //             <></>
+                        //         :   <TokenBase
+                        //                 className='group-data-[alive-state="dead"]:hidden'
+                        //                 pngSrc={tokenPng}
+                        //                 alt='Character'
+                        //             />
+
+                        //     :   null}
+                        // </div>
+                    )
                 :   null}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <RoleLabel role={role} />
+                        <RoleLabel role={thinks ?? role} />
                     </TooltipTrigger>
                     <TooltipContent className='bg-transparent w-auto'>
                         <TooltipText text={ability} />
                     </TooltipContent>
                 </Tooltip>
                 <NameLabel name={name ?? ''} />
-                {/* <div className='absolute bottom-0 text-white flex flex-col w-full text-2xl transform'>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <RoleLabel role={role} />
-                        </TooltipTrigger>
-                        <TooltipContent className='bg-transparent w-auto'>
-                            <TooltipText text={ability} />
-                        </TooltipContent>
-                    </Tooltip>
-                    <NameLabel name={name ?? ''} />
-                </div> */}
                 <FirstNightOrderBadge
                     order={firstNightOrder ?? 0}
                     reminder={firstNightReminder}

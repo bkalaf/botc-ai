@@ -80,6 +80,7 @@ import washerwomanGoodImg from './../assets/images/washerwoman_g.png';
 import washerwomanEvilImg from './../assets/images/washerwoman_e.png';
 import { hasWindow } from './hasWindow';
 import { EvilTokens, GoodTokens } from './Tokens';
+import { selectDemonBluffs } from '../store/grimoire/grimoire-slice';
 
 const roleToIcon: Record<Roles, [any, any?]> = {
     empath: [empathGoodImg, empathEvilImg],
@@ -248,7 +249,7 @@ const getSquareSeatPositions = ({
     ringOffset: number;
     reminderSlotsPerPlayer: number;
 }): SeatPosition[] => {
-    const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
+    const reminderTokenSize = clamp(tokenSize * 0.76, 18, 52);
     const maxRingHalfX = Math.max(0, halfWidth - tokenSize / 2);
     const maxRingHalfY = Math.max(0, halfHeight - tokenSize / 2);
     const ringHalfX = clamp(maxRingHalfX + ringOffset, 0, maxRingHalfX);
@@ -337,13 +338,13 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const [userIdentifier, setUserIdentifier] = React.useState('');
     const [viewSettings, setViewSettings] = React.useState<ViewSettings>(defaultViewSettings);
     const inPlayRoles = React.useMemo(
-        () => players.map((player) => player.role).filter((role): role is Roles => Boolean(role)),
+        () => players.map((player) => player.thinks ?? player.role).filter((role): role is Roles => Boolean(role)),
         [players]
     );
     const activeRoles = React.useMemo(() => {
-        const merged = [...script, ...inPlayRoles];
+        const merged = [...inPlayRoles];
         return Array.from(new Set(merged));
-    }, [script, inPlayRoles]);
+    }, [inPlayRoles]);
     const nightOrderIndex = React.useMemo(
         () => ({
             first: buildNightOrderIndex(activeRoles, 'firstNight'),
@@ -557,6 +558,8 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
         reminderSlotsPerPlayer,
         isSquare
     ]);
+
+    const demonBluffsTokenSize = clamp(Math.min(layoutWidth, layoutHeight) * 0.12, 28, 60);
 
     const handleControlsPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (event.button !== 0) {
@@ -956,6 +959,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     </DrawerContent>
                 </Drawer>
             :   null}
+            <DemonBluffsDisplay tokenSize={demonBluffsTokenSize} />
             {/* Big background shape */}
             <div
                 className='absolute bg-transparent'
@@ -976,14 +980,13 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                 }
 
                 const roleKey = p.role as keyof typeof roleToIcon;
-                const iconEntry = roleKey ? roleToIcon[roleKey] : undefined;
+                const iconEntry = roleKey ? roleToIcon[(p.thinks as Roles) ?? (p.role as Roles)] : undefined;
                 const img =
                     iconEntry ?
                         p.alignment === 'good' ?
                             iconEntry[0]
                         :   iconEntry[1]
                     :   undefined;
-                console.log(`img`, img);
                 const characterType = $$ROLES[p.role as Roles]?.team as CharacterTypes;
                 const alignment = p?.alignment ?? 'good';
                 return (
@@ -998,7 +1001,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                         data-is-alive={p?.isAlive ?? true}
                         data-is-dead={!(p?.isAlive ?? true)}
                         data-is-marked={false}
-                        thinks={undefined}
+                        thinks={p?.thinks}
                         data-character-type={characterType}
                         data-alignment={'good'}
                         isAlive={p?.isAlive ?? true}
@@ -1008,6 +1011,7 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                         otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
                         reminderSlots={seat.reminderSlots}
                         reminderTokenSize={seat.reminderTokenSize}
+                        reminderTokens={(p as ISeatedPlayer).reminderTokens}
                     >
                         <img
                             src={img}
@@ -1018,6 +1022,44 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
                     </CharacterTokenParent>
                 );
             })}
+        </div>
+    );
+}
+
+type DemonBluffsDisplayProps = {
+    tokenSize: number;
+};
+
+function DemonBluffsDisplay({ tokenSize }: DemonBluffsDisplayProps) {
+    const demonBluffs = useAppSelector(selectDemonBluffs);
+    return (
+        <div className='absolute top-4 left-4 z-20 flex flex-col gap-1 rounded-lg border border-border/70 bg-background/80 px-3 py-2 text-[11px] font-semibold text-muted-foreground shadow-lg shadow-black/40 backdrop-blur'>
+            <span className='text-[10px] uppercase tracking-[0.25em]'>Demon Bluffs</span>
+            <div className='flex gap-2 flex-col'>
+                {Array.from({ length: 3 }, (_, index) => {
+                    const iconEntry =
+                        demonBluffs ?
+                            demonBluffs[index] ?
+                                roleToIcon[demonBluffs[index]]
+                            :   undefined
+                        :   undefined;
+                    const icon = iconEntry ? iconEntry[0] : undefined;
+                    return (
+                        <div
+                            key={index}
+                            data-demon-bluff-token={index}
+                            className='flex relative items-center justify-center rounded-full border border-border/60 bg-gradient-to-br from-red-800 via-red-950 to-black shadow-inner'
+                            style={{ width: tokenSize, height: tokenSize }}
+                        >
+                            <img
+                                src={icon}
+                                className='absolute inset-0 h-full w-full rounded-full object-cover scale-110 z-10 border-2 border-white'
+                                draggable={false}
+                            />
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

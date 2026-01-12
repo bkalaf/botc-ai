@@ -1,3 +1,4 @@
+// src/components/top-bar/TopBarSidebarNav.tsx
 export function TopBarSidebarNav() {
     return (
         <nav className='space-y-2'>
