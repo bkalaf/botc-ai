@@ -111,6 +111,16 @@ function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
 }
 
+function estimateEllipseCircumference(radiusX: number, radiusY: number) {
+    const a = Math.max(radiusX, radiusY);
+    const b = Math.min(radiusX, radiusY);
+    if (a <= 0 || b <= 0) {
+        return 0;
+    }
+
+    return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
+}
+
 function tap(Func?: () => React.JSX.Element) {
     if (Func) {
         return Func();
@@ -201,7 +211,7 @@ const getCircleSeatPositions = ({
     tension: number;
     reminderSlotsPerPlayer: number;
 }): SeatPosition[] => {
-    const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
+    const reminderTokenSize = clamp(tokenSize * 0.7, 18, 160);
     const ringRx = radiusX - tokenSize * 0.55 + ringOffset;
     const ringRy = radiusY - tokenSize * 0.55 + ringOffset;
 
@@ -249,7 +259,7 @@ const getSquareSeatPositions = ({
     ringOffset: number;
     reminderSlotsPerPlayer: number;
 }): SeatPosition[] => {
-    const reminderTokenSize = clamp(tokenSize * 0.76, 18, 52);
+    const reminderTokenSize = clamp(tokenSize * 0.7, 18, 160);
     const maxRingHalfX = Math.max(0, halfWidth - tokenSize / 2);
     const maxRingHalfY = Math.max(0, halfHeight - tokenSize / 2);
     const ringHalfX = clamp(maxRingHalfX + ringOffset, 0, maxRingHalfX);
@@ -512,8 +522,16 @@ export function TownSquare({ players }: { players: ISeatedPlayer[] }) {
     const rectTokenMin = Math.min(32, rectTokenMax);
 
     // Token size: scales with screen, bounded
-    const circleBaseTokenSize = clamp(minLayout * 0.25 * viewSettings.zoom, 48, 160);
-    const circleTokenSize = clamp(circleBaseTokenSize * viewSettings.tokenScale, 48, 220);
+    const circleBaseTokenSize = clamp(minLayout * 0.25 * viewSettings.zoom, 32, 160);
+    const circleRingRx = Math.max(circleRadiusX - circleBaseTokenSize * 0.55 + viewSettings.ringOffset, 1);
+    const circleRingRy = Math.max(circleRadiusY - circleBaseTokenSize * 0.55 + viewSettings.ringOffset, 1);
+    const circleCircumference = estimateEllipseCircumference(circleRingRx, circleRingRy);
+    const circleTokenMaxFromCircumference =
+        circleCircumference > 0 ?
+            Math.max(32, circleCircumference / (N * 1.1))
+        :   circleBaseTokenSize * viewSettings.tokenScale;
+    const circleTokenMax = Math.min(220, circleTokenMaxFromCircumference);
+    const circleTokenSize = clamp(circleBaseTokenSize * viewSettings.tokenScale, 32, circleTokenMax);
     const rectBaseTokenSize = clamp(Math.min(rectWidth, rectHeight) * 0.25, rectTokenMin, 160);
     const rectTokenSize = clamp(rectBaseTokenSize * viewSettings.tokenScale, rectTokenMin, rectTokenMax);
     const tokenSize = isSquare ? rectTokenSize : circleTokenSize;

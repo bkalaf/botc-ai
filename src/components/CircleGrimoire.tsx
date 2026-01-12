@@ -123,8 +123,25 @@ type CircleLayout = {
     backgroundRadius: number;
 };
 
+type SeatPosition = {
+    x: number;
+    y: number;
+    reminderSlots: Array<{ x: number; y: number }>;
+    reminderTokenSize: number;
+};
+
 function clamp(n: number, min: number, max: number) {
     return Math.max(min, Math.min(max, n));
+}
+
+function estimateEllipseCircumference(radiusX: number, radiusY: number) {
+    const a = Math.max(radiusX, radiusY);
+    const b = Math.min(radiusX, radiusY);
+    if (a <= 0 || b <= 0) {
+        return 0;
+    }
+
+    return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
 }
 
 function getCircleLayout(layout: Layout, viewSettings: ViewSettings): CircleLayout {
@@ -143,9 +160,15 @@ function getCircleLayout(layout: Layout, viewSettings: ViewSettings): CircleLayo
     return { radiusX, radiusY, centerX, centerY, backgroundRadius };
 }
 
-function getTokenSize(layout: Layout, viewSettings: ViewSettings) {
-    const baseTokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 48, 160);
-    return clamp(baseTokenSize * viewSettings.tokenScale, 48, 220);
+function getTokenSize(layout: Layout, viewSettings: ViewSettings, count: number, circleLayout: CircleLayout) {
+    const baseTokenSize = clamp(Math.min(layout.w, layout.h) * 0.25 * viewSettings.zoom, 32, 160);
+    const ringRadiusX = Math.max(circleLayout.radiusX - baseTokenSize * 0.55 + viewSettings.ringOffset, 1);
+    const ringRadiusY = Math.max(circleLayout.radiusY - baseTokenSize * 0.55 + viewSettings.ringOffset, 1);
+    const circumference = estimateEllipseCircumference(ringRadiusX, ringRadiusY);
+    const maxTokenSize =
+        circumference > 0 ? Math.max(32, circumference / (count * 1.1)) : baseTokenSize * viewSettings.tokenScale;
+
+    return clamp(baseTokenSize * viewSettings.tokenScale, 32, Math.min(220, maxTokenSize));
 }
 
 function buildReminderSlots(
@@ -172,6 +195,54 @@ function buildReminderSlots(
         };
     });
 }
+
+const getCircleSeatPositions = ({
+    count,
+    centerX,
+    centerY,
+    radiusX,
+    radiusY,
+    tokenSize,
+    ringOffset,
+    tension
+}: {
+    count: number;
+    centerX: number;
+    centerY: number;
+    radiusX: number;
+    radiusY: number;
+    tokenSize: number;
+    ringOffset: number;
+    tension: number;
+}): SeatPosition[] => {
+    const reminderTokenSize = clamp(tokenSize * 0.7, 18, 160);
+    const ringRx = radiusX - tokenSize * 0.55 + ringOffset;
+    const ringRy = radiusY - tokenSize * 0.55 + ringOffset;
+
+    return Array.from({ length: count }, (_, i) => {
+        const angle = -Math.PI / 2 + (i * 2 * Math.PI) / count;
+        const cornerBoost = 1 + tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
+        const x = centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
+        const y = centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
+        const tokenCenterX = x + tokenSize / 2;
+        const tokenCenterY = y + tokenSize / 2;
+        const reminderSlots = buildReminderSlots(
+            tokenCenterX,
+            tokenCenterY,
+            centerX,
+            centerY,
+            tokenSize,
+            reminderTokenSize
+        );
+
+        return {
+            x,
+            y,
+            reminderSlots,
+            reminderTokenSize
+        };
+    });
+};
 
 type CircleViewControlsProps = {
     layout: Layout;
@@ -672,7 +743,30 @@ export function CircleGrimoire({ players, nightOrderIndex }: CircleGrimoireProps
     }, []);
 
     const circleLayout = getCircleLayout(layout, viewSettings);
-    const tokenSize = getTokenSize(layout, viewSettings);
+    const tokenSize = getTokenSize(layout, viewSettings, N, circleLayout);
+    const seatPositions = React.useMemo(
+        () =>
+            getCircleSeatPositions({
+                count: N,
+                centerX: circleLayout.centerX,
+                centerY: circleLayout.centerY,
+                radiusX: circleLayout.radiusX,
+                radiusY: circleLayout.radiusY,
+                tokenSize,
+                ringOffset: viewSettings.ringOffset,
+                tension: viewSettings.tension
+            }),
+        [
+            N,
+            circleLayout.centerX,
+            circleLayout.centerY,
+            circleLayout.radiusX,
+            circleLayout.radiusY,
+            tokenSize,
+            viewSettings.ringOffset,
+            viewSettings.tension
+        ]
+    );
 
     return (
         <div
@@ -703,24 +797,10 @@ export function CircleGrimoire({ players, nightOrderIndex }: CircleGrimoireProps
 
             {/* Tokens around circumference */}
             {(players as any[]).slice(0, N).map((p, i) => {
-                const angle = -Math.PI / 2 + (i * 2 * Math.PI) / N;
-
-                const ringRx = circleLayout.radiusX - tokenSize * 0.55 + viewSettings.ringOffset;
-                const ringRy = circleLayout.radiusY - tokenSize * 0.55 + viewSettings.ringOffset;
-                const cornerBoost = 1 + viewSettings.tension * Math.pow(Math.abs(Math.sin(2 * angle)), 2);
-                const x = circleLayout.centerX + ringRx * cornerBoost * Math.cos(angle) - tokenSize / 2;
-                const y = circleLayout.centerY + ringRy * cornerBoost * Math.sin(angle) - tokenSize / 2;
-                const tokenCenterX = x + tokenSize / 2;
-                const tokenCenterY = y + tokenSize / 2;
-                const reminderTokenSize = clamp(tokenSize * 0.35, 18, 52);
-                const reminderSlots = buildReminderSlots(
-                    tokenCenterX,
-                    tokenCenterY,
-                    circleLayout.centerX,
-                    circleLayout.centerY,
-                    tokenSize,
-                    reminderTokenSize
-                );
+                const seat = seatPositions[i];
+                if (!seat) {
+                    return null;
+                }
 
                 const roleKey = p.role as keyof typeof roleToIcon;
                 const iconEntry = roleKey ? roleToIcon[roleKey] : undefined;
@@ -737,8 +817,8 @@ export function CircleGrimoire({ players, nightOrderIndex }: CircleGrimoireProps
                     <CharacterTokenParent
                         key={p.id}
                         tokenSize={tokenSize}
-                        x={x}
-                        y={y}
+                        x={seat.x}
+                        y={seat.y}
                         role={p.role as Roles}
                         name={p?.name}
                         seatID={parseInt(p.id, 10)}
@@ -753,8 +833,8 @@ export function CircleGrimoire({ players, nightOrderIndex }: CircleGrimoireProps
                         alignment={alignment}
                         firstNightOrder={nightOrderIndex.first[p.role as Roles] ?? 0}
                         otherNightOrder={nightOrderIndex.other[p.role as Roles] ?? 0}
-                        reminderSlots={reminderSlots}
-                        reminderTokenSize={reminderTokenSize}
+                        reminderSlots={seat.reminderSlots}
+                        reminderTokenSize={seat.reminderTokenSize}
                     >
                         <img
                             src={tokenImg}
