@@ -1,4 +1,4 @@
-// src/server/getIcon.tsx
+// src/components/overlays/dialogs/dialogIcons.tsx
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faDiceFive,

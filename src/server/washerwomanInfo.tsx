@@ -10,7 +10,7 @@ import { $$ROLES } from '../data/types';
 import { RootState, AppDispatch } from '../store';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
 import { addClaim } from '../store/memory/memory-slice';
-import { closeDialog, showDialog } from '../store/ui/ui-slice';
+import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
 
@@ -76,7 +76,7 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
         );
         clearTask(dispatch);
     };
-    const func = ({
+    const func = async ({
         value: { correctSeat, shown, reasoning }
     }: {
         confirmed: boolean;
@@ -101,28 +101,17 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
             const seat1 = selectSeatedPlayers(state).find((x) => x.ID === shown.seats[0]);
             const seat2 = selectSeatedPlayers(state).find((x) => x.ID === shown.seats[1]);
             const name = $$ROLES[shown.role];
-            const controls = () => (
-                <div className='grid grid-cols-2'>
-                    <div className='flex'>{name.name}</div>
-                    <div className='flex'>{seat1?.name}</div>
-                    <div className='flex'>{seat2?.name}</div>
-                </div>
-            );
-            dispatch(
-                showDialog({
-                    options: {
-                        title: 'Night Info',
-                        message: 'You are shown: ',
-                        Controls: controls
-                    },
-                    resolve: () => {
-                        setTokens({ ID, value: { correctSeat, shown, reasoning } });
-                    },
-                    reject: (reason: string) => {
-                        console.log(reason);
-                    }
-                })
-            );
+            const result = await openDialog({
+                dispatch,
+                dialogType: 'washerwomanInfo',
+                data: {
+                    roleName: name.name,
+                    seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
+                }
+            });
+            if (result.confirmed) {
+                setTokens({ ID, value: { correctSeat, shown, reasoning } });
+            }
         }
     };
     return buildHandler(washerwomanInfoServerFn, func);

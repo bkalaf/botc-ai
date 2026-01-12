@@ -10,7 +10,7 @@ import { Roles, $$ROLES } from '../data/types';
 import { RootState, AppDispatch } from '../store';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
 import { addClaim } from '../store/memory/memory-slice';
-import { closeDialog, showDialog } from '../store/ui/ui-slice';
+import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
 
@@ -76,7 +76,7 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
         );
         clearTask(dispatch);
     };
-    const func = ({
+    const func = async ({
         value: data
     }: {
         confirmed: boolean;
@@ -105,28 +105,17 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
             const seat1 = selectSeatedPlayers(state).find((x) => x.ID === data.shown.seats[0]);
             const seat2 = selectSeatedPlayers(state).find((x) => x.ID === data.shown.seats[1]);
             const name = $$ROLES[data.shown.role];
-            const controls = () => (
-                <div className='grid grid-cols-2'>
-                    <div className='flex'>{name.name}</div>
-                    <div className='flex'>{seat1?.name}</div>
-                    <div className='flex'>{seat2?.name}</div>
-                </div>
-            );
-            dispatch(
-                showDialog({
-                    options: {
-                        title: 'Night Info',
-                        message: 'You are shown: ',
-                        Controls: controls
-                    },
-                    resolve: () => {
-                        setTokens({ ID, value: data });
-                    },
-                    reject: (reason: string) => {
-                        console.log(reason);
-                    }
-                })
-            );
+            const result = await openDialog({
+                dispatch,
+                dialogType: 'investigatorInfo',
+                data: {
+                    roleName: name.name,
+                    seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
+                }
+            });
+            if (result.confirmed) {
+                setTokens({ ID, value: data });
+            }
         }
     };
     return buildHandler(investigatorInfoServerFn, func);

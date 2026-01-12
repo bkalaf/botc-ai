@@ -1,14 +1,13 @@
 // src/server/minionInfo.tsx
 import z from 'zod';
 import { InputSchema } from '../prompts/prompt-types';
-import { ISeatedPlayer } from '../store/types/player-types';
 import { CharacterTypes } from '../data/types';
 import { addClaim } from '../store/memory/memory-slice';
 import { RootState, AppDispatch } from '../store';
-import { closeDialog, showDialog } from '../store/ui/ui-slice';
+import { openDialog } from '@/lib/dialogs';
 import { clearTask } from './clearTask';
 import { $$ROLES } from '@/data/types';
-import { setUnpause } from '../store/st-queue/st-queue-slice';
+import { runTasks } from '../store/st-queue/st-queue-slice';
 
 function getTypesFromSeats(seats: z.infer<typeof InputSchema>['extractedSeats'], characterType: CharacterTypes) {
     return seats
@@ -34,65 +33,30 @@ export function minionInfo(state: RootState, dispatch: AppDispatch) {
         const demons = getTypesFromSeats(data.extractedSeats as any, 'demon');
         const minions = getTypesFromSeats(data.extractedSeats as any, 'minion');
         const evilTeam = [...demons, ...minions];
-        const controls = () => {
-            return (
-                <div className='grid grid-cols-2'>
-                    <div className='flex col-start-1'>Demons:</div>
-                    {demons.map((el, ix) => (
-                        <div
-                            key={ix}
-                            className='flex col-start-2'
-                        >
-                            Seat {el.ID}: {el.name}
-                        </div>
-                    ))}
-                    <div className='flex col-start-1'>Minions:</div>
-                    {minions.map((el, ix) => (
-                        <div
-                            key={ix}
-                            className='flex col-start-2'
-                        >
-                            Seat {el.ID}: {el.name}
-                        </div>
-                    ))}
-                </div>
-            );
+        const minionDialogData = {
+            demons: demons.map((el) => ({ id: el.ID, name: el.name })),
+            minions: minions.map((el) => ({ id: el.ID, name: el.name }))
         };
         const funcs = evilTeam.map((element) => {
-            return () =>
-                new Promise<void>((resolve, reject) => {
-                    if (element.controledBy === 'ai') {
-                        dispatch(
-                            addClaim({
-                                ID: element.ID,
-                                role: element.role,
-                                data: {
-                                    minions,
-                                    demons
-                                }
-                            })
-                        );
-                        return resolve();
-                    } else {
-                        dispatch(
-                            showDialog({
-                                options: {
-                                    title: 'Evil Team Info',
-                                    message: 'You are shown:',
-                                    Controls: controls
-                                },
-                                resolve: () => {
-                                    dispatch(closeDialog());
-                                    dispatch(setUnpause());
-                                    return resolve();
-                                },
-                                reject: (reason: string) => {
-                                    console.log(reason);
-                                }
-                            })
-                        );
-                    }
-                });
+            return async () => {
+                if (element.controledBy === 'ai') {
+                    dispatch(
+                        addClaim({
+                            ID: element.ID,
+                            role: element.role,
+                            data: {
+                                minions,
+                                demons
+                            }
+                        })
+                    );
+                    return;
+                }
+                const result = await openDialog({ dispatch, dialogType: 'minionInfo', data: minionDialogData });
+                if (result.confirmed) {
+                    dispatch(runTasks());
+                }
+            };
         });
         await reduceToPromise(dispatch, ...funcs);
     };
@@ -101,42 +65,18 @@ export function minionInfo(state: RootState, dispatch: AppDispatch) {
 export function demonInfo(state: RootState, dispatch: AppDispatch) {
     return async ({ data }: { data: z.infer<typeof InputSchema> }) => {
         const demons = getTypesFromSeats(data.extractedSeats as any, 'demon');
-        const controls = () => {
-            return (
-                <div className='grid grid-cols-2'>
-                    {data.demonBluffs?.map((role) => (
-                        <div
-                            key={role}
-                            className='flex'
-                        >
-                            {$$ROLES[role].name}
-                        </div>
-                    ))}
-                </div>
-            );
-        };
+        const bluffNames = (data.demonBluffs ?? []).map((role) => $$ROLES[role].name);
         const funcs = demons.map((element) => {
-            return () =>
-                new Promise<void>((resolve, reject) => {
-                    if (element.controledBy === 'ai') {
-                        dispatch(addClaim({ ID: element.ID, role: element.role, data: { bluffs: data.demonBluffs } }));
-                        return resolve();
-                    } else {
-                        dispatch(
-                            showDialog({
-                                options: { title: 'Demon Bluffs', message: 'You are shown:', Controls: controls },
-                                resolve: () => {
-                                    dispatch(closeDialog());
-                                    setUnpause();
-                                    return resolve();
-                                },
-                                reject: (reason: string) => {
-                                    console.log(reason);
-                                }
-                            })
-                        );
-                    }
-                });
+            return async () => {
+                if (element.controledBy === 'ai') {
+                    dispatch(addClaim({ ID: element.ID, role: element.role, data: { bluffs: data.demonBluffs } }));
+                    return;
+                }
+                const result = await openDialog({ dispatch, dialogType: 'demonInfo', data: { bluffs: bluffNames } });
+                if (result.confirmed) {
+                    dispatch(runTasks());
+                }
+            };
         });
         await reduceToPromise(dispatch, ...funcs);
     };

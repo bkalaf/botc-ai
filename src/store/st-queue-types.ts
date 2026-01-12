@@ -49,7 +49,6 @@ export interface StorytellerQueueState {
     items: IStorytellerQueueItem[];
     currentItem: IStorytellerQueueItem | null;
     isRunning: boolean;
-    awaitingHumanTaskId: string | null;
     error: string | null;
     lastRunAtMs: number | null;
 }

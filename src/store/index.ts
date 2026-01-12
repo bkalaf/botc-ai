@@ -14,11 +14,10 @@ import {
     setShowOtherNightOrder,
     settingsSlice
 } from './settings/settings-slice';
-import { setAwaitingHumanTaskId, storytellerQueueSlice } from './st-queue/st-queue-slice';
+import { storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
 import { stQueueThunkExtra } from './st-queue/stQueueThunkExtra';
 import uiSlice, { showDayBreakDialog, showNightBreakDialog } from './ui/ui-slice';
-import { list } from 'postcss';
 
 export const createStoreListeners = () => {
     const listenerMiddleware = createListenerMiddleware();
@@ -72,10 +71,8 @@ listenerMiddleware3.startListening({
     effect: (action, listenerApi) => {
         const phase = (listenerApi.getState() as RootState).game.phase;
         if (phase === 'day') {
-            listenerApi.dispatch(setAwaitingHumanTaskId('show-day-break'));
             listenerApi.dispatch(showDayBreakDialog());
         } else {
-            listenerApi.dispatch(setAwaitingHumanTaskId('show-night-break'));
             listenerApi.dispatch(showNightBreakDialog());
         }
     }
