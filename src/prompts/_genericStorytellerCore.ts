@@ -19,5 +19,8 @@ export const genericStorytellerCore = {
         `PLAYER EXPERIENCE: Avoid outputs that feel like “ST nonsense” unless your group explicitly loves that style.`
     ],
     footnote: `You may show true information to a drunk/poisoned player or false information to a sober/healthy player, as long as the result is legal and supports the game. The rules define legality; Storytelling defines quality.`,
-    quote: [`A good Storyteller doesn’t ask “Is this true?”`, `They ask “What does this force the table to wrestle with next?”`]
+    quote: [
+        `A good Storyteller doesn’t ask “Is this true?”`,
+        `They ask “What does this force the table to wrestle with next?”`
+    ]
 };

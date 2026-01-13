@@ -16,7 +16,7 @@ export function openDialog<T extends DialogType>({ dispatch, dialogType, data, r
             showDialog({
                 options: { dialogType },
                 data,
-                resolve: (result) => {
+                resolve: async (result) => {
                     console.log(result);
                     if ($resolve) $resolve(result).then(resolve);
                     else resolve(result);

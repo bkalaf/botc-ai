@@ -90,14 +90,14 @@ export const fortuneTellerNightAction: PromptSpec = {
             'In-character explanation of the test design and how it advances Demon/RH/misregistration/poison inference.'
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'FortuneTellerNightActionOutput',
         type: 'object',
         additionalProperties: false,
-        required: ['shown', 'hypothesis', 'todos', 'reasoning'],
+        required: ['picks', 'hypothesis', 'todos', 'reasoning'],
         properties: {
-            shown: {
+            picks: {
                 type: 'object',
                 additionalProperties: false,
                 required: ['seats'],
@@ -106,7 +106,12 @@ export const fortuneTellerNightAction: PromptSpec = {
                         type: 'array',
                         minItems: 2,
                         maxItems: 2,
-                        items: { type: 'number' }
+                        items: {
+                            type: 'number',
+                            description: 'The two seats you choose to check tonight.',
+                            minimum: 1,
+                            maximum: playerCount
+                        }
                     }
                 }
             },
@@ -115,13 +120,45 @@ export const fortuneTellerNightAction: PromptSpec = {
                 additionalProperties: false,
                 required: ['likelyRedHerringSeats', 'likelyDemonSeats', 'corruptionRisk'],
                 properties: {
-                    likelyRedHerringSeats: { type: 'array', items: { type: 'number' } },
-                    likelyDemonSeats: { type: 'array', items: { type: 'number' } },
-                    corruptionRisk: { type: 'string', enum: ['low', 'medium', 'high'] }
+                    likelyRedHerringSeats: {
+                        type: 'array',
+                        items: {
+                            type: 'number',
+                            description: 'The likely Red Herring seats #s.',
+                            minimum: 1,
+                            maximum: playerCount
+                        }
+                    },
+                    likelyDemonSeats: {
+                        type: 'array',
+                        items: {
+                            type: 'number',
+                            description: 'The likely Demon seats #s.',
+                            minimum: 1,
+                            maximum: playerCount
+                        }
+                    },
+                    corruptionRisk: {
+                        type: 'string',
+                        enum: ['low', 'medium', 'high'],
+                        description: 'The likelyhood of drunkness or poisoning.'
+                    }
                 }
             },
-            todos: { type: 'array', items: { type: 'number' } },
-            reasoning: { type: 'string' }
+            todos: {
+                type: 'array',
+                items: {
+                    type: 'number',
+                    description: 'Any seats that you want to check in the future in order of importance.',
+                    minimum: 1,
+                    maximum: playerCount
+                }
+            },
+            reasoning: {
+                type: 'string',
+                description:
+                    'In-character explanation of the test design and how it advances Demon/RH/misregistration/poison inference. 2 sentences at most - prefer 1.'
+            }
         }
-    }
+    })
 };

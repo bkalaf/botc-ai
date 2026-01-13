@@ -29,11 +29,14 @@ export const drunkChoice: PromptSpec = {
 
     output: {
         shown: 'object: { seat: number } (the seat made Drunk)',
-        reasoning:
-            'Brief ST philosophy explaining balance, longevity, and expected misinformation arc. Limit to 2 sentences max, preferably 1.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining balance, longevity, and expected misinformation arc. Limit to 2 sentences max, preferably 1.'
+        }
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'DrunkChoiceOutput',
         type: 'object',
@@ -45,10 +48,19 @@ export const drunkChoice: PromptSpec = {
                 additionalProperties: false,
                 required: ['seat'],
                 properties: {
-                    seat: { type: 'number' }
+                    seat: {
+                        type: 'number',
+                        minimum: 1,
+                        maximum: playerCount,
+                        description: 'The seat # of the player made drunk. Must be a townsfolk.'
+                    }
                 }
             },
-            reasoning: { type: 'string' }
+            reasoning: {
+                type: 'string',
+                description:
+                    'Brief ST philosophy explaining balance, longevity, and expected misinformation arc. Limit to 2 sentences max, preferably 1.'
+            }
         }
-    }
+    })
 };

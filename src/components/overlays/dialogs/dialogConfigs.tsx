@@ -58,6 +58,31 @@ const FortuneTellerChoiceContent: React.FC<DialogContentProps<'fortunetellerChoi
     </div>
 );
 
+const PoisonerChoiceContent: React.FC<DialogContentProps<'poisonerChoice'>> = ({ data }) => (
+    <div className='grid grid-cols-2'>
+        <div className='flex'>
+            <Select
+                name='seat'
+                required
+            >
+                <SelectTrigger>
+                    <SelectValue placeholder='Select a seat...' />
+                </SelectTrigger>
+                <SelectContent>
+                    {data.seatOptions.map((seat) => (
+                        <SelectItem
+                            key={seat.id}
+                            value={seat.id.toString()}
+                        >
+                            {seat.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+    </div>
+);
+
 const EmpathInfoContent: React.FC<DialogContentProps<'empathInfo'>> = ({ data }) => {
     return getIcon(data.count)();
 };
@@ -103,6 +128,11 @@ const DemonInfoContent: React.FC<DialogContentProps<'demonInfo'>> = ({ data }) =
 );
 
 export const dialogConfigs: { [K in DialogType]: DialogConfig<K> } = {
+    poisonerChoice: {
+        title: 'Make a choice...',
+        description: 'Select one player',
+        Content: PoisonerChoiceContent
+    },
     setupComplete: {
         title: 'Setup Complete',
         description: 'Start game?',

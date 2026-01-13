@@ -15,18 +15,7 @@ import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { closeDialog, selectRequest } from '../../store/ui/ui-slice';
 import { dialogConfigs } from './dialogs/dialogConfigs';
-
-// type GameOverlayProps = {
-//     open: boolean;
-//     imageSrc?: string;
-//     imageAlt?: string;
-//     className?: string;
-//     contentClassName?: string;
-//     onOpenChange?: (open: boolean) => void;
-//     title?: string;
-//     description?: string;
-//     children?: Children;
-// };
+import { useMemo } from 'react';
 
 export function GameOverlay() {
     const dispatch = useAppDispatch();
@@ -34,21 +23,26 @@ export function GameOverlay() {
     const open = Boolean(request);
     const dialogType = request?.options.dialogType;
     const dialogConfig = dialogType ? dialogConfigs[dialogType] : null;
+    const resolver = useAppSelector(selectRequest)?.resolve;
+
+    const resolve = useMemo(() => resolver ?? (async () => {}), [resolver]);
+
     const handleConfirm = React.useCallback(
         (value: any) => {
             console.log(`handleConfirm`);
-            request?.resolve({ confirmed: true, value });
             dispatch(closeDialog());
+            resolve({ confirmed: true, value });
         },
-        [dispatch, request]
+        [dispatch, resolve]
     );
     const handleCancel = () => {
-        request?.resolve({ confirmed: false, value: undefined });
         dispatch(closeDialog());
+        resolve?.({ confirmed: false, value: undefined });
     };
     const onSubmit = React.useCallback(
         (ev: React.FormEvent) => {
             ev.preventDefault();
+            console.log(`onSubmit`, ev);
             const formdata = new FormData(ev.currentTarget as HTMLFormElement);
             const data = Object.fromEntries(formdata.entries());
             console.log(data);
@@ -56,25 +50,17 @@ export function GameOverlay() {
         },
         [handleConfirm]
     );
-    const onOpenChange = React.useCallback(
-        (isOpen: boolean) => {
-            if (isOpen) {
-                dispatch(closeDialog());
-            }
-        },
-        [dispatch]
-    );
     return (
         <Dialog
             open={open}
-            onOpenChange={onOpenChange}
+            onOpenChange={handleCancel}
         >
-            <form onSubmit={onSubmit}>
-                <DialogTrigger />
-                <DialogContent
-                    showCloseButton={true}
-                    className={cn('border-none bg-slate-950/90 p-0 text-white shadow-2xl sm:max-w-[680px]')}
-                >
+            <DialogTrigger />
+            <DialogContent
+                showCloseButton={true}
+                className={cn('border-none bg-slate-950/90 p-0 text-white shadow-2xl sm:max-w-[680px]')}
+            >
+                <form onSubmit={onSubmit}>
                     <div className='relative overflow-hidden rounded-lg'>
                         {/* {imageSrc ?
                             <img
@@ -103,8 +89,8 @@ export function GameOverlay() {
                             </DialogFooter>
                         </div>
                     </div>
-                </DialogContent>
-            </form>
+                </form>
+            </DialogContent>
         </Dialog>
     );
 }

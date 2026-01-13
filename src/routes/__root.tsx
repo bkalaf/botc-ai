@@ -2,11 +2,9 @@
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
-
+import { RecoilRoot } from 'recoil';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
-
 import appCss from '../styles.css?url';
-
 import type { QueryClient } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
 import { AppShell } from '../components/AppShell';
@@ -48,9 +46,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <HeadContent />
             </head>
             <body>
-                <Provider store={store}>
-                    <AppShell>{children}</AppShell>
-                </Provider>
+                <RecoilRoot>
+                    <Provider store={store}>
+                        <AppShell>{children}</AppShell>
+                    </Provider>
+                </RecoilRoot>
+
                 <TanStackDevtools
                     config={{
                         position: 'bottom-right'

@@ -11,46 +11,24 @@ import {
     DialogTitle,
     DialogTrigger
 } from '../ui/dialog';
-import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { selectNightBreakDialog, toggleNightBreakDialog } from '../../store/ui/ui-slice';
-import { useCallback, useEffect, useRef } from 'react';
+import { selectNightBreakDialog, selectRequest, toggleNightBreakDialog } from '../../store/ui/ui-slice';
+import { useCallback, useMemo } from 'react';
 import { runTasks } from '../../store/st-queue/st-queue-slice';
 
-type NightFallsDialogProps = {
-    resolve?: (value?: any) => void;
-    reject?: (reason?: any) => void;
-};
-
-export function NightFallsDialog({ resolve }: NightFallsDialogProps) {
+export function NightFallsDialog() {
     const open = useAppSelector(selectNightBreakDialog);
     const dispatch = useAppDispatch();
-    const resolvedRef = useRef(false);
-    const prevOpenRef = useRef(open);
+    const resolver = useAppSelector(selectRequest)?.resolve;
 
-    const resolveOnce = useCallback(() => {
-        if (!resolvedRef.current) {
-            resolve?.();
-            resolvedRef.current = true;
-        }
-    }, [resolve]);
+    const resolve = useMemo(() => resolver ?? (async () => {}), [resolver]);
 
-    useEffect(() => {
-        if (open) {
-            resolvedRef.current = false;
-        } else if (prevOpenRef.current) {
-            resolveOnce();
-        }
-        prevOpenRef.current = open;
-    }, [open, resolveOnce]);
+    const onOpenChange = useCallback(async () => {
+        dispatch(toggleNightBreakDialog(false));
+        dispatch(runTasks());
+        await resolve({ confirmed: true, value: undefined });
+    }, [dispatch, resolve]);
 
-    const onOpenChange = useCallback(
-        (isOpen: boolean) => {
-            dispatch(toggleNightBreakDialog(isOpen));
-            dispatch(runTasks());
-        },
-        [dispatch]
-    );
     return (
         <Dialog
             open={open}
@@ -79,13 +57,7 @@ export function NightFallsDialog({ resolve }: NightFallsDialogProps) {
                             draggable={false}
                         />
                         <DialogFooter>
-                            <DialogClose
-                                onClick={() => {
-                                    onOpenChange(false);
-                                }}
-                            >
-                                Cancel
-                            </DialogClose>
+                            <DialogClose onClick={onOpenChange}>Cancel</DialogClose>
                         </DialogFooter>
                     </div>
                 </div>

@@ -47,8 +47,11 @@ export const fortuneTellerInfo: PromptSpec = {
 
     output: {
         shown: "One of: 'YES' | 'NO'",
-        reasoning:
-            'A brief Storyteller explanation describing the mechanical and narrative factors that justified this result.'
+        reasoning: {
+            type: 'string',
+            description:
+                'A brief Storyteller explanation describing the mechanical and narrative factors that justified this result. Limit 2 sentences prefer 1.'
+        }
     },
 
     schema: {
@@ -59,10 +62,14 @@ export const fortuneTellerInfo: PromptSpec = {
         required: ['shown', 'reasoning'],
         properties: {
             shown: {
-                type: 'boolean'
+                type: 'boolean',
+                description:
+                    'The fortune tellers reported answer for the two seats checked. True = Yes, one or both of them is the demon or red herring ; False = No, neither is the demon or red herring.'
             },
             reasoning: {
-                type: 'string'
+                type: 'string',
+                description:
+                    'A brief Storyteller explanation describing the mechanical and narrative factors that justified this result. Limit 2 sentences prefer 1.'
             }
         }
     }

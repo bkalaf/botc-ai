@@ -17,14 +17,15 @@ const DrunkChoiceReturnSchema = z.object({
 export const drunkChoiceServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
     .handler(async ({ data }) => {
-        const promptText = createPrompt(drunkChoice, data);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(drunkChoice, data);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Storyteller.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(DrunkChoiceReturnSchema, 'drunkchoice_decision')
         });

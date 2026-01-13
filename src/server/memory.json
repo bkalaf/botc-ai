@@ -1,0 +1,405 @@
+//src/server/memory.json
+{
+    "claims": {
+        "0": [
+            {
+                "infoType": "evil_team",
+                "day": 1,
+                "source": "storyteller",
+                "data": {
+                    "demons": [8],
+                    "minions": [1, 2, 7]
+                }
+            },
+            {
+                "infoType": "evil_team",
+                "day": 1,
+                "source": "storyteller",
+                "data": {
+                    "demons": [8],
+                    "minions": [1, 2, 7]
+                }
+            },
+            {
+                "infoType": "evil_team",
+                "day": 1,
+                "source": "storyteller",
+                "data": {
+                    "demons": [8],
+                    "minions": [1, 2, 7]
+                }
+            },
+            {
+                "infoType": "evil_team",
+                "day": 1,
+                "source": "storyteller",
+                "data": {
+                    "demons": [8],
+                    "minions": [1, 2, 7]
+                }
+            },
+            {
+                "infoType": "demon_bluffs",
+                "day": 1,
+                "source": "storyteller",
+                "data": {
+                    "demonBluffs": ["virgin", "investigator", "soldier"]
+                }
+            }
+        ],
+        "1": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 1,
+                "role": "baron"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 1,
+                "role": "baron"
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 1
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 1
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 1
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 1
+            }
+        ],
+        "2": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 2,
+                "role": "scarletwoman"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 2,
+                "role": "scarletwoman"
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 2
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 2
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 2
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 2
+            }
+        ],
+        "3": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 3,
+                "role": "butler"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 3,
+                "role": "butler"
+            }
+        ],
+        "4": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 4,
+                "role": "washerwoman"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 4,
+                "role": "washerwoman"
+            },
+            {
+                "infoType": "night_info",
+                "day": 1,
+                "source": "player",
+                "seat": 4,
+                "role": "washerwoman",
+                "data": {
+                    "shown": {
+                        "role": "monk",
+                        "seats": [7, 12]
+                    }
+                }
+            }
+        ],
+        "5": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 5,
+                "role": "chef"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 5,
+                "role": "chef"
+            },
+            {
+                "infoType": "night_info",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 5,
+                "role": "chef",
+                "data": {
+                    "count": 2
+                }
+            }
+        ],
+        "6": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 6,
+                "role": "slayer"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 6,
+                "role": "slayer"
+            }
+        ],
+        "7": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 7,
+                "role": "spy"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 7,
+                "role": "spy"
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 7
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 7
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 7
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 7
+            }
+        ],
+        "8": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 8,
+                "role": "imp"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 8,
+                "role": "imp"
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 8
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 8
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 8
+            },
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "storyteller",
+                "seat": 8
+            }
+        ],
+        "9": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 9,
+                "role": "undertaker"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 9,
+                "role": "undertaker"
+            }
+        ],
+        "10": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 10,
+                "role": "saint"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 10,
+                "role": "saint"
+            }
+        ],
+        "11": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 11,
+                "role": "recluse"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 11,
+                "role": "recluse"
+            }
+        ],
+        "12": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 12,
+                "role": "ravenkeeper"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 12,
+                "role": "ravenkeeper"
+            }
+        ],
+        "13": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 13,
+                "role": "monk"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 13,
+                "role": "monk"
+            }
+        ],
+        "14": [
+            {
+                "infoType": "character_type_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 14,
+                "role": "librarian"
+            },
+            {
+                "infoType": "role_claim",
+                "day": 1,
+                "source": "player",
+                "seat": 14,
+                "role": "librarian"
+            },
+            {
+                "infoType": "night_info",
+                "day": 1,
+                "source": "player",
+                "seat": 14,
+                "role": "librarian",
+                "data": {
+                    "role": "butler",
+                    "seats": [10, 11]
+                }
+            }
+        ]
+    }
+}

@@ -30,11 +30,14 @@ export const fortuneTellersRedHerring: PromptSpec = {
 
     output: {
         shown: 'object: { seat: number } (the seat with the Red Herring token)',
-        reasoning:
-            'Brief ST philosophy explaining why this placement sustains Fortune Teller tension across the game. Limit to 2 sentences max, preferably 1.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining why this placement sustains Fortune Teller tension across the game. Limit to 2 sentences max, preferably 1.'
+        }
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'FortuneTellersRedHerringOutput',
         type: 'object',
@@ -45,9 +48,20 @@ export const fortuneTellersRedHerring: PromptSpec = {
                 type: 'object',
                 additionalProperties: false,
                 required: ['seat'],
-                properties: { seat: { type: 'number' } }
+                properties: {
+                    seat: {
+                        type: 'number',
+                        minimum: 1,
+                        maximum: playerCount,
+                        description: 'The seat with the Red Herring token.'
+                    }
+                }
             },
-            reasoning: { type: 'string' }
+            reasoning: {
+                type: 'string',
+                description:
+                    'Brief ST philosophy explaining why this placement sustains Fortune Teller tension across the game. Limit to 2 sentences max, preferably 1.'
+            }
         }
-    }
+    })
 };

@@ -30,7 +30,11 @@ export const empathNumber: PromptSpec = {
 
     output: {
         count: "number (Empath's reported Evil neighbor count: 0, 1, or 2)",
-        reasoning: 'Brief ST philosophy explaining the result, including misregistration and sobriety considerations.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining the result, including misregistration and sobriety considerations.'
+        }
     },
 
     schema: {
@@ -40,8 +44,12 @@ export const empathNumber: PromptSpec = {
         additionalProperties: false,
         required: ['count', 'reasoning'],
         properties: {
-            count: { type: 'number', minimum: 0, maximum: 2 },
-            reasoning: { type: 'string' }
+            count: { type: 'number', minimum: 0, maximum: 2, description: 'Empaths reported evil neighbor count.' },
+            reasoning: {
+                type: 'string',
+                description:
+                    'Brief ST philosophy explaining the result, including misregistration and sobriety considerations.'
+            }
         }
     }
 };

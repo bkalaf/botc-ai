@@ -1,5 +1,6 @@
 // src/prompts/mayorBounce.ts
 import { genericStorytellerCore } from './_genericStorytellerCore';
+import { PromptSpec } from './prompt-types';
 
 export const mayorBounce: PromptSpec = {
     id: 'st-mayor-bounce',
@@ -28,10 +29,14 @@ export const mayorBounce: PromptSpec = {
 
     output: {
         shown: 'object: { shouldBounce: boolean, targetSeat: number|null } (targetSeat is the redirected target if bouncing; null if no bounce)',
-        reasoning: 'Brief ST philosophy explaining balance/drama and why this redirection (or no redirection) serves the game.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining balance/drama and why this redirection (or no redirection) serves the game. 2 sentence limit, prefer 1 sentence.'
+        }
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'MayorBounceOutput',
         type: 'object',
@@ -41,13 +46,23 @@ export const mayorBounce: PromptSpec = {
             shown: {
                 type: 'object',
                 additionalProperties: false,
-                required: ['shouldBounce', 'targetSeat'],
+                required: ['shouldBounce'],
                 properties: {
-                    shouldBounce: { type: 'boolean' },
-                    targetSeat: { type: ['number', 'null'] }
+                    shouldBounce: { type: 'boolean', description: 'Whether or not the kill will bounce.' },
+                    targetSeat: {
+                        type: 'number',
+                        minimum: 1,
+                        maximum: playerCount,
+                        description:
+                            'The seat number of who the kill is going to be bounced to or null if shouldBounce is false.'
+                    }
                 }
             },
-            reasoning: { type: 'string' }
+            reasoning: {
+                type: 'string',
+                description:
+                    'Brief ST philosophy explaining balance/drama and why this redirection (or no redirection) serves the game. 2 sentence limit, prefer 1 sentence.'
+            }
         }
-    }
+    })
 };

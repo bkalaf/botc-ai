@@ -1,4 +1,6 @@
 // src/prompts/monkProtect.ts
+import { PromptSpec } from './prompt-types';
+
 export const monkProtect: PromptSpec = {
     id: 'player-monk-protect',
     version: '1.0',
@@ -77,7 +79,7 @@ export const monkProtect: PromptSpec = {
         reasoning: 'In-character explanation tying protection choice to current information and personality.'
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'MonkProtectOutput',
         type: 'object',
@@ -88,10 +90,29 @@ export const monkProtect: PromptSpec = {
                 type: 'object',
                 additionalProperties: false,
                 required: ['seat'],
-                properties: { seat: { type: 'number' } }
+                properties: {
+                    seat: {
+                        type: 'number',
+                        minimum: 1,
+                        maximum: playerCount,
+                        description: 'The seat number of the person you want to protect from the demon this evening.'
+                    }
+                }
             },
-            todos: { type: 'array', items: { type: 'number' } },
-            reasoning: { type: 'string' }
+            todos: {
+                type: 'array',
+                items: {
+                    type: 'number',
+                    minimum: 1,
+                    maximum: playerCount,
+                    description: 'People I think need protection in order of importance.'
+                }
+            },
+            reasoning: {
+                type: 'string',
+                description:
+                    'In-character explanation tying protection choice to current information and personality. 2 sentences max - prefer 1.'
+            }
         }
-    }
+    })
 };

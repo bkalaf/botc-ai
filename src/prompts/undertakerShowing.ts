@@ -1,5 +1,6 @@
 // src/prompts/undertakerShowing.ts
 import { genericStorytellerCore } from './_genericStorytellerCore';
+import { PromptSpec } from './prompt-types';
 
 export const undertakerShowing: PromptSpec = {
     id: 'st-undertaker-showing',
@@ -23,10 +24,14 @@ export const undertakerShowing: PromptSpec = {
 
     output: {
         role: 'string (role shown to the Undertaker for the executed player)',
-        reasoning: 'Brief ST philosophy explaining why this show supports balance, drama, and plausibility.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining balance, plausibility, and any misregistration/sobriety choices. 2 sentence limit, prefer 1 sentence.'
+        }
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'UndertakerShowingOutput',
         type: 'object',
@@ -36,5 +41,5 @@ export const undertakerShowing: PromptSpec = {
             role: { type: 'string' },
             reasoning: { type: 'string' }
         }
-    }
+    })
 };

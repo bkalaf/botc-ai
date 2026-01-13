@@ -20,14 +20,15 @@ const TravelerAlignmentInputSchema = InputSchema.extend({
 export const travelerAlignmentServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => TravelerAlignmentInputSchema.parse(data))
     .handler(async ({ data }) => {
-        const promptText = createPrompt(travelerAlignment, data);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(travelerAlignment, data);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Storyteller.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(TravelerAlignmentReturnSchema, 'traveleralignment_decision')
         });

@@ -1,9 +1,10 @@
 // src/prompts/createPrompt.ts
-import { InputSchema, PromptSpec } from './prompt-types';
-import { toMdTable } from './markdownTable';
+import { ClaimsInputSchema, InputSchema, PromptSpec } from './prompt-types';
+import { toClaimsMdTable, toMdTable } from './markdownTable';
 import z from 'zod';
 import { toProperCase } from '../utils/getWordsForNumber.ts/toProperCase';
 import { Personality } from '../store/types/player-types';
+import { Claim } from '../store/types/memory-types';
 
 export function fromPersonality(personality?: Personality) {
     if (personality == null) return '';
@@ -20,7 +21,14 @@ export function fromPersonality(personality?: Personality) {
 
 export function createPrompt(
     promptSpec: PromptSpec,
-    { extractedSeats, outOfPlay, demonBluffs, nightNumber, phase }: z.infer<typeof InputSchema>,
+    {
+        claims,
+        extractedSeats,
+        outOfPlay,
+        demonBluffs,
+        nightNumber,
+        phase
+    }: z.infer<typeof InputSchema> & { claims?: Claim[] },
     opts?: { personality?: Personality }
 ) {
     const {
@@ -78,15 +86,24 @@ export function createPrompt(
         ...(inputs?.map(addBullet) ?? []),
         '',
         'OUTPUT:',
-        JSON.stringify(output, null, '\t'),
-        '',
-        'STATE:',
-        toMdTable(extractedSeats as any),
+        JSON.stringify(
+            typeof schema === 'function' ? schema({ playerCount: extractedSeats.length }) : schema,
+            null,
+            '\t'
+        ),
+        ''
+    ];
+
+    const state = [
+        'STATE OF GAME / CLAIMS:',
+        claims ? toClaimsMdTable(claims) : toMdTable(extractedSeats as any),
         ...(outOfPlay ? ['OUT OF PLAY: '.concat(outOfPlay.join(', '))] : []),
         ...(demonBluffs ? ['DEMON BLUFFS: '.concat(demonBluffs.join(', '))] : []),
         ...(nightNumber ? [`IT IS ${phase.toUpperCase()} NUMBER ${nightNumber.toString()}`] : []),
         fromPersonality(personality)
     ];
-
-    return result.join('\n');
+    return {
+        system: result.join('\n'),
+        user: state.join('\n')
+    };
 }

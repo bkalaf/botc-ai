@@ -6,13 +6,14 @@ import z from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import { getClient } from './openaiClient';
 import { librarianTokens } from '../prompts/librarianTokens';
-import { addClaim } from '../store/memory/memory-slice';
+import { addNightInfoClaim } from '../store/memory/memory-slice';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
 import { Roles, $$ROLES } from '../data/types';
 import { RootState, AppDispatch } from '../store';
 import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
+import { selectDay } from '../store/game/game-slice';
 
 const LibrarianInfoReturnSchema = z.object({
     correctSeat: z.int().nullable(),
@@ -26,14 +27,15 @@ const LibrarianInfoReturnSchema = z.object({
 export const librarianInfoServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
     .handler(async ({ data }) => {
-        const promptText = createPrompt(librarianTokens, data);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(librarianTokens, data);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Storyteller.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(LibrarianInfoReturnSchema, 'librarianinfo_decision')
         });
@@ -56,11 +58,11 @@ export const librarianHandler = (state: RootState, dispatch: AppDispatch) => {
         ID: number;
         value: z.infer<typeof LibrarianInfoReturnSchema>;
     }) => {
-        const correct = correctSeat ?? shown.seats[0];
-        const incorrect = correctSeat ? shown.seats.filter((x) => x != correct)[0] : shown.seats[1];
+        const [correct, incorrect] =
+            correctSeat ? [correctSeat, shown.seats.filter((x) => x !== correctSeat)[0]] : shown.seats;
         dispatch(
             addReminderToken({
-                key: 'librarian_townsfolk',
+                key: 'librarian_outsider',
                 source: ID,
                 target: correct,
                 isChanneled: false
@@ -86,6 +88,7 @@ export const librarianHandler = (state: RootState, dispatch: AppDispatch) => {
             reasoning: string;
         };
     }) => {
+        const day = selectDay(state);
         const seat = selectSeatByRole(state, 'librarian');
         if (seat == null) throw new Error(`no librarian seat`);
         const {
@@ -94,10 +97,11 @@ export const librarianHandler = (state: RootState, dispatch: AppDispatch) => {
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addClaim({
-                    ID,
+                addNightInfoClaim({
+                    seat: ID,
                     role: 'librarian',
-                    data: data.shown
+                    data: data.shown,
+                    day
                 })
             );
             setTokens({ ID, value: { correctSeat: data.correctSeat, shown: data.shown, reasoning: data.reasoning } });
@@ -113,9 +117,7 @@ export const librarianHandler = (state: RootState, dispatch: AppDispatch) => {
                     seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
                 }
             });
-            if (result.confirmed) {
-                setTokens({ ID, value: data });
-            }
+            setTokens({ ID, value: data });
         }
     };
     return buildHandler(librarianInfoServerFn, func);

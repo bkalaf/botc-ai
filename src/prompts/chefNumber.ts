@@ -11,7 +11,7 @@ export const chefNumber: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Determine the Chef's number: the count of immediately adjacent pairs of Evil players sitting next to each other (seating is circular).`,
+    goal: `Determine the Chef's number: the count of immediately adjacent pairs of Evil players sitting next to each other (seating is circular). Examine the seating like a linked list with the highest number seat connecting back to 1. Go through the list and calculate the number of evil immediate pairs (any good players in between break up the pairs). So, if for example, it went 1-monk, 2-imp, 3-saint, 4-baron, the correct count would be 0 whereas 1-recluse (good, but misregisters), 2-imp (evil), 3-saint (good), 4-baron (evil) could be either 2, or 0 depending on if we counted the recluse as evil in this example.`,
 
     additionalConsiderations: [
         `SEATING IS CIRCULAR: The last seat is adjacent to seat 0.`,
@@ -31,8 +31,11 @@ export const chefNumber: PromptSpec = {
 
     output: {
         count: "number (Chef's reported adjacent Evil pair count)",
-        reasoning:
-            'Brief ST philosophy explaining the choice, including any misregistration and/or sobriety considerations.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining the choice, including any misregistration and/or sobriety considerations.'
+        }
     },
 
     schema: {
@@ -42,8 +45,17 @@ export const chefNumber: PromptSpec = {
         additionalProperties: false,
         required: ['count', 'reasoning'],
         properties: {
-            count: { type: 'number', minimum: 0 },
-            reasoning: { type: 'string' }
+            count: {
+                type: 'number',
+                minimum: 0,
+                maximum: 6,
+                description: 'The chefs reported adjacent Evil pair count.'
+            },
+            reasoning: {
+                type: 'string',
+                description:
+                    'Brief ST philosophy explaining the choice, including any misregistration and/or sobriety considerations.'
+            }
         }
     }
 };

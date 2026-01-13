@@ -14,6 +14,7 @@ import namesJson from '@/data/names.json';
 import rolesData from '@/data/roles.json';
 import gameDefinitions from '@/data/game.json';
 import { openDialog } from '@/lib/dialogs';
+import { addAssignTokenClaim } from '../store/memory/memory-slice';
 
 type NameEntry = { name: string; pronouns: 'he/him' | 'she/her' | 'they/them' };
 
@@ -363,9 +364,36 @@ export function SetupGameDialog() {
         );
 
         dispatch(setSeats(seatMap));
+        for (const [_, seatInfo] of Object.entries(seatMap)) {
+            dispatch(
+                addAssignTokenClaim({
+                    seat: seatInfo.ID,
+                    role: seatInfo.thinks ?? seatInfo.role,
+                    team: $$ROLES[seatInfo.thinks ?? seatInfo.role].team as CharacterTypes,
+                    day: 1
+                })
+            );
+        }
         setHasSubmittedSetup(true);
         setIsOpen(false);
-         
+        dispatch(
+            enqueueFront({
+                id: 'setupComplete',
+                type: 'first_night',
+                interaction: 'system',
+                payload: {}
+            })
+        );
+        dispatch(runTasks());
+        // openDialog({
+        //     dispatch,
+        //     dialogType: 'setupComplete',
+        //     data: {},
+        //     resolve: async () => {
+        //         dispatch(runFirstNight());
+        //         dispatch(runTasks());
+        //     }
+        // });
     };
 
     return (

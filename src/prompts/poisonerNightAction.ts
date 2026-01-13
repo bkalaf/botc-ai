@@ -35,7 +35,8 @@ export const poisonerNightAction: PromptSpec = {
         `NEIGHBOR STRATEGIES: Poisoning your own neighbor may distort an Empath read; poisoning the Demon’s neighbor may protect the Demon.`,
         `SINK POISON: Poisoning a dead player can still matter for registration or ongoing interactions (e.g. Recluse affecting Fortune Teller).`,
         `INFO ROLE TARGETING: Empath, Fortune Teller, Undertaker, Chef, etc. are often high-value poison targets.`,
-        `TEAMWORK: When feasible, coordinate with your Demon to enable kills on protected or high-risk targets (Mayor/Soldier/Ravenkeeper).`
+        `TEAMWORK: When feasible, coordinate with your Demon to enable kills on protected or high-risk targets (Mayor/Soldier/Ravenkeeper).`,
+        `TARGETING EVIL: There are very few situations where targeting a fellow evil players makes sense. This should be done very sparingly. (Focus on townsfolk with strong abilities and outsiders)`
     ],
     personalityModulation: {
         trustModel: {
@@ -83,7 +84,7 @@ export const poisonerNightAction: PromptSpec = {
             'In-character explanation of why this seat was chosen, reflecting personality and partial information.'
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'PoisonerNightActionOutput',
         type: 'object',
@@ -94,9 +95,20 @@ export const poisonerNightAction: PromptSpec = {
                 type: 'object',
                 additionalProperties: false,
                 required: ['seat'],
-                properties: { seat: { type: 'number' } }
+                properties: {
+                    seat: {
+                        type: 'number',
+                        minimum: 1,
+                        maximum: playerCount,
+                        description: 'The seat of the person that will be poisoned this evening.'
+                    }
+                }
             },
-            reasoning: { type: 'string' }
+            reasoning: {
+                type: 'string',
+                description:
+                    'In-character explanation of why this seat was chosen, reflecting personality and partial information. Max 2 sentences - prefer 1.'
+            }
         }
-    }
+    })
 };

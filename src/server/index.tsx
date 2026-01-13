@@ -9,6 +9,7 @@ import { librarianHandler } from './librarianInfo';
 import { demonInfo, minionInfo } from './minionInfo';
 import { setupComplete } from './nightOne';
 import { notYetImplemented } from './notYetImplemented';
+import { poisonerChoiceHandler } from './poisonerChoice';
 import { washerwomanHandler } from './washerwomanInfo';
 import z from 'zod';
 
@@ -29,7 +30,7 @@ export const $$serverFirstFns = {
     monk: notYetImplemented,
     ravenkeeper: notYetImplemented,
     slayer: notYetImplemented,
-    poisoner: notYetImplemented,
+    poisoner: poisonerChoiceHandler,
     spy: notYetImplemented,
     scarletWoman: notYetImplemented,
     undertaker: notYetImplemented,

@@ -69,13 +69,15 @@ export type PromptSpec = {
      * Output fields as a schema-ish description map (human-readable).
      * This is what your existing prompt files most naturally store.
      */
-    output: Record<string, string> | { fields: Record<string, string>; notes?: string | string[] };
+    output:
+        | Record<string, string | { type: any; description: any }>
+        | { fields: Record<string, string>; notes?: string | string[] };
 
     /**
      * Machine-checkable schema for model output. Strongly recommended.
      * This should match the real JSON you expect from the model.
      */
-    schema?: JsonSchema;
+    schema?: JsonSchema | ((variable: any) => JsonSchema);
 };
 
 const voiceStyles = z.enum(['quiet', 'reserved', 'conversational', 'assertive', 'dominant']);
@@ -84,6 +86,35 @@ const reasoningModes = z.enum(['deductive', 'systematic', 'associative', 'intuit
 const tableImpactStyles = z.enum(['disruptive', 'provocative', 'stabilizing', 'organized', 'procedural']);
 const trustModels = z.enum(['all_trusting', 'cautiously_trusting', 'skeptical', 'guarded', 'doubting_thomas']);
 
+export const demonRoles = ['imp'];
+export const minionRoles = ['scarletwoman', 'baron', 'poisoner', 'spy'];
+export const outsiderRoles = ['saint', 'recluse', 'drunk', 'butler'];
+export const townsfolkRoles = [
+    'monk',
+    'empath',
+    'fortuneteller',
+    'undertaker',
+    'virgin',
+    'librarian',
+    'investigator',
+    'washerwoman',
+    'chef',
+    'mayor',
+    'slayer',
+    'soldier',
+    'ravenkeeper'
+];
+export const playerRoles = [
+    ...demonRoles,
+    ...minionRoles,
+    ...outsiderRoles,
+    ...townsfolkRoles
+    // 'gunslinger',
+    // 'beggar',
+    // 'scapegoat',
+    // 'thief',
+    // 'bureaucrat'
+];
 export const rolesSchema = z.enum([
     'imp',
     'scarletwoman',
@@ -144,9 +175,16 @@ export const ExtractSeatInput = z.object({
         .optional()
 });
 
-
-
 export const InputSchema = z.object({
+    extractedSeats: z.array(ExtractSeatInput),
+    demonBluffs: z.array(z.string()).optional(),
+    outOfPlay: z.array(rolesSchema),
+    nightNumber: z.int(),
+    phase: z.enum(['day', 'night'])
+});
+
+export const ClaimsInputSchema = z.object({
+    claims: z.array(z.any()),
     extractedSeats: z.array(ExtractSeatInput),
     demonBluffs: z.array(z.string()).optional(),
     outOfPlay: z.array(rolesSchema),

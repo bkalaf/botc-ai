@@ -9,10 +9,11 @@ import { washerwomanTokens } from '../prompts/washerwomanTokens';
 import { $$ROLES } from '../data/types';
 import { RootState, AppDispatch } from '../store';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
-import { addClaim } from '../store/memory/memory-slice';
+import { addNightInfoClaim } from '../store/memory/memory-slice';
 import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
+import { selectDay } from '../store/game/game-slice';
 
 const WasherwomanInfoReturnSchema = z.object({
     correctSeat: z.int().nullable(),
@@ -26,14 +27,15 @@ const WasherwomanInfoReturnSchema = z.object({
 export const washerwomanInfoServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
     .handler(async ({ data }) => {
-        const promptText = createPrompt(washerwomanTokens, data);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(washerwomanTokens, data);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Storyteller.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(WasherwomanInfoReturnSchema, 'washerwomaninfo_decision')
         });
@@ -56,8 +58,8 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
         ID: number;
         value: z.infer<typeof WasherwomanInfoReturnSchema>;
     }) => {
-        const correct = correctSeat ?? shown.seats[0];
-        const incorrect = correctSeat ? shown.seats.filter((x) => x != correct)[0] : shown.seats[1];
+        const [correct, incorrect] =
+            correctSeat ? [correctSeat, shown.seats.filter((x) => x !== correctSeat)[0]] : shown.seats;
         dispatch(
             addReminderToken({
                 key: 'washerwoman_townsfolk',
@@ -82,6 +84,7 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
         confirmed: boolean;
         value: z.infer<typeof WasherwomanInfoReturnSchema>;
     }) => {
+        const day = selectDay(state);
         const seat = selectSeatByRole(state, 'washerwoman');
         if (seat == null) throw new Error(`no washerwoman seat`);
         const {
@@ -90,10 +93,11 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addClaim({
-                    ID,
+                addNightInfoClaim({
+                    seat: ID,
+                    day,
                     role: 'washerwoman',
-                    data: { correctSeat, shown }
+                    data: { shown }
                 })
             );
             setTokens({ ID, value: { correctSeat, shown, reasoning } });
@@ -109,9 +113,7 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
                     seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
                 }
             });
-            if (result.confirmed) {
-                setTokens({ ID, value: { correctSeat, shown, reasoning } });
-            }
+            setTokens({ ID, value: { correctSeat, shown, reasoning } });
         }
     };
     return buildHandler(washerwomanInfoServerFn, func);

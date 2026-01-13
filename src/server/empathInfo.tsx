@@ -8,10 +8,11 @@ import { getClient } from './openaiClient';
 import { empathNumber } from '../prompts/empathNumber';
 import { RootState, AppDispatch } from '../store';
 import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
-import { addClaim } from '../store/memory/memory-slice';
+import { addClaim, addMyNightInfoClaim } from '../store/memory/memory-slice';
 import { buildHandler } from './buildHandler';
 import { openDialog } from '@/lib/dialogs';
 import { clearTask } from './clearTask';
+import { selectDay } from '../store/game/game-slice';
 
 const EmpathInfoReturnSchema = z.object({
     shown: z.object({
@@ -23,14 +24,15 @@ const EmpathInfoReturnSchema = z.object({
 export const empathNumberServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
     .handler(async ({ data }) => {
-        const promptText = createPrompt(empathNumber, data);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(empathNumber, data);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Storyteller.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(EmpathInfoReturnSchema, 'empathinfo_decision')
         });
@@ -47,6 +49,7 @@ export const empathNumberServerFn = createServerFn({ method: 'POST' })
 
 export const empathHandler = (state: RootState, dispatch: AppDispatch) => {
     const func = async ({ confirmed, value }: { confirmed: boolean; value: { shown: { count: number } } }) => {
+        const day = selectDay(state);
         const seat = selectSeatByRole(state, 'empath');
         if (seat == null) throw new Error(`no empath seat`);
         const {
@@ -55,8 +58,9 @@ export const empathHandler = (state: RootState, dispatch: AppDispatch) => {
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addClaim({
-                    ID,
+                addMyNightInfoClaim({
+                    seat: ID,
+                    day,
                     role: 'empath',
                     data: value?.shown.count
                 })

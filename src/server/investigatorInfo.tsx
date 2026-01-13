@@ -9,10 +9,11 @@ import { investigatorTokens } from '../prompts/investigatorTokens';
 import { Roles, $$ROLES } from '../data/types';
 import { RootState, AppDispatch } from '../store';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
-import { addClaim } from '../store/memory/memory-slice';
+import { addClaim, addNightInfoClaim } from '../store/memory/memory-slice';
 import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
+import { selectDay } from '../store/game/game-slice';
 
 const InvestigatorInfoReturnSchema = z.object({
     correctSeat: z.int().nullable(),
@@ -26,14 +27,15 @@ const InvestigatorInfoReturnSchema = z.object({
 export const investigatorInfoServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
     .handler(async ({ data }) => {
-        const promptText = createPrompt(investigatorTokens, data);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(investigatorTokens, data);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Storyteller.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(InvestigatorInfoReturnSchema, 'investigatorinfo_decision')
         });
@@ -56,11 +58,11 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
         ID: number;
         value: z.infer<typeof InvestigatorInfoReturnSchema>;
     }) => {
-        const correct = correctSeat ?? shown.seats[0];
-        const incorrect = correctSeat ? shown.seats.filter((x) => x != correct)[0] : shown.seats[1];
+        const [correct, incorrect] =
+            correctSeat ? [correctSeat, shown.seats.filter((x) => x !== correctSeat)[0]] : shown.seats;
         dispatch(
             addReminderToken({
-                key: 'investigator_townsfolk',
+                key: 'investigator_minion',
                 source: ID,
                 target: correct,
                 isChanneled: false
@@ -86,6 +88,7 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
             reasoning: string;
         };
     }) => {
+        const day = selectDay(state);
         const seat = selectSeatByRole(state, 'investigator');
         if (seat == null) throw new Error(`no investigator seat`);
         const {
@@ -94,10 +97,11 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addClaim({
-                    ID,
+                addNightInfoClaim({
+                    seat: ID,
                     role: 'investigator',
-                    data: data.shown
+                    data: data.shown,
+                    day
                 })
             );
             setTokens({ ID, value: { correctSeat: data.correctSeat, shown: data.shown, reasoning: data.reasoning } });
@@ -113,9 +117,7 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
                     seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
                 }
             });
-            if (result.confirmed) {
-                setTokens({ ID, value: data });
-            }
+            setTokens({ ID, value: data });
         }
     };
     return buildHandler(investigatorInfoServerFn, func);

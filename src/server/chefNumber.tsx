@@ -8,10 +8,11 @@ import { getClient } from './openaiClient';
 import { chefNumber } from '../prompts/chefNumber';
 import { RootState, AppDispatch } from '../store';
 import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
-import { addClaim } from '../store/memory/memory-slice';
+import { addClaim, addMyNightInfoClaim } from '../store/memory/memory-slice';
 import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
+import { selectDay } from '../store/game/game-slice';
 
 const ChefNumberReturnSchema = z.object({
     count: z.int(),
@@ -21,14 +22,15 @@ const ChefNumberReturnSchema = z.object({
 export const chefNumberServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
     .handler(async ({ data }) => {
-        const promptText = createPrompt(chefNumber, data);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(chefNumber, data);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Storyteller.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(ChefNumberReturnSchema, 'chefnumber_decision')
         });
@@ -45,6 +47,7 @@ export const chefNumberServerFn = createServerFn({ method: 'POST' })
 
 export const chefHandler = (state: RootState, dispatch: AppDispatch) => {
     const func = async ({ value }: { value: { count: number } }) => {
+        const day = selectDay(state);
         const seat = selectSeatByRole(state, 'chef');
         if (seat == null) throw new Error(`no chef seat`);
         const {
@@ -53,10 +56,11 @@ export const chefHandler = (state: RootState, dispatch: AppDispatch) => {
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addClaim({
-                    ID,
+                addMyNightInfoClaim({
+                    seat: ID,
                     role: 'chef',
-                    data: value.count
+                    data: { count: value.count },
+                    day
                 })
             );
             clearTask(dispatch);

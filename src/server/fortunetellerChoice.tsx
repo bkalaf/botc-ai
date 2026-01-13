@@ -1,6 +1,6 @@
 // src/server/fortunetellerChoice.tsx
 import { createServerFn } from '@tanstack/react-start';
-import { InputSchema } from '../prompts/prompt-types';
+import { ClaimsInputSchema, InputSchema } from '../prompts/prompt-types';
 import { createPrompt } from '../prompts/createPrompt';
 import z from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
@@ -8,10 +8,12 @@ import { getClient } from './openaiClient';
 import { fortuneTellerNightAction } from '../prompts/fortuneTellerNightAction';
 import { RootState, AppDispatch } from '../store';
 import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
-import { addClaim } from '../store/memory/memory-slice';
+import { addClaim, addMyNightInfoClaim, getClaimsFor, selectClaimsByRole } from '../store/memory/memory-slice';
 import { openDialog } from '@/lib/dialogs';
 import { FortuneTellerInfoInputSchema, fortuneTellerInfoServerFn } from './fortunetellerInfo';
 import { clearTask } from './clearTask';
+import { selectDay } from '../store/game/game-slice';
+import { closeDialog } from '../store/ui/ui-slice';
 
 const FortuneTellerChoiceReturnSchema = z.object({
     picks: z.object({
@@ -21,17 +23,19 @@ const FortuneTellerChoiceReturnSchema = z.object({
 });
 
 export const fortuneTellerChoiceServerFn = createServerFn({ method: 'POST' })
-    .inputValidator((data) => InputSchema.parse(data))
+    .inputValidator((data) => ClaimsInputSchema.parse(data))
     .handler(async ({ data }) => {
+        const { claims } = data;
         const personality = data.extractedSeats.find((x) => x.thinks ?? x.role === 'fortuneteller')?.personality;
-        const promptText = createPrompt(fortuneTellerNightAction, data, { personality } as any);
-        console.log(`promptText`, promptText);
+        const { system, user } = createPrompt(fortuneTellerNightAction, data, { personality, claims } as any);
+        console.log(`promptText`, system);
+        console.log(`promptText`, user);
         const client = getClient();
         const response = await client.chat.completions.parse({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: 'You are a Blood on the Clocktower Player.' },
-                { role: 'user', content: promptText }
+                { role: 'system', content: system },
+                { role: 'user', content: user }
             ],
             response_format: zodResponseFormat(FortuneTellerChoiceReturnSchema, 'fortuneteller_choice_decision')
         });
@@ -52,12 +56,14 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
     }: {
         data: z.infer<typeof FortuneTellerInfoInputSchema> & { ID: number; controledBy: 'ai' | 'human' };
     }) => {
+        const day = selectDay(state);
         const response = await fortuneTellerInfoServerFn({ data });
         const { seats, shown } = response;
         if (controledBy === 'ai') {
             dispatch(
-                addClaim({
-                    ID,
+                addMyNightInfoClaim({
+                    seat: ID,
+                    day,
                     role: 'fortuneteller',
                     data: {
                         seats,
@@ -67,10 +73,17 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
             );
             clearTask(dispatch);
         } else {
-            const result = await openDialog({ dispatch, dialogType: 'fortunetellerInfo', data: { shown } });
-            if (result.confirmed) {
-                clearTask(dispatch);
-            }
+            return await new Promise<void>((res) => {
+                openDialog({
+                    dispatch,
+                    dialogType: 'fortunetellerInfo',
+                    data: { shown },
+                    resolve: async () => {
+                        dispatch(closeDialog());
+                        res();
+                    }
+                });
+            });
         }
     };
     const makeChoice = async ({ data }: { data: z.infer<typeof InputSchema> }) => {
@@ -81,7 +94,8 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
             player: { controledBy }
         } = seat;
         if (controledBy === 'ai') {
-            const response = await fortuneTellerChoiceServerFn({ data });
+            const claims = selectClaimsByRole(state, 'fortuneteller');
+            const response = await fortuneTellerChoiceServerFn({ data: { claims, ...data } });
             const {
                 picks: { seats }
             } = response;

@@ -1,5 +1,6 @@
 // src/prompts/ravenkeeperShowing.ts
 import { genericStorytellerCore } from './_genericStorytellerCore';
+import { PromptSpec } from './prompt-types';
 
 export const ravenkeeperShowing: PromptSpec = {
     id: 'st-ravenkeeper-showing',
@@ -23,10 +24,14 @@ export const ravenkeeperShowing: PromptSpec = {
 
     output: {
         role: 'string (role shown to the Ravenkeeper for the chosen target)',
-        reasoning: 'Brief ST philosophy explaining why this show supports balance, drama, and plausibility.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining balance, plausibility, and any misregistration/sobriety choices. 2 sentence limit, prefer 1 sentence.'
+        }
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'RavenkeeperShowingOutput',
         type: 'object',
@@ -36,5 +41,5 @@ export const ravenkeeperShowing: PromptSpec = {
             role: { type: 'string' },
             reasoning: { type: 'string' }
         }
-    }
+    })
 };

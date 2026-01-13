@@ -1,5 +1,5 @@
 // src/prompts/demonBluffs.ts
-import { PromptSpec } from './prompt-types';
+import { playerRoles, PromptSpec } from './prompt-types';
 import { genericStorytellerCore } from './_genericStorytellerCore';
 
 export const demonBluffs: PromptSpec = {
@@ -30,8 +30,11 @@ export const demonBluffs: PromptSpec = {
 
     output: {
         shown: 'object: { roles: [string, string, string] } (the three bluff roles)',
-        reasoning:
-            'Brief ST philosophy explaining why this bluff set supports Evil while preserving a playable deduction space. Limit to 2 sentences max, preferably 1.'
+        reasoning: {
+            type: 'string',
+            description:
+                'Brief ST philosophy explaining why this bluff set supports Evil while preserving a playable deduction space. Limit to 2 sentences max, preferably 1.'
+        }
     },
 
     schema: {
@@ -50,11 +53,17 @@ export const demonBluffs: PromptSpec = {
                         type: 'array',
                         minItems: 3,
                         maxItems: 3,
-                        items: { type: 'string' }
+                        items: { type: 'string' },
+                        description: 'The three bluff roles chosen - must be out of play and on the script.',
+                        enum: playerRoles
                     }
                 }
             },
-            reasoning: { type: 'string' }
+            reasoning: {
+                type: 'string',
+                description:
+                    'Brief ST philosophy explaining why this bluff set supports Evil while preserving a playable deduction space. Limit to 2 sentences max, preferably 1.'
+            }
         }
     }
 };

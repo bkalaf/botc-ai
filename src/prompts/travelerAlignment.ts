@@ -51,7 +51,7 @@ export const travelerAlignment: PromptSpec = {
             'A concise Storyteller explanation describing how this alignment choice improves balance, tension, or narrative clarity.'
     },
 
-    schema: {
+    schema: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'TravelerAlignmentDecision',
         type: 'object',
@@ -66,5 +66,5 @@ export const travelerAlignment: PromptSpec = {
                 type: 'string'
             }
         }
-    }
+    })
 };
