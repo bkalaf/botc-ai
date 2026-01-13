@@ -18,6 +18,7 @@ import { storytellerQueueSlice } from './st-queue/st-queue-slice';
 import { votingSlice } from './voting/voting-slice';
 import { stQueueThunkExtra } from './st-queue/stQueueThunkExtra';
 import uiSlice, { showDayBreakDialog, showNightBreakDialog } from './ui/ui-slice';
+import { memorySlice } from './memory/memory-slice';
 
 export const createStoreListeners = () => {
     const listenerMiddleware = createListenerMiddleware();
@@ -85,6 +86,7 @@ export const store = configureStore({
         game: gameSlice.reducer,
         grimoire: grimoireSlice.reducer,
         history: historySlice.reducer,
+        memory: memorySlice.reducer,
         settings: settingsSlice.reducer,
         storytellerQueue: storytellerQueueSlice.reducer,
         voting: votingSlice.reducer,

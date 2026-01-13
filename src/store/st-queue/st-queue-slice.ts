@@ -118,6 +118,7 @@ export const runTasks = createAsyncThunk<
 
     const { dispatch, getState } = thunkAPI;
 
+    if (selectRunning(getState())) return { ranCount: 0, stoppedBecause: 'error' };
     dispatch(setRunning(true));
     dispatch(setError(null));
 

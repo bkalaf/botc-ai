@@ -17,7 +17,8 @@ export type DialogType =
     | 'empathInfo'
     | 'chefInfo'
     | 'minionInfo'
-    | 'demonInfo';
+    | 'demonInfo'
+    | 'poisonerChoice';
 
 export type DialogDataMap = {
     setupComplete: Record<string, never>;
@@ -27,6 +28,7 @@ export type DialogDataMap = {
     investigatorInfo: { roleName: string; seatNames: [string, string] };
     fortunetellerInfo: { shown: boolean };
     fortunetellerChoice: { seatOptions: { id: number; name: string }[] };
+    poisonerChoice: { seatOptions: { id: number; name: string }[] };
     empathInfo: { count: number };
     chefInfo: { count: number };
     minionInfo: { demons: { id: number; name: string }[]; minions: { id: number; name: string }[] };
@@ -44,6 +46,6 @@ export type DialogResult = {
 export type PendingDialog<T extends DialogType = DialogType> = {
     options: DialogOptions;
     data: DialogDataMap[T];
-    resolve: (result: DialogResult) => void;
-    reject: (reason?: any) => void;
+    resolve?: (result: DialogResult) => Promise<void>;
+    reject?: (reason?: any) => void;
 };
