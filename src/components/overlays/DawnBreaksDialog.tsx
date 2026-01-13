@@ -14,12 +14,35 @@ import {
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { hideDayBreakDialog, selectDayBreakDialog, toggleDayBreakDialog } from '../../store/ui/ui-slice';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { runTasks } from '../../store/st-queue/st-queue-slice';
 
-export function DawnBreaksDialog() {
+type DawnBreaksDialogProps = {
+    resolve?: (value?: any) => void;
+    reject?: (reason?: any) => void;
+};
+
+export function DawnBreaksDialog({ resolve }: DawnBreaksDialogProps) {
     const open = useAppSelector(selectDayBreakDialog);
     const dispatch = useAppDispatch();
+    const resolvedRef = useRef(false);
+    const prevOpenRef = useRef(open);
+
+    const resolveOnce = useCallback(() => {
+        if (!resolvedRef.current) {
+            resolve?.();
+            resolvedRef.current = true;
+        }
+    }, [resolve]);
+
+    useEffect(() => {
+        if (open) {
+            resolvedRef.current = false;
+        } else if (prevOpenRef.current) {
+            resolveOnce();
+        }
+        prevOpenRef.current = open;
+    }, [open, resolveOnce]);
     const onOpenChange = useCallback(
         (isOpen: boolean) => {
             dispatch(toggleDayBreakDialog(isOpen));

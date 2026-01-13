@@ -1,4 +1,6 @@
 // src/prompts/poisonerNightAction.ts
+import { PromptSpec } from './prompt-types';
+
 /**
  * Player-perspective prompt (does not use genericStorytellerCore).
  * Output naming convention aligned: use `shown` + `reasoning`.
@@ -77,7 +79,8 @@ export const poisonerNightAction: PromptSpec = {
 
     output: {
         shown: 'object: { seat: number } (the seat you choose to poison)',
-        reasoning: 'In-character explanation of why this seat was chosen, reflecting personality and partial information.'
+        reasoning:
+            'In-character explanation of why this seat was chosen, reflecting personality and partial information.'
     },
 
     schema: {

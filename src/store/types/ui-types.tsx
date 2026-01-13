@@ -8,6 +8,7 @@ export interface UISlice {
 
 export type DialogType =
     | 'setupComplete'
+    | 'firstNightRoleInfo'
     | 'librarianInfo'
     | 'washerwomanInfo'
     | 'investigatorInfo'
@@ -20,6 +21,7 @@ export type DialogType =
 
 export type DialogDataMap = {
     setupComplete: Record<string, never>;
+    firstNightRoleInfo: { roleName: string; seatNames: [string, string] };
     librarianInfo: { roleName: string; seatNames: [string, string] };
     washerwomanInfo: { roleName: string; seatNames: [string, string] };
     investigatorInfo: { roleName: string; seatNames: [string, string] };

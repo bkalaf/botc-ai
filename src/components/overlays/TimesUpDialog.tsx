@@ -14,12 +14,35 @@ import {
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { hideTimesUpDialog, selectTimesUpDialog, toggleTimesUpDialog } from '../../store/ui/ui-slice';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { runTasks } from '../../store/st-queue/st-queue-slice';
 
-export function TimesUpDialog() {
+type TimesUpDialogProps = {
+    resolve?: (value?: any) => void;
+    reject?: (reason?: any) => void;
+};
+
+export function TimesUpDialog({ resolve }: TimesUpDialogProps) {
     const open = useAppSelector(selectTimesUpDialog);
     const dispatch = useAppDispatch();
+    const resolvedRef = useRef(false);
+    const prevOpenRef = useRef(open);
+
+    const resolveOnce = useCallback(() => {
+        if (!resolvedRef.current) {
+            resolve?.();
+            resolvedRef.current = true;
+        }
+    }, [resolve]);
+
+    useEffect(() => {
+        if (open) {
+            resolvedRef.current = false;
+        } else if (prevOpenRef.current) {
+            resolveOnce();
+        }
+        prevOpenRef.current = open;
+    }, [open, resolveOnce]);
     const onOpenChange = useCallback(
         (isOpen: boolean) => {
             dispatch(toggleTimesUpDialog(isOpen));

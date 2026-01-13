@@ -5,7 +5,7 @@ import { RootState, AppDispatch } from '../store';
 import { clearTask } from './clearTask';
 
 export function notYetImplemented(state: RootState, dispatch: AppDispatch) {
-    return async (args: z.infer<typeof InputSchema>) => {
+    return async ({ data }: { data: z.infer<typeof InputSchema> }) => {
         clearTask(dispatch);
         throw new Error(`not yet implemented`);
     };

@@ -365,12 +365,7 @@ export function SetupGameDialog() {
         dispatch(setSeats(seatMap));
         setHasSubmittedSetup(true);
         setIsOpen(false);
-        void openDialog({ dispatch, dialogType: 'setupComplete', data: {} }).then((result) => {
-            if (result.confirmed) {
-                dispatch(runTasks());
-                dispatch(runFirstNight());
-            }
-        });
+         
     };
 
     return (

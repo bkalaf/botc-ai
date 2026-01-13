@@ -1,3 +1,4 @@
+// src/store/types/timer-types.ts
 export type TimerStates = 'running' | 'paused' | 'expired';
 
 export interface ITimerSlice {

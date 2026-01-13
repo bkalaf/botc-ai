@@ -16,7 +16,7 @@ type DialogConfig<T extends DialogType> = {
 
 const SetupCompleteContent: React.FC<DialogContentProps<'setupComplete'>> = () => null;
 
-const RoleInfoContent: React.FC<DialogContentProps<'librarianInfo'>> = ({ data }) => (
+const RoleInfoContent: React.FC<DialogContentProps<'firstNightRoleInfo'>> = ({ data }) => (
     <div className='grid grid-cols-2'>
         <div className='flex'>{data.roleName}</div>
         <div className='flex'>{data.seatNames[0]}</div>
@@ -25,8 +25,7 @@ const RoleInfoContent: React.FC<DialogContentProps<'librarianInfo'>> = ({ data }
 );
 
 const FortuneTellerInfoContent: React.FC<DialogContentProps<'fortunetellerInfo'>> = ({ data }) => {
-    const Icon = getBooleanIcon(data.shown);
-    return <Icon />;
+    return getBooleanIcon(data.shown)();
 };
 
 const FortuneTellerChoiceContent: React.FC<DialogContentProps<'fortunetellerChoice'>> = ({ data }) => (
@@ -60,13 +59,11 @@ const FortuneTellerChoiceContent: React.FC<DialogContentProps<'fortunetellerChoi
 );
 
 const EmpathInfoContent: React.FC<DialogContentProps<'empathInfo'>> = ({ data }) => {
-    const Icon = getIcon(data.count);
-    return <Icon />;
+    return getIcon(data.count)();
 };
 
 const ChefInfoContent: React.FC<DialogContentProps<'chefInfo'>> = ({ data }) => {
-    const Icon = getIcon(data.count);
-    return <Icon />;
+    return getIcon(data.count)();
 };
 
 const MinionInfoContent: React.FC<DialogContentProps<'minionInfo'>> = ({ data }) => (
@@ -111,20 +108,25 @@ export const dialogConfigs: { [K in DialogType]: DialogConfig<K> } = {
         description: 'Start game?',
         Content: SetupCompleteContent
     },
-    librarianInfo: {
+    firstNightRoleInfo: {
         title: 'Night Info',
         description: 'You are shown:',
         Content: RoleInfoContent
     },
+    librarianInfo: {
+        title: 'Night Info',
+        description: 'You are shown:',
+        Content: RoleInfoContent as any as React.FC<DialogContentProps<'librarianInfo'>>
+    },
     washerwomanInfo: {
         title: 'Night Info',
         description: 'You are shown:',
-        Content: RoleInfoContent as React.ComponentType<DialogContentProps<'washerwomanInfo'>>
+        Content: RoleInfoContent as any as React.FC<DialogContentProps<'washerwomanInfo'>>
     },
     investigatorInfo: {
         title: 'Night Info',
         description: 'You are shown:',
-        Content: RoleInfoContent as React.ComponentType<DialogContentProps<'investigatorInfo'>>
+        Content: RoleInfoContent as any as React.FC<DialogContentProps<'investigatorInfo'>>
     },
     fortunetellerInfo: {
         title: 'Night Info',

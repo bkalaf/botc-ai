@@ -48,10 +48,10 @@ export const fortuneTellerChoiceServerFn = createServerFn({ method: 'POST' })
 
 export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispatch) => {
     const getInfo = async ({
-        ID,
-        controledBy,
-        ...data
-    }: z.infer<typeof FortuneTellerInfoInputSchema> & { ID: number; controledBy: 'ai' | 'human' }) => {
+        data: { ID, controledBy, ...data }
+    }: {
+        data: z.infer<typeof FortuneTellerInfoInputSchema> & { ID: number; controledBy: 'ai' | 'human' };
+    }) => {
         const response = await fortuneTellerInfoServerFn({ data });
         const { seats, shown } = response;
         if (controledBy === 'ai') {
@@ -73,7 +73,7 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
             }
         }
     };
-    const makeChoice = async (data: z.infer<typeof InputSchema>) => {
+    const makeChoice = async ({ data }: { data: z.infer<typeof InputSchema> }) => {
         const seat = selectSeatByRole(state, 'fortuneteller');
         if (seat == null) throw new Error(`no fortuneteller seat`);
         const {
@@ -85,7 +85,7 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
             const {
                 picks: { seats }
             } = response;
-            await getInfo({ ...data, ID, controledBy, seats });
+            await getInfo({ data: { ...data, ID, controledBy, seats } });
         } else {
             const result = await openDialog({
                 dispatch,
@@ -99,15 +99,12 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
             }
             const { seat1, seat2 } = result.value as { seat1: string; seat2: string };
             await getInfo({
-                ...data,
-                ID,
-                controledBy,
-                seats: [parseInt(seat1, 10), parseInt(seat2, 10)]
+                data: { ...data, ID, controledBy, seats: [parseInt(seat1, 10), parseInt(seat2, 10)] }
             });
         }
     };
 
-    return async (args: z.infer<typeof InputSchema>) => {
+    return async (args: { data: z.infer<typeof InputSchema> }) => {
         await makeChoice(args);
     };
 };

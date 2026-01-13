@@ -13,13 +13,37 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { hideNightBreakDialog, selectNightBreakDialog, toggleNightBreakDialog } from '../../store/ui/ui-slice';
-import { useCallback } from 'react';
+import { selectNightBreakDialog, toggleNightBreakDialog } from '../../store/ui/ui-slice';
+import { useCallback, useEffect, useRef } from 'react';
 import { runTasks } from '../../store/st-queue/st-queue-slice';
 
-export function NightFallsDialog() {
+type NightFallsDialogProps = {
+    resolve?: (value?: any) => void;
+    reject?: (reason?: any) => void;
+};
+
+export function NightFallsDialog({ resolve }: NightFallsDialogProps) {
     const open = useAppSelector(selectNightBreakDialog);
     const dispatch = useAppDispatch();
+    const resolvedRef = useRef(false);
+    const prevOpenRef = useRef(open);
+
+    const resolveOnce = useCallback(() => {
+        if (!resolvedRef.current) {
+            resolve?.();
+            resolvedRef.current = true;
+        }
+    }, [resolve]);
+
+    useEffect(() => {
+        if (open) {
+            resolvedRef.current = false;
+        } else if (prevOpenRef.current) {
+            resolveOnce();
+        }
+        prevOpenRef.current = open;
+    }, [open, resolveOnce]);
+
     const onOpenChange = useCallback(
         (isOpen: boolean) => {
             dispatch(toggleNightBreakDialog(isOpen));
@@ -39,9 +63,7 @@ export function NightFallsDialog() {
             >
                 <div className='relative overflow-hidden rounded-lg'>
                     <div className='absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/80 to-slate-950' />
-                    <div
-                        className={cn('relative z-10 flex flex-col gap-6 px-8 py-10')}
-                    >
+                    <div className={cn('relative z-10 flex flex-col gap-6 px-8 py-10')}>
                         <DialogHeader className='text-center'>
                             <DialogTitle className='text-3xl font-black uppercase tracking-wide text-white drop-shadow'>
                                 Night falls

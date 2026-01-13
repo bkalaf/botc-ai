@@ -7,15 +7,20 @@ type OpenDialogArgs<T extends DialogType> = {
     dispatch: AppDispatch;
     dialogType: T;
     data: DialogDataMap[T];
+    resolve?: (value: any) => Promise<any>;
 };
 
-export function openDialog<T extends DialogType>({ dispatch, dialogType, data }: OpenDialogArgs<T>) {
+export function openDialog<T extends DialogType>({ dispatch, dialogType, data, resolve: $resolve }: OpenDialogArgs<T>) {
     return new Promise<DialogResult>((resolve, reject) => {
         dispatch(
             showDialog({
                 options: { dialogType },
                 data,
-                resolve,
+                resolve: (result) => {
+                    console.log(result);
+                    if ($resolve) $resolve(result).then(resolve);
+                    else resolve(result);
+                },
                 reject: (reason) => {
                     console.log(reason);
                     reject(reason);
