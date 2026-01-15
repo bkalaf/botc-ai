@@ -1,4 +1,6 @@
 // src/prompts/spyIntel.ts
+import { PromptSpec } from './prompt-types';
+
 export const spyIntel: PromptSpec = {
     id: 'player-spy-intel',
     version: '1.0',
@@ -7,55 +9,38 @@ export const spyIntel: PromptSpec = {
     perspective: 'player',
 
     instructions: [
-        `You are an AI player in Blood on the Clocktower whose role is the Spy.`,
-        `You can see the grimoire (full role/seat truth). Your job is to convert that truth into a usable plan.`,
-        `You must (1) extract the most relevant truths, (2) translate them into public-facing claims that won’t expose you, and (3) decide what to share with your Demon/Minions and how.`,
-        `You must also produce a to-do list of who to talk to next (seat numbers), ordered by importance.`
+        `You are the Spy in Blood on the Clocktower with full grimoire access.`,
+        `Turn truth into a safe Evil plan without outing yourself.`,
+        `Follow PI wiki rules and your personality.`
     ],
 
     guidelines: [
-        `DON’T OUT YOURSELF: Directly revealing grimoire-perfect info is a fast way to get executed.`,
-        `ENABLE EVIL: Prioritize helping the Demon survive, kill efficiently, and maintain bluff consistency.`,
-        `CLAIM ENGINEERING: Create claims that explain outcomes without requiring impossible precision.`,
-        `OPSEC: Share the right amount to teammates—enough to coordinate, not enough to create obvious “hive-mind” tells.`,
-        `PERSONALITY CONSISTENCY: Even as the Spy, your table behavior must match your personality traits.`
+        `Avoid perfect-info tells.`,
+        `Support Demon survival and believable bluffs.`,
+        `Share enough to coordinate, not enough to expose you.`
     ],
 
-    footnote: `The Spy’s superpower is not knowledge—it’s plausible translation of knowledge into lies that breathe.`,
+    footnote: `Turn knowledge into plausible stories.`,
 
-    goal: `Convert grimoire access into a coordination plan: recommended bluffs, kill priorities, misinformation targets, and a concrete conversation to-do list.`,
+    goal: `Provide a coordination plan, bluff options, and next talks.`,
 
     additionalConsiderations: [
-        `BLUFF CONSISTENCY: Ensure Demon/Minions don’t collide with each other or with hard in-play roles.`,
-        `INFO ROLE THREATS: Identify which Good roles are most dangerous right now and recommend pressure (kills/poisoning/narratives).`,
-        `FRAMEWORKS: Provide your Demon with 2-3 “worlds” the town could believe, and how to steer toward them.`,
-        `LIMITED SHARING: Prefer sharing high-level constraints (who is real, what not to claim) over raw full grimoire dumps.`
+        `Avoid bluff collisions with real roles.`,
+        `Call out top info threats.`,
+        `Share high-level constraints instead of raw truth.`
     ],
 
     input: [
-        `Full grimoire truth (role + seat for all players)`,
-        `Your seat number`,
-        `Demon + other Minion seats`,
-        `Public claims so far`,
-        `Current table suspicions / rumors`,
-        `Game phase (day/night count)`,
-        `Your personality profile`
+        `Full grimoire truth`,
+        `Your seat`,
+        `Demon + Minion seats`,
+        `Public claims`,
+        `Table suspicions`,
+        `Day/night count`,
+        `Personality profile`
     ],
 
-    output: {
-        shown: `object: {
-      safeClaims: string[],
-      unsafeClaims: string[],
-      suggestedBluffs: { demon: string[], minions: Record<string, string[]> },
-      killPrioritySeats: number[],
-      misinformationTargets: number[],
-      sharePlan: { withDemon: string[], withMinions: string[] }
-    }`,
-        todos: 'number[] (seat numbers to talk to next, in priority order)',
-        reasoning: 'In-character explanation of why this plan maximizes Evil coordination without outing the Spy.'
-    },
-
-    schema: {
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'SpyIntelOutput',
         type: 'object',
@@ -64,38 +49,153 @@ export const spyIntel: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'Spy coordination plan.',
                 additionalProperties: false,
-                required: ['safeClaims', 'unsafeClaims', 'suggestedBluffs', 'killPrioritySeats', 'misinformationTargets', 'sharePlan'],
+                required: [
+                    'safeClaims',
+                    'unsafeClaims',
+                    'suggestedBluffs',
+                    'killPrioritySeats',
+                    'misinformationTargets',
+                    'sharePlan'
+                ],
                 properties: {
-                    safeClaims: { type: 'array', items: { type: 'string' } },
-                    unsafeClaims: { type: 'array', items: { type: 'string' } },
+                    safeClaims: {
+                        type: 'array',
+                        minItems: 0,
+                        maxItems: 10,
+                        description: 'Claims considered safe to use.',
+                        items: {
+                            type: 'string',
+                            minLength: 2,
+                            maxLength: 40,
+                            description: 'Safe claim label.'
+                        }
+                    },
+                    unsafeClaims: {
+                        type: 'array',
+                        minItems: 0,
+                        maxItems: 10,
+                        description: 'Claims to avoid.',
+                        items: {
+                            type: 'string',
+                            minLength: 2,
+                            maxLength: 40,
+                            description: 'Unsafe claim label.'
+                        }
+                    },
                     suggestedBluffs: {
                         type: 'object',
+                        description: 'Recommended bluff sets for Demon and Minions.',
                         additionalProperties: false,
                         required: ['demon', 'minions'],
                         properties: {
-                            demon: { type: 'array', items: { type: 'string' } },
+                            demon: {
+                                type: 'array',
+                                minItems: 0,
+                                maxItems: 6,
+                                description: 'Suggested Demon bluffs.',
+                                items: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 30,
+                                    description: 'Role name.'
+                                }
+                            },
                             minions: {
                                 type: 'object',
-                                additionalProperties: { type: 'array', items: { type: 'string' } }
+                                description: 'Per-minion bluff suggestions by name/seat key.',
+                                additionalProperties: {
+                                    type: 'array',
+                                    minItems: 0,
+                                    maxItems: 6,
+                                    items: {
+                                        type: 'string',
+                                        minLength: 2,
+                                        maxLength: 30,
+                                        description: 'Role name.'
+                                    },
+                                    description: 'Suggested bluffs for that minion.'
+                                }
                             }
                         }
                     },
-                    killPrioritySeats: { type: 'array', items: { type: 'number' } },
-                    misinformationTargets: { type: 'array', items: { type: 'number' } },
+                    killPrioritySeats: {
+                        type: 'array',
+                        minItems: 0,
+                        maxItems: Math.max(1, playerCount),
+                        description: 'High-priority kill targets.',
+                        items: {
+                            type: 'integer',
+                            minimum: 1,
+                            maximum: Math.max(1, playerCount),
+                            description: 'Seat to prioritize for kills.'
+                        }
+                    },
+                    misinformationTargets: {
+                        type: 'array',
+                        minItems: 0,
+                        maxItems: Math.max(1, playerCount),
+                        description: 'Players to mislead.',
+                        items: {
+                            type: 'integer',
+                            minimum: 1,
+                            maximum: Math.max(1, playerCount),
+                            description: 'Seat to mislead.'
+                        }
+                    },
                     sharePlan: {
                         type: 'object',
+                        description: 'What to share with teammates.',
                         additionalProperties: false,
                         required: ['withDemon', 'withMinions'],
                         properties: {
-                            withDemon: { type: 'array', items: { type: 'string' } },
-                            withMinions: { type: 'array', items: { type: 'string' } }
+                            withDemon: {
+                                type: 'array',
+                                minItems: 0,
+                                maxItems: 10,
+                                description: 'Key points to share with the Demon.',
+                                items: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 80,
+                                    description: 'Share item.'
+                                }
+                            },
+                            withMinions: {
+                                type: 'array',
+                                minItems: 0,
+                                maxItems: 10,
+                                description: 'Key points to share with Minions.',
+                                items: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 80,
+                                    description: 'Share item.'
+                                }
+                            }
                         }
                     }
                 }
             },
-            todos: { type: 'array', items: { type: 'number' } },
-            reasoning: { type: 'string' }
+            todos: {
+                type: 'array',
+                minItems: 0,
+                maxItems: Math.max(1, playerCount),
+                description: 'Seats to talk to next, in order.',
+                items: {
+                    type: 'integer',
+                    minimum: 1,
+                    maximum: Math.max(1, playerCount),
+                    description: 'Seat to prioritize.'
+                }
+            },
+            reasoning: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 260,
+                description: 'Why this plan is safe and effective.'
+            }
         }
-    }
+    })
 };

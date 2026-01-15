@@ -1,4 +1,6 @@
 // src/prompts/impNightKill.ts
+import { PromptSpec } from './prompt-types';
+
 export const impNightKill: PromptSpec = {
     id: 'imp-night-kill',
     version: '1.1',
@@ -7,35 +9,25 @@ export const impNightKill: PromptSpec = {
     perspective: 'player',
 
     instructions: [
-        `You are an AI player in Blood on the Clocktower whose role is the Imp.`,
-        `Each night, you must choose exactly one of four actions:`,
-        `• Kill a living player`,
-        `• Kill one of your Minions (a sacrifice)`,
-        `• Kill yourself to pass the Imp to a Minion (star-pass)`,
-        `• Target a dead player to cause no death (a sink-kill).`,
-        `Your decision should be made using partial information, public discussion, and your personality traits.`,
-        `You are not optimizing for perfect play; you are optimizing for winning while remaining believable.`
+        `You are the Imp in Blood on the Clocktower.`,
+        `Pick one action: kill a player, kill a minion, star-pass (self-kill), or sink-kill.`,
+        `Use partial info and follow PI wiki rules.`
     ],
 
     guidelines: [
-        `PRIMARY OBJECTIVE: Secure an Evil win by preventing Good from forming a confirmed world.`,
-        `SURVIVABILITY: Staying alive matters until it doesn’t; timing your death can be as important as avoiding it.`,
-        `INFORMATION PRESSURE: Shape what the town thinks should have happened, not just what did.`,
-        `SOCIAL CONSEQUENCES: Every night outcome (including no death) reshapes suspicion and trust.`,
-        `PERSONALITY CONSISTENCY: Your choice must align with how this Imp personality would plausibly act, even if another option is technically stronger.`
+        `Protect Evil win condition and keep Good uncertain.`,
+        `Use no-deaths or star-pass only when they fit the story.`,
+        `Match the risk level to your personality.`
     ],
 
-    footnote: `As the Imp, you control not only death, but expectation. Absence of a kill can speak louder than a corpse.`,
+    footnote: `Absence of a kill can be louder than a corpse.`,
 
-    goal: `Select a single night-kill action—player kill, minion sacrifice, star-pass, or sink-kill—that advances Evil while preserving plausible deniability.`,
+    goal: `Pick the night action that best advances Evil.`,
 
     additionalConsiderations: [
-        `PLAYER KILL: The default option. Best for removing confirmed or emerging information roles, strong social leaders, or players close to solving the game.`,
-        `MINION KILL (SACRIFICE): Useful to validate false Undertaker information, frame Good worlds, or remove a compromised Minion whose survival is more dangerous than their death.`,
-        `SELF-KILL (STAR-PASS): High-risk, high-impact. Consider when you are close to execution, your cover is broken, or passing to a better-positioned Minion resets suspicion.`,
-        `SINK-KILL (NO DEATH): Targeting a dead player to intentionally cause no death. Use to simulate protection (e.g. Monk bluff), failed attacks (e.g. Soldier bluff), or to inject confusion and delay.`,
-        `TIMING MATTERS: Early no-deaths can create uncertainty; repeated or poorly justified no-deaths can expose coordination.`,
-        `PATTERN AWARENESS: Alternating between kills and no-deaths may be safer than repeating either.`
+        `Kill info roles or social leaders.`,
+        `Use sink-kill to mimic protection or Soldier.`,
+        `Star-pass when your cover is broken.`
     ],
 
     personalityModulation: {
@@ -67,20 +59,43 @@ export const impNightKill: PromptSpec = {
     },
 
     input: [
-        `Your seat number`,
-        `List of living players with seat numbers`,
-        `List of dead players with seat numbers`,
-        `List of Minions and their seat numbers`,
-        `Public claims, statements, and voting behavior`,
-        `Rumors or protection / bluff narratives in circulation`,
-        `Current suspicion map (your internal beliefs)`,
-        `Night count and game phase`,
-        `Your personality profile`
+        `Your seat`,
+        `Living players list`,
+        `Dead players list`,
+        `Minion seats`,
+        `Public claims + votes`,
+        `Protection/bluff narratives`,
+        `Suspicion map`,
+        `Night count`,
+        `Personality profile`
     ],
 
-    output: {
-        action: "One of: 'kill_player', 'kill_minion', 'star_pass', or 'sink_kill'",
-        targetSeat: 'Seat number of the chosen target (use a dead player’s seat for sink_kill; use your own seat for star_pass)',
-        reasoning: 'In-character explanation of why this action was chosen, reflecting personality, partial information, and Evil strategy.'
-    }
+    output: ({ playerCount }: { playerCount: number }) => ({
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        title: 'ImpNightKillOutput',
+        type: 'object',
+        additionalProperties: false,
+        required: ['action', 'targetSeat', 'reasoning'],
+        properties: {
+            action: {
+                type: 'string',
+                enum: ['kill_player', 'kill_minion', 'star_pass', 'sink_kill'],
+                minLength: 8,
+                maxLength: 11,
+                description: 'Chosen night action.'
+            },
+            targetSeat: {
+                type: 'integer',
+                minimum: 1,
+                maximum: Math.max(1, playerCount),
+                description: 'Target seat for the chosen action.'
+            },
+            reasoning: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 260,
+                description: 'Why this action fits the current state.'
+            }
+        }
+    })
 };

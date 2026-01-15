@@ -11,33 +11,17 @@ export const demonBluffs: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Select three out-of-play characters to serve as Demon bluffs, empowering Evil lies while preserving counterplay.`,
+    goal: `Pick three out-of-play roles as Demon bluffs that enable lies without collapsing solvability.`,
 
     additionalConsiderations: [
-        `COVERAGE: Provide three bluffs that support different lie styles (early claim, reactive defense, late pivot).`,
-        `PLAUSIBILITY: Bluffs must survive basic mechanical scrutiny given the current setup.`,
-        `COUNTERPLAY: Good should be able to interrogate claims without instant collapse.`,
-        `PLAYER EXPERIENCE: Match bluff complexity to the Demon’s expected comfort level.`,
-        `ONLY PICK FROM THE OUT OF PLAY BLUFFS PROVIDED`
+        `Cover early, mid, and late claim paths.`,
+        `Ensure each bluff is mechanically plausible on this script.`,
+        `Only pick from the out-of-play list.`
     ],
 
-    input: [
-        `Full grimoire`,
-        `Full list of out-of-play characters`,
-        `Script context (demon type, minions, outsider count)`,
-        `Optional player experience notes`
-    ],
+    input: [`Grimoire`, `Out-of-play roles list`, `Script context`, `Player experience notes (optional)`],
 
-    output: {
-        shown: 'object: { roles: [string, string, string] } (the three bluff roles)',
-        reasoning: {
-            type: 'string',
-            description:
-                'Brief ST philosophy explaining why this bluff set supports Evil while preserving a playable deduction space. Limit to 2 sentences max, preferably 1.'
-        }
-    },
-
-    schema: {
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'DemonBluffsOutput',
         type: 'object',
@@ -46,24 +30,31 @@ export const demonBluffs: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'The chosen bluff payload.',
                 additionalProperties: false,
                 required: ['roles'],
                 properties: {
                     roles: {
                         type: 'array',
+                        description: 'Exactly three out-of-play bluff roles.',
                         minItems: 3,
                         maxItems: 3,
-                        items: { type: 'string' },
-                        description: 'The three bluff roles chosen - must be out of play and on the script.',
-                        enum: playerRoles
+                        items: {
+                            type: 'string',
+                            enum: playerRoles,
+                            minLength: 2,
+                            maxLength: 30,
+                            description: 'Role name from the script.'
+                        }
                     }
                 }
             },
             reasoning: {
                 type: 'string',
-                description:
-                    'Brief ST philosophy explaining why this bluff set supports Evil while preserving a playable deduction space. Limit to 2 sentences max, preferably 1.'
+                description: 'Why these bluffs help Evil while keeping counterplay.',
+                minLength: 1,
+                maxLength: 240
             }
         }
-    }
+    })
 };

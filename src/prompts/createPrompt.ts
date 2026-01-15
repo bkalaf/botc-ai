@@ -46,8 +46,7 @@ export function createPrompt(
         inputs,
         personalityModulation,
         title,
-        tags,
-        schema
+        tags
     } = promptSpec;
     const { personality } = opts ?? { personality: undefined };
     const addBullet = (s: string) => `* ${s}`;
@@ -86,11 +85,7 @@ export function createPrompt(
         ...(inputs?.map(addBullet) ?? []),
         '',
         'OUTPUT:',
-        JSON.stringify(
-            typeof schema === 'function' ? schema({ playerCount: extractedSeats.length }) : schema,
-            null,
-            '\t'
-        ),
+        JSON.stringify(output({ playerCount: extractedSeats.length }), null, '\t'),
         ''
     ];
 

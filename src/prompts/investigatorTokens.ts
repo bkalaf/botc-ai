@@ -11,65 +11,67 @@ export const investigatorTokens: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Choose what the Investigator learns: show a Minion role and two candidate seats, one of which is correct (unless the Investigator is drunk/poisoned and you choose a legal falsehood).`,
+    goal: `Show a Minion role and two seats, with one true unless drunk/poisoned.`,
 
     additionalConsiderations: [
-        `DEFAULT (SOBER/HEALTHY): Pick an in-play Minion role and two candidates with exactly one correct.`,
-        `MISREGISTRATION: Recluse may register as Evil and as any Minion. Use to widen worlds without making the ping obviously “weird.”`,
-        `DRUNK/POISONED INVESTIGATOR: You may show a Minion not in play and/or make both candidates wrong. Keep it script-plausible and discussion-worthy.`,
-        `AVOID TRIVIAL COLLAPSE: Don’t choose candidates that will be instantly hard-cleared by obvious cross-checks unless you want that collision.`,
-        `SOCIAL VALUE: Prefer a ping that pressures Evil but doesn’t pin the whole game on day 1.`
+        `Sober/healthy: one seat must be correct.`,
+        `Drunk/poisoned: role and seats may be fully false.`,
+        `Avoid instant hard-clears.`
     ],
 
-    input: [`Full grimoire`, `Investigator sober/healthy state`, `Script context (which Minion roles exist on-script)`],
+    input: [`Grimoire`, `Investigator sobriety/health`, `Script Minion list`],
 
-    output: {
-        shown: `object: { role: string, seats: [number, number] } (what the Investigator is shown)`,
-        correctSeat: `number|null (which of shown.seats truly has that role; null if none/fully false) - if this is a number it must be one of the two values in shown.seats`,
-        reasoning: 'Brief ST philosophy for why this show is good for balance, drama, and plausibility.'
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'InvestigatorTokensOutput',
         type: 'object',
         additionalProperties: false,
-        required: ['shown', 'reasoning'],
+        required: ['shown', 'correctSeat', 'reasoning'],
         properties: {
             shown: {
                 type: 'object',
+                description: 'Role and candidate seats shown.',
                 additionalProperties: false,
                 required: ['role', 'seats'],
                 properties: {
                     role: {
                         type: 'string',
                         enum: minionRoles,
-                        description: 'The role shown to the Investigator. Must be a minion.'
+                        minLength: 3,
+                        maxLength: 20,
+                        description: 'Minion role shown.'
                     },
                     seats: {
                         type: 'array',
                         minItems: 2,
                         maxItems: 2,
+                        description: 'Two candidate seats.',
                         items: {
-                            type: 'number',
+                            type: 'integer',
                             minimum: 1,
-                            maximum: playerCount,
-                            description: 'The two seats that are shown to the Investigator'
+                            maximum: Math.max(1, playerCount),
+                            description: 'Candidate seat.'
                         }
                     }
                 }
             },
             correctSeat: {
-                type: 'number',
-                minimum: 1,
-                maximum: playerCount,
-                description:
-                    'The correct seat for the shown roles. Must be one of the two values in shown.seats if sober and healthy information. null if this is drunk or poisoned information.'
+                anyOf: [
+                    {
+                        type: 'integer',
+                        minimum: 1,
+                        maximum: Math.max(1, playerCount),
+                        description: 'True seat (must be one of shown.seats).'
+                    },
+                    { type: 'null', description: 'No true seat (drunk/poisoned).' }
+                ],
+                description: 'Which shown seat is true, or null.'
             },
             reasoning: {
                 type: 'string',
-                description:
-                    'Brief ST philosophy for why this show is good for balance, drama, and plausibility. Max 2 sentences, prefer 1.'
+                minLength: 1,
+                maxLength: 240,
+                description: 'Why this result is legal and useful.'
             }
         }
     })

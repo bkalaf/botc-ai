@@ -39,7 +39,7 @@ export type JsonSchema = {
  * Intentional design goals:
  * - Stable top-level keys across prompts
  * - Consistent IO: always use `input` and `output` (but we still allow legacy `inputs`)
- * - Optional `schema` to validate model output
+ * - Output schema factory for model output
  */
 export type PromptSpec = {
     // ---------- metadata ----------
@@ -70,18 +70,10 @@ export type PromptSpec = {
     inputs?: string[];
 
     /**
-     * Output fields as a schema-ish description map (human-readable).
-     * This is what your existing prompt files most naturally store.
+     * Machine-checkable JSON schema for model output.
+     * Pass in playerCount so seat numbers can be bounded.
      */
-    output:
-        | Record<string, string | { type: any; description: any }>
-        | { fields: Record<string, string>; notes?: string | string[] };
-
-    /**
-     * Machine-checkable schema for model output. Strongly recommended.
-     * This should match the real JSON you expect from the model.
-     */
-    schema?: JsonSchema | ((variable: any) => JsonSchema);
+    output: ({ playerCount }: { playerCount: number }) => JsonSchema;
 };
 
 const voiceStyles = z.enum(['quiet', 'reserved', 'conversational', 'assertive', 'dominant']);

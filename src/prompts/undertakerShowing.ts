@@ -11,35 +11,35 @@ export const undertakerShowing: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Determine which role to show the Undertaker for the most recently executed player.`,
+    goal: `Show the Undertaker a role for the most recently executed player.`,
 
     additionalConsiderations: [
-        `EXECUTED PLAYER: Use the most recently executed player (the one executed during the day that just ended).`,
-        `SOBRIETY & HEALTH: If Undertaker is drunk/poisoned, the shown role may be incorrect. Keep it coherent, not random.`,
-        `MISREGISTRATION: Apply Recluse/Spy registrations intentionally. If Recluse is drunk/poisoned, do not misregister them.`,
-        `COLLISION VALUE: When lying (legally), pick a role that meaningfully collides with current claims rather than a random role.`
+        `Use the last executed player.`,
+        `If drunk/poisoned, lie but stay coherent.`,
+        `Apply Recluse/Spy misregistration only when legal.`
     ],
 
-    input: [`Recently executed player's seat number`, `Full grimoire`, `Undertaker sober/healthy state`],
+    input: [`Executed player seat`, `Grimoire`, `Undertaker sobriety/health`],
 
-    output: {
-        role: 'string (role shown to the Undertaker for the executed player)',
-        reasoning: {
-            type: 'string',
-            description:
-                'Brief ST philosophy explaining balance, plausibility, and any misregistration/sobriety choices. 2 sentence limit, prefer 1 sentence.'
-        }
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'UndertakerShowingOutput',
         type: 'object',
         additionalProperties: false,
         required: ['role', 'reasoning'],
         properties: {
-            role: { type: 'string' },
-            reasoning: { type: 'string' }
+            role: {
+                type: 'string',
+                minLength: 2,
+                maxLength: 30,
+                description: 'Role shown to the Undertaker.'
+            },
+            reasoning: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 220,
+                description: 'Why this role is legal and useful.'
+            }
         }
     })
 };

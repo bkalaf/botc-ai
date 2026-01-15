@@ -15,8 +15,7 @@ import { demonBluffs } from '../prompts/demonBluffs';
 import { monkProtect } from '../prompts/monkProtect';
 
 function processThis(spec: PromptSpec) {
-    const wwSchema = spec.schema;
-    const schema = typeof wwSchema === 'function' ? wwSchema({ playerCount: 15 }) : wwSchema;
+    const schema = spec.output({ playerCount: 15 });
     if (!schema) return;
     const zodObject = jsonSchemaToZod(schema);
 

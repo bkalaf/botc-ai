@@ -16,32 +16,26 @@ export const fortuneTellerNightAction: PromptSpec = {
     perspective: 'player',
 
     instructions: [
-        `You are an AI player in Blood on the Clocktower whose role is the Fortune Teller.`,
-        `Each night, choose TWO seat numbers to learn whether at least one is the Demon (YES/NO).`,
-        `One player is the Red Herring: they may cause misleading YES results when checked.`,
-        `Some characters may misregister (e.g., Recluse), and your info may be corrupted if you are drunk or poisoned.`,
-        `Your job is to choose tonight’s two seats to maximize long-term deduction value.`
+        `You are the Fortune Teller in Blood on the Clocktower.`,
+        `Pick two seats to test; results can be warped by Red Herring, misregistration, or poisoning.`,
+        `Follow Pandemonium Institute wiki rules for this role.`
     ],
 
     guidelines: [
-        `INFORMATION GAIN: Choose pairs that differentiate worlds rather than confirming what you already believe.`,
-        `RED HERRING HUNT: Use structured testing to isolate a likely Red Herring over multiple nights.`,
-        `MISREGISTRATION AWARENESS: Treat Recluse as a “noise source” that can explain anomalies without throwing away your whole dataset.`,
-        `DRUNK/POISON CHECK: If your results contradict a strong world, consider corruption before rewriting everything.`,
-        `RISK MANAGEMENT: As a powerful role, you are a Demon target. Choose a claim strategy consistent with your safety plan and personality.`,
-        `PERSONALITY CONSISTENCY: Your willingness to test aggressively vs conservatively must match your personality traits.`
+        `Pick pairs that split worlds, not just confirm.`,
+        `Use repeated tests to isolate a Red Herring.`,
+        `If results clash, consider poison before discarding a world.`,
+        `Keep your testing style aligned with personality.`
     ],
 
-    footnote: `Fortune Teller strength comes from sequences, not single pings. Treat each night as one data point in an experiment.`,
+    footnote: `Treat each night as a data point, not a verdict.`,
 
-    goal: `Choose two seat numbers to check tonight and output your testing rationale, including how you are triangulating the Demon vs Red Herring vs misregistration vs poisoning.`,
+    goal: `Choose two seats and explain the test plan.`,
 
     additionalConsiderations: [
-        `TEST DESIGN: Prefer one “control” seat (stable, low-noise) and one “variable” seat (high suspicion) to interpret results cleanly.`,
-        `RED HERRING TRIANGULATION: Re-check a seat that produced repeated YES outcomes with multiple different partners to see if the YES “follows” them.`,
-        `RECLUSE HANDLING: If a seat is suspected Recluse, avoid pairing them in ways that would contaminate your inference unless you are explicitly testing that hypothesis.`,
-        `POISON/DRUNK DETECTION: Sudden flips with no explanation, or results inconsistent with many independent lines, increase corruption likelihood.`,
-        `SOCIAL STEALTH: Consider checking seats you can talk to tomorrow; your result is only valuable if you can integrate it into town discussion without dying immediately.`
+        `Use a stable “control” seat when possible.`,
+        `Avoid contaminating tests with likely Recluse unless testing that.`,
+        `Check seats you can discuss tomorrow.`
     ],
 
     personalityModulation: {
@@ -73,24 +67,18 @@ export const fortuneTellerNightAction: PromptSpec = {
     },
 
     input: [
-        `Your seat number`,
-        `Living/dead list with seat numbers`,
-        `Public claims and rumor worlds`,
-        `Your private Fortune Teller history: prior (seatA, seatB) -> result`,
-        `Any known/predicted Recluse candidates`,
-        `Any known/suspected poison/drunk risk factors`,
-        `Your suspicion map`,
-        `Night count / game phase`,
-        `Your personality profile`
+        `Your seat`,
+        `Living/dead list`,
+        `Public claims`,
+        `Prior tests (seatA, seatB -> result)`,
+        `Recluse candidates`,
+        `Poison/drunk risk factors`,
+        `Suspicion map`,
+        `Night count`,
+        `Personality profile`
     ],
 
-    output: {
-        picks: `object: { seats: [number, number] } (the two seats you choose to check tonight)`,
-        reasoning:
-            'In-character explanation of the test design and how it advances Demon/RH/misregistration/poison inference.'
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'FortuneTellerNightActionOutput',
         type: 'object',
@@ -99,6 +87,7 @@ export const fortuneTellerNightAction: PromptSpec = {
         properties: {
             picks: {
                 type: 'object',
+                description: 'The chosen two seats to test.',
                 additionalProperties: false,
                 required: ['seats'],
                 properties: {
@@ -107,57 +96,70 @@ export const fortuneTellerNightAction: PromptSpec = {
                         minItems: 2,
                         maxItems: 2,
                         items: {
-                            type: 'number',
-                            description: 'The two seats you choose to check tonight.',
+                            type: 'integer',
+                            description: 'Seat to check tonight.',
                             minimum: 1,
-                            maximum: playerCount
+                            maximum: Math.max(1, playerCount)
                         }
                     }
                 }
             },
             hypothesis: {
                 type: 'object',
+                description: 'Current working model after tonight’s test.',
                 additionalProperties: false,
                 required: ['likelyRedHerringSeats', 'likelyDemonSeats', 'corruptionRisk'],
                 properties: {
                     likelyRedHerringSeats: {
                         type: 'array',
+                        description: 'Likely Red Herring seats (if any).',
+                        minItems: 0,
+                        maxItems: Math.max(1, playerCount),
                         items: {
-                            type: 'number',
-                            description: 'The likely Red Herring seats #s.',
+                            type: 'integer',
+                            description: 'Seat that might be Red Herring.',
                             minimum: 1,
-                            maximum: playerCount
+                            maximum: Math.max(1, playerCount)
                         }
                     },
                     likelyDemonSeats: {
                         type: 'array',
+                        description: 'Likely Demon seats (if any).',
+                        minItems: 0,
+                        maxItems: Math.max(1, playerCount),
                         items: {
-                            type: 'number',
-                            description: 'The likely Demon seats #s.',
+                            type: 'integer',
+                            description: 'Seat that might be the Demon.',
                             minimum: 1,
-                            maximum: playerCount
+                            maximum: Math.max(1, playerCount)
                         }
                     },
                     corruptionRisk: {
                         type: 'string',
                         enum: ['low', 'medium', 'high'],
-                        description: 'The likelyhood of drunkness or poisoning.'
+                        minLength: 3,
+                        maxLength: 6,
+                        description: 'Estimated poison/drunk risk.'
                     }
                 }
             },
             todos: {
                 type: 'array',
+                description: 'Future seats to test, in priority order.',
+                minItems: 0,
+                maxItems: Math.max(1, playerCount),
                 items: {
-                    type: 'number',
-                    description: 'Any seats that you want to check in the future in order of importance.',
+                    type: 'integer',
+                    description: 'Seat to consider checking later.',
                     minimum: 1,
-                    maximum: playerCount
+                    maximum: Math.max(1, playerCount)
                 }
             },
             reasoning: {
                 type: 'string',
-                description:
-                    'In-character explanation of the test design and how it advances Demon/RH/misregistration/poison inference. 2 sentences at most - prefer 1.'
+                minLength: 1,
+                maxLength: 240,
+                description: 'Short rationale for the chosen test.'
             }
         }
     })

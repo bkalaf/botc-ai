@@ -11,73 +11,67 @@ export const washerwomanTokens: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Choose what the Washerwoman learns: show a Townsfolk role and two candidate seats, one of which is correct (unless the Washerwoman is drunk/poisoned and you choose a legal falsehood).`,
+    goal: `Show a Townsfolk role and two seats, with one true unless drunk/poisoned.`,
 
     additionalConsiderations: [
-        `DEFAULT (SOBER/HEALTHY): Pick an in-play Townsfolk role and two candidates with exactly one correct.`,
-        `SPY REGISTRATION: Spy may register as Good/Townsfolk. Use to widen worlds without making Evil detection trivial.`,
-        `DRUNK/POISONED WASHERWOMAN: You may show a Townsfolk role not in play and/or make both candidates wrong. Keep it script-plausible and discussion-worthy.`,
-        `AVOID AUTO-CONFIRM: Don’t create a ping that instantly hard-confirms through obvious cross-checks unless needed for balance.`,
-        `NARRATIVE VALUE: Prefer pings that create interesting cross-checks rather than isolated facts.`
+        `Sober/healthy: one seat must be correct.`,
+        `Drunk/poisoned: role and seats may be fully false.`,
+        `Avoid instant confirmations.`
     ],
 
-    input: [
-        `Full grimoire`,
-        `Washerwoman sober/healthy state`,
-        `Script context (which Townsfolk roles exist on-script)`
-    ],
+    input: [`Grimoire`, `Washerwoman sobriety/health`, `Script Townsfolk list`],
 
-    output: {
-        shown: `object: { role: string, seats: [number, number] } (what the Washerwoman is shown)`,
-        correctSeat: `number|null (which of shown.seats truly has that role; null if none/fully false) if this is a number it must be one of the two values in shown.seats`,
-        reasoning: {
-            type: 'string',
-            description:
-                'Brief ST philosophy explaining balance, plausibility, and any misregistration/sobriety choices. 2 sentence limit, prefer 1 sentence.'
-        }
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'WasherwomanTokensOutput',
         type: 'object',
         additionalProperties: false,
-        required: ['shown', 'reasoning'],
+        required: ['shown', 'correctSeat', 'reasoning'],
         properties: {
             shown: {
                 type: 'object',
+                description: 'Role and two candidate seats shown.',
                 additionalProperties: false,
                 required: ['role', 'seats'],
                 properties: {
                     role: {
                         type: 'string',
                         enum: townsfolkRoles,
-                        description: 'The role shown to the Washerwoman. Must be a townsfolk.'
+                        minLength: 3,
+                        maxLength: 20,
+                        description: 'Townsfolk role shown.'
                     },
                     seats: {
                         type: 'array',
                         minItems: 2,
                         maxItems: 2,
+                        description: 'Two candidate seats.',
                         items: {
-                            type: 'number',
+                            type: 'integer',
                             minimum: 1,
-                            maximum: playerCount,
-                            description: 'The two seats that are shown to the Washerwoman'
+                            maximum: Math.max(1, playerCount),
+                            description: 'Candidate seat.'
                         }
                     }
                 }
             },
             correctSeat: {
-                type: 'number',
-                minimum: 1,
-                maximum: playerCount,
-                description:
-                    'The correct seat for the shown roles. Must be one of the two values in shown.seats if sober and healthy information. null if this is drunk or poisoned information.'
+                anyOf: [
+                    {
+                        type: 'integer',
+                        minimum: 1,
+                        maximum: Math.max(1, playerCount),
+                        description: 'True seat (must be one of shown.seats).'
+                    },
+                    { type: 'null', description: 'No true seat (drunk/poisoned).' }
+                ],
+                description: 'Which shown seat is true, or null if both false.'
             },
             reasoning: {
                 type: 'string',
-                description:
-                    'Brief ST philosophy for why this show is good for balance, drama, and plausibility. Max 2 sentences, prefer 1.'
+                minLength: 1,
+                maxLength: 240,
+                description: 'Why this result is legal and interesting.'
             }
         }
     })

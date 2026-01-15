@@ -11,33 +11,18 @@ export const fortuneTellersRedHerring: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Choose which player receives the Fortune Teller's Red Herring reminder token, creating durable misdirection without nullifying the Fortune Teller. Per the FORTUNE TELLER ability this must be a GOOD character - e.g. TOWNSFOLK, OUTSIDER or the SPY.`,
+    goal: `Assign the Red Herring to a Good player to add misdirection without invalidating the Fortune Teller.`,
 
     additionalConsiderations: [
-        `LONGEVITY: Prefer a target unlikely to die early or hard-confirm themselves.`,
-        `PLAUSIBILITY: The target should plausibly be the Demon socially or mechanically.`,
-        `SUBTLETY: Avoid placements that collapse immediately under basic logic.`,
-        `SCRIPT SYNERGY: Ensure this misdirection complements other sources of uncertainty (drunk/poison/bluffs).`,
-        `CANNOT BE ASSIGNED to a MINION or DEMON`,
-        `BE WARY: Don't assign this to the RECLUSE as the RECLUSE's ability already causes it to misregister as a demon so putting a RED HERRING on a RECLUSE is a waste, generally.    `
+        `Target should live long enough to matter.`,
+        `Keep it plausible and subtle.`,
+        `Must be Good (not Minion/Demon).`,
+        `Avoid Recluse unless you have a strong reason.`
     ],
 
-    input: [
-        `Full grimoire`,
-        `Script context (roles in play, expected bluff structure)`,
-        `Optional player experience notes`
-    ],
+    input: [`Grimoire`, `Script context`, `Player experience notes (optional)`],
 
-    output: {
-        shown: 'object: { seat: number } (the seat with the Red Herring token)',
-        reasoning: {
-            type: 'string',
-            description:
-                'Brief ST philosophy explaining why this placement sustains Fortune Teller tension across the game. Limit to 2 sentences max, preferably 1.'
-        }
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'FortuneTellersRedHerringOutput',
         type: 'object',
@@ -46,21 +31,23 @@ export const fortuneTellersRedHerring: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'Chosen Red Herring seat.',
                 additionalProperties: false,
                 required: ['seat'],
                 properties: {
                     seat: {
-                        type: 'number',
+                        type: 'integer',
                         minimum: 1,
-                        maximum: playerCount,
+                        maximum: Math.max(1, playerCount),
                         description: 'The seat with the Red Herring token.'
                     }
                 }
             },
             reasoning: {
                 type: 'string',
-                description:
-                    'Brief ST philosophy explaining why this placement sustains Fortune Teller tension across the game. Limit to 2 sentences max, preferably 1.'
+                minLength: 1,
+                maxLength: 220,
+                description: 'Why this placement sustains tension without breaking solvability.'
             }
         }
     })
