@@ -7,11 +7,7 @@ import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import { travelerAlignment } from '../prompts/travelerAlignment';
 import { getClient } from './openaiClient';
 
-const TravelerAlignmentReturnSchema = z.object({
-    alignment: z.enum(['good', 'evil']),
-    travelerID: z.int(),
-    reasoning: z.string()
-});
+const TravelerAlignmentReturnSchema = z.object({ alignment: z.enum(['good', 'evil']), reasoning: z.string() }).strict();
 
 const TravelerAlignmentInputSchema = InputSchema.extend({
     travelerID: z.int()
@@ -30,7 +26,7 @@ export const travelerAlignmentServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(TravelerAlignmentReturnSchema, 'traveleralignment_decision')
+            response_format: zodResponseFormat(TravelerAlignmentReturnSchema, 'TravelerAlignmentDecision')
         });
         console.log(`response`, response);
 

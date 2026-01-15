@@ -3,7 +3,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import { createPrompt } from '../prompts/createPrompt';
 import { investigatorTokens } from '../prompts/investigatorTokens';
-import { InputSchema } from '../prompts/prompt-types';
+import { ClaimsInputSchema, InputSchema } from '../prompts/prompt-types';
 import { getClient } from './openaiClient';
 import z from 'zod';
 import { RootState, AppDispatch } from '../store';
@@ -12,19 +12,28 @@ import { addReminderToken, selectSeatByRole } from '../store/grimoire/grimoire-s
 import { openDialog } from '../lib/dialogs';
 import { addMyNightInfoClaim, selectClaimsByRole, selectMemoryFor } from '../store/memory/memory-slice';
 import { selectDay } from '../store/game/game-slice';
+import { poisonerNightAction } from '../prompts/poisonerNightAction';
 
-const PoisonerChoiceReturnSchema = z.object({
-    shown: z.object({
-        seat: z.number()
-    }),
-    reasoning: z.string()
-});
+const PoisonerChoiceReturnSchema = z
+    .object({
+        shown: z
+            .object({
+                seat: z.number().gte(1).lte(15).describe('The seat of the person that will be poisoned this evening.')
+            })
+            .strict(),
+        reasoning: z
+            .string()
+            .describe(
+                'In-character explanation of why this seat was chosen, reflecting personality and partial information. Max 2 sentences - prefer 1.'
+            )
+    })
+    .strict();
 
 export const poisonerChoiceServerFn = createServerFn({ method: 'POST' })
-    .inputValidator((data) => InputSchema.parse(data))
+    .inputValidator((data) => ClaimsInputSchema.parse(data))
     .handler(async ({ data }) => {
         const { personality } = filterSeatsByRole(data.extractedSeats as any, 'poisoner');
-        const { system, user } = createPrompt(investigatorTokens, data, { personality });
+        const { system, user } = createPrompt(poisonerNightAction, data, { personality });
         console.log(`promptText`, system);
         console.log(`promptText`, user);
         const client = getClient();
@@ -34,7 +43,7 @@ export const poisonerChoiceServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(PoisonerChoiceReturnSchema, 'poisonerChoice_decision')
+            response_format: zodResponseFormat(PoisonerChoiceReturnSchema, 'PoisonerNightActionOutput')
         });
         console.log(`response`, response);
 

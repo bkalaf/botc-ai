@@ -10,7 +10,7 @@ import { $$ROLES } from '@/data/types';
 import { closeDialog } from '../store/ui/ui-slice';
 
 function getTypesFromSeats(seats: z.infer<typeof InputSchema>['extractedSeats'], characterType: CharacterTypes) {
-    return seats
+    return Object.values(seats)
         .filter((arg) => arg.team === characterType)
         .map((arg) => ({
             ID: arg.ID,
@@ -37,7 +37,7 @@ export function minionInfo(state: RootState, dispatch: AppDispatch) {
             demons: demons.map((el) => ({ id: el.ID, name: el.name })),
             minions: minions.map((el) => ({ id: el.ID, name: el.name }))
         };
-        const seats = data.extractedSeats
+        const seats = Object.values(data.extractedSeats)
             .filter((x) => evilTeam.map((y) => y.ID).includes(x.ID))
             .some((x) => x.controledBy === 'human');
         dispatch(
@@ -51,14 +51,16 @@ export function minionInfo(state: RootState, dispatch: AppDispatch) {
                 }
             })
         );
-        return await openDialog({
-            dispatch,
-            dialogType: 'minionInfo',
-            data: minionDialogData,
-            resolve: async () => {
-                dispatch(closeDialog());
-            }
-        });
+        if (seats) {
+            return await openDialog({
+                dispatch,
+                dialogType: 'minionInfo',
+                data: minionDialogData,
+                resolve: async () => {
+                    dispatch(closeDialog());
+                }
+            });
+        }
     };
 }
 
