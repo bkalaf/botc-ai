@@ -34,7 +34,11 @@ const getSeatOrThrow = (state: IGrimoireState, seatID: number) => {
 
 const getSeatArray = (state: IGrimoireState) => {
     const seats = Object.values(state.seats);
-    seats.sort((a, b) => a.ID - b.ID);
+    seats.sort((a, b) =>
+        a.ID < b.ID ? -1
+        : a.ID === b.ID ? 0
+        : 1
+    );
     return seats;
 };
 

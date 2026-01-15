@@ -6,23 +6,65 @@ import z from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import { getClient } from './openaiClient';
 import { washerwomanTokens } from '../prompts/washerwomanTokens';
-import { $$ROLES } from '../data/types';
+import { $$ROLES, Roles } from '../data/types';
 import { RootState, AppDispatch } from '../store';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
-import { addNightInfoClaim } from '../store/memory/memory-slice';
+import { addMyNightInfoClaim, addNightInfoClaim } from '../store/memory/memory-slice';
 import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
 import { selectDay } from '../store/game/game-slice';
 
-const WasherwomanInfoReturnSchema = z.object({
-    correctSeat: z.int().nullable(),
-    shown: z.object({
-        role: z.string(),
-        seats: z.array(z.number())
-    }),
-    reasoning: z.string()
-});
+const WasherwomanInfoReturnSchema = (playerCount: number) =>
+    z
+        .object({
+            shown: z
+                .object({
+                    role: z
+                        .enum([
+                            'monk',
+                            'empath',
+                            'fortuneteller',
+                            'undertaker',
+                            'virgin',
+                            'librarian',
+                            'investigator',
+                            'washerwoman',
+                            'chef',
+                            'mayor',
+                            'slayer',
+                            'soldier',
+                            'ravenkeeper'
+                        ])
+                        .describe('The role shown to the Washerwoman. Must be a townsfolk.'),
+                    seats: z
+                        .array(
+                            z
+                                .number()
+                                .gte(1)
+                                .lte(playerCount)
+                                .describe('The two seats that are shown to the Washerwoman')
+                        )
+                        .min(2)
+                        .max(2)
+                })
+                .strict(),
+            correctSeat: z
+                .number()
+                .gte(1)
+                .lte(playerCount)
+                .describe(
+                    'The correct seat for the shown roles. Must be one of the two values in shown.seats if sober and healthy information. null if this is drunk or poisoned information.'
+                )
+                .nullable()
+                .optional(),
+            reasoning: z
+                .string()
+                .describe(
+                    'Brief ST philosophy for why this show is good for balance, drama, and plausibility. Max 2 sentences, prefer 1.'
+                )
+        })
+        .strict();
 
 export const washerwomanInfoServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
@@ -37,7 +79,10 @@ export const washerwomanInfoServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(WasherwomanInfoReturnSchema, 'washerwomaninfo_decision')
+            response_format: zodResponseFormat(
+                WasherwomanInfoReturnSchema(data.extractedSeats.length),
+                'washerwomaninfo_decision'
+            )
         });
         console.log(`response`, response);
 
@@ -56,7 +101,7 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
         value: { correctSeat, shown }
     }: {
         ID: number;
-        value: z.infer<typeof WasherwomanInfoReturnSchema>;
+        value: { correctSeat?: number; shown: { role: Roles; seats: number[] } };
     }) => {
         const [correct, incorrect] =
             correctSeat ? [correctSeat, shown.seats.filter((x) => x !== correctSeat)[0]] : shown.seats;
@@ -82,7 +127,7 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
         value: { correctSeat, shown, reasoning }
     }: {
         confirmed: boolean;
-        value: z.infer<typeof WasherwomanInfoReturnSchema>;
+        value: { correctSeat: number; shown: { role: Roles; seats: number[] }; reasoning: string };
     }) => {
         const day = selectDay(state);
         const seat = selectSeatByRole(state, 'washerwoman');
@@ -93,19 +138,20 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addNightInfoClaim({
+                addMyNightInfoClaim({
                     seat: ID,
+                    ID,
                     day,
                     role: 'washerwoman',
                     data: { shown }
                 })
             );
-            setTokens({ ID, value: { correctSeat, shown, reasoning } });
+            setTokens({ ID, value: { correctSeat, shown } });
         } else {
             const seat1 = selectSeatedPlayers(state).find((x) => x.ID === shown.seats[0]);
             const seat2 = selectSeatedPlayers(state).find((x) => x.ID === shown.seats[1]);
             const name = $$ROLES[shown.role];
-            const result = await openDialog({
+            await openDialog({
                 dispatch,
                 dialogType: 'washerwomanInfo',
                 data: {
@@ -113,7 +159,7 @@ export const washerwomanHandler = (state: RootState, dispatch: AppDispatch) => {
                     seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
                 }
             });
-            setTokens({ ID, value: { correctSeat, shown, reasoning } });
+            setTokens({ ID, value: { correctSeat, shown } });
         }
     };
     return buildHandler(washerwomanInfoServerFn, func);

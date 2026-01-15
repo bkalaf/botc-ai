@@ -31,6 +31,21 @@ export const memorySlice = createSlice({
     name: 'memory',
     initialState,
     reducers: {
+        addPlayerClaim: (state, action: PayloadAction<{ ID: number; name: string; controledBy: 'human' | 'ai' }>) => {
+            const { ID, name, controledBy } = action.payload;
+            const current = state.claims[ID ?? 0] ?? [];
+            state.claims[ID ?? 0] = [
+                ...current,
+                {
+                    infoType: 'player_info',
+                    playerInfo: { name, controledBy },
+                    ID,
+                    source: 'board',
+                    day: 1,
+                    seat: ID
+                }
+            ];
+        },
         addClaim: (
             state,
             action: PayloadAction<{
@@ -44,9 +59,9 @@ export const memorySlice = createSlice({
                 team?: CharacterTypes;
             }>
         ) => {
-            const { role, seat, source, data, infoType, day, ID } = action.payload;
+            const { role, seat, source, data, infoType, day, ID, team } = action.payload;
             const current = state.claims[ID ?? 0] ?? [];
-            state.claims[ID ?? 0] = [...current, { ID, infoType, day, source, seat, role, data }];
+            state.claims[ID ?? 0] = [...current, { ID, infoType, day, team, source, seat, role, data }];
         },
         addRoleClaim(
             state,
@@ -110,6 +125,7 @@ export const memorySlice = createSlice({
                 state,
                 addClaim({
                     ...action.payload,
+                    ID: action.payload.ID,
                     infoType: 'assign_token',
                     seat: action.payload.ID,
                     source: 'storyteller',
@@ -120,6 +136,7 @@ export const memorySlice = createSlice({
                 state,
                 addTeamClaim({
                     ...action.payload,
+                    ID: action.payload.ID,
                     seat: action.payload.ID,
                     source: 'storyteller',
                     team: $$ROLES[action.payload.role].team as CharacterTypes
