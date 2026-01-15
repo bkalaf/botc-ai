@@ -11,32 +11,17 @@ export const mayorBounce: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Determine whether the Mayor's ability redirects the night kill, and if so, which living player becomes the new target.`,
+    goal: `Decide whether the Mayor bounce redirects the night kill, and to whom.`,
 
     additionalConsiderations: [
-        `LEGALITY: You may only redirect to a LIVING player.`,
-        `SOBRIETY: If the Mayor is Drunk or Poisoned, the bounce fails (acknowledge this in reasoning even if the app enforces it).`,
-        `DRAMA: Early bounces create mystery; late bounces can be merciful or cruel depending on the game state.`,
-        `INTERACTION: Redirecting into on-death roles (e.g. Ravenkeeper) can create interesting outcomes, but avoid repeating patterns that scream “Mayor bounce.”`
+        `Only living players can be redirected to.`,
+        `If Mayor is drunk/poisoned, no bounce.`,
+        `Avoid patterns that hard-confirm a bounce.`
     ],
 
-    input: [
-        `Full grimoire`,
-        `Original night kill target seat number`,
-        `Mayor seat number and sober/healthy state`,
-        `Living/dead status list`
-    ],
+    input: [`Grimoire`, `Original kill target seat`, `Mayor seat + sobriety`, `Living/dead list`],
 
-    output: {
-        shown: 'object: { shouldBounce: boolean, targetSeat: number|null } (targetSeat is the redirected target if bouncing; null if no bounce)',
-        reasoning: {
-            type: 'string',
-            description:
-                'Brief ST philosophy explaining balance/drama and why this redirection (or no redirection) serves the game. 2 sentence limit, prefer 1 sentence.'
-        }
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'MayorBounceOutput',
         type: 'object',
@@ -45,23 +30,30 @@ export const mayorBounce: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'Bounce decision and redirected target.',
                 additionalProperties: false,
-                required: ['shouldBounce'],
+                required: ['shouldBounce', 'targetSeat'],
                 properties: {
                     shouldBounce: { type: 'boolean', description: 'Whether or not the kill will bounce.' },
                     targetSeat: {
-                        type: 'number',
-                        minimum: 1,
-                        maximum: playerCount,
-                        description:
-                            'The seat number of who the kill is going to be bounced to or null if shouldBounce is false.'
+                        anyOf: [
+                            {
+                                type: 'integer',
+                                minimum: 1,
+                                maximum: Math.max(1, playerCount),
+                                description: 'Seat to redirect to.'
+                            },
+                            { type: 'null', description: 'No redirect.' }
+                        ],
+                        description: 'Redirected seat or null.'
                     }
                 }
             },
             reasoning: {
                 type: 'string',
-                description:
-                    'Brief ST philosophy explaining balance/drama and why this redirection (or no redirection) serves the game. 2 sentence limit, prefer 1 sentence.'
+                minLength: 1,
+                maxLength: 220,
+                description: 'Why this bounce choice serves the game.'
             }
         }
     })

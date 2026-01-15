@@ -9,37 +9,22 @@ export const claimExtractor: PromptSpec = {
     perspective: 'generic',
 
     instructions: [
-        `You are a structured information extraction system for Blood on the Clocktower conversations.`,
-        `Your job is to convert raw conversation text into structured Claim objects.`,
-        `Extract claims about roles, information results, outsider counts, demon/minion types, actions, and world theories.`,
-        `When someone repeats or relays another person’s claim, record the original source seat if known, and set reportedBySeat to the current speaker if provided.`,
-        `Assign confidence (speaker certainty) and suspicion (likelihood it is false/strategic) as numbers 0..1.`,
-        `Assign corruption risks (poisoned/drunk/misregistration/narrative) as numbers 0..1.`
+        `Extract structured claims from Blood on the Clocktower chat.`,
+        `Follow PI wiki role rules and do not invent facts.`,
+        `If unsure, lower confidence or omit the claim.`
     ],
 
     guidelines: [
-        `TIMING: Use provided day/night/phase unless the text clearly references a different time ("last night", "Day 1").`,
-        `SEAT MAPPING: Prefer seat numbers when available. If only names exist, keep seat null and use label.`,
-        `CLAIM KIND: Choose the most specific kind possible (role, info_result, outsider_count, demon_type, minion_type, action, world_model).`,
-        `EVIDENCE: Include a short excerpt in provenance.excerpt for traceability.`,
-        `CONSERVATIVE EXTRACTION: If unsure whether something is a claim vs idle chatter, either omit or mark low confidence.`,
-        `DON’T INVENT: Do not fabricate roles, numbers, or times not present or implied.`
+        `Use seat numbers when available; otherwise keep seat null and use labels.`,
+        `Capture timing (day/night) if stated or implied.`,
+        `Add a short excerpt for provenance.`
     ],
 
-    goal: `Extract structured claims from conversation messages.`,
+    goal: `Turn conversation text into structured claim objects.`,
 
-    input: [
-        `Batch of conversation messages (speaker seat, text, visibility, day/night/phase)`,
-        `Optional seating/name mapping`,
-        `Optional script roles list (for role normalization)`
-    ],
+    input: [`Conversation batch`, `Optional seat/name map`, `Optional script roles list`],
 
-    output: {
-        shown: 'object: { claims: Claim[] } (claims extracted from the conversation)',
-        reasoning: 'Short description of extraction choices and any ambiguities handled.'
-    },
-
-    schema: {
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'ClaimExtractorOutput',
         type: 'object',
@@ -48,11 +33,14 @@ export const claimExtractor: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'Extracted claims payload.',
                 additionalProperties: false,
                 required: ['claims'],
                 properties: {
                     claims: {
                         type: 'array',
+                        minItems: 0,
+                        description: 'Extracted claims from the conversation.',
                         items: {
                             type: 'object',
                             additionalProperties: true,
@@ -68,34 +56,176 @@ export const claimExtractor: PromptSpec = {
                                 'corruption'
                             ],
                             properties: {
-                                id: { type: 'string' },
-                                kind: { type: 'string' },
-                                visibility: { type: 'string' },
-                                timing: { type: 'object' },
-                                source: { type: 'object' },
-                                subject: { type: ['object', 'null'] },
-                                payload: { type: 'object' },
-                                confidence: { type: 'number', minimum: 0, maximum: 1 },
-                                suspicion: { type: 'number', minimum: 0, maximum: 1 },
+                                id: {
+                                    type: 'string',
+                                    minLength: 3,
+                                    maxLength: 40,
+                                    description: 'Unique claim identifier.'
+                                },
+                                kind: {
+                                    type: 'string',
+                                    minLength: 3,
+                                    maxLength: 40,
+                                    description: 'Claim category (role, info_result, action, etc.).'
+                                },
+                                visibility: {
+                                    type: 'string',
+                                    minLength: 3,
+                                    maxLength: 20,
+                                    description: 'Who can see this claim (public/private/team).'
+                                },
+                                timing: {
+                                    type: 'object',
+                                    description: 'Timing info for the claim.',
+                                    additionalProperties: true
+                                },
+                                source: {
+                                    type: 'object',
+                                    description: 'Who made or relayed the claim.',
+                                    additionalProperties: true,
+                                    properties: {
+                                        seat: {
+                                            anyOf: [
+                                                {
+                                                    type: 'integer',
+                                                    minimum: 1,
+                                                    maximum: Math.max(1, playerCount),
+                                                    description: 'Source seat number.'
+                                                },
+                                                { type: 'null', description: 'Unknown seat.' }
+                                            ],
+                                            description: 'Source seat or null.'
+                                        },
+                                        name: {
+                                            type: 'string',
+                                            minLength: 1,
+                                            maxLength: 40,
+                                            description: 'Source label if seat unknown.'
+                                        }
+                                    }
+                                },
+                                subject: {
+                                    anyOf: [
+                                        {
+                                            type: 'object',
+                                            description: 'Claim subject if different from source.',
+                                            additionalProperties: true,
+                                            properties: {
+                                                seat: {
+                                                    anyOf: [
+                                                        {
+                                                            type: 'integer',
+                                                            minimum: 1,
+                                                            maximum: Math.max(1, playerCount),
+                                                            description: 'Subject seat number.'
+                                                        },
+                                                        { type: 'null', description: 'Unknown seat.' }
+                                                    ],
+                                                    description: 'Subject seat or null.'
+                                                },
+                                                name: {
+                                                    type: 'string',
+                                                    minLength: 1,
+                                                    maxLength: 40,
+                                                    description: 'Subject label if seat unknown.'
+                                                }
+                                            }
+                                        },
+                                        { type: 'null', description: 'No distinct subject.' }
+                                    ],
+                                    description: 'Subject of the claim.'
+                                },
+                                payload: {
+                                    type: 'object',
+                                    description: 'Claim-specific data payload.',
+                                    additionalProperties: true
+                                },
+                                confidence: {
+                                    type: 'number',
+                                    minimum: 0,
+                                    maximum: 1,
+                                    description: 'Speaker certainty from 0 to 1.'
+                                },
+                                suspicion: {
+                                    type: 'number',
+                                    minimum: 0,
+                                    maximum: 1,
+                                    description: 'Likelihood claim is false/strategic.'
+                                },
                                 corruption: {
                                     type: 'object',
+                                    description: 'Risk of misinformation sources.',
                                     additionalProperties: true,
                                     required: ['poisoned', 'drunk', 'misregistration', 'narrative'],
                                     properties: {
-                                        poisoned: { type: 'number', minimum: 0, maximum: 1 },
-                                        drunk: { type: 'number', minimum: 0, maximum: 1 },
-                                        misregistration: { type: 'number', minimum: 0, maximum: 1 },
-                                        narrative: { type: 'number', minimum: 0, maximum: 1 },
-                                        overall: { type: ['number', 'null'], minimum: 0, maximum: 1 }
+                                        poisoned: {
+                                            type: 'number',
+                                            minimum: 0,
+                                            maximum: 1,
+                                            description: 'Chance the source was poisoned.'
+                                        },
+                                        drunk: {
+                                            type: 'number',
+                                            minimum: 0,
+                                            maximum: 1,
+                                            description: 'Chance the source was drunk.'
+                                        },
+                                        misregistration: {
+                                            type: 'number',
+                                            minimum: 0,
+                                            maximum: 1,
+                                            description: 'Chance of misregistration.'
+                                        },
+                                        narrative: {
+                                            type: 'number',
+                                            minimum: 0,
+                                            maximum: 1,
+                                            description: 'Chance this is narrative shaping.'
+                                        },
+                                        overall: {
+                                            anyOf: [
+                                                {
+                                                    type: 'number',
+                                                    minimum: 0,
+                                                    maximum: 1,
+                                                    description: 'Overall corruption estimate.'
+                                                },
+                                                { type: 'null', description: 'No overall estimate.' }
+                                            ],
+                                            description: 'Overall corruption or null.'
+                                        }
                                     }
                                 },
-                                provenance: { type: ['object', 'null'] }
+                                provenance: {
+                                    anyOf: [
+                                        {
+                                            type: 'object',
+                                            description: 'Evidence trail for the claim.',
+                                            additionalProperties: true,
+                                            properties: {
+                                                excerpt: {
+                                                    type: 'string',
+                                                    minLength: 1,
+                                                    maxLength: 200,
+                                                    description: 'Short quote supporting the claim.'
+                                                }
+                                            }
+                                        },
+                                        { type: 'null', description: 'No provenance provided.' }
+                                    ],
+                                    description: 'Provenance data or null.'
+                                }
                             }
                         }
                     }
                 }
             },
-            reasoning: { type: 'string' }
+            reasoning: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 240,
+                description: 'Brief notes on extraction choices or ambiguities.'
+            }
         }
-    }
+    })
 };

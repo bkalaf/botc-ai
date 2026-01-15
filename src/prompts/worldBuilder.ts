@@ -2,91 +2,49 @@
 import { PromptSpec } from './prompt-types';
 
 /**
- * Universal world-building prompt for ANY player (Good or Evil).
- * Produces:
- * - hypothesized demon/minions/outsiders in play
- * - outsider count accounting (base vs modified)
- * - elimination reasoning
- * - next conversations (todos)
- *
- * This is the “brain loop” you can run each day after public discussion.
+ * Universal world-building prompt for any player.
  */
 export const worldBuilder: PromptSpec = {
     id: 'player-world-builder',
     version: '1.0',
-    title: 'Player – World Builder (Script, Outsider Count, Demon/Minion/Outsider Inference)',
+    title: 'Player – World Builder',
     tags: ['botc', 'player', 'worldbuilding', 'inference'],
     perspective: 'player',
 
     instructions: [
-        `You are an AI player in Blood on the Clocktower.`,
-        `Your task is to build and update plausible game worlds using your private info, public claims, and observed outcomes.`,
-        `You must explicitly track outsider count math and role-set inference: which Demon, which Minions, and which Outsiders are in play.`,
-        `You are not omniscient. You must manage uncertainty, misregistration, and the possibility of drunk/poisoned information.`
+        `You are a player in Blood on the Clocktower.`,
+        `Build plausible worlds from public info and your private info.`,
+        `Follow Pandemonium Institute wiki rules.`
     ],
 
     guidelines: [
-        `COHERENCE: A world must explain observed facts (deaths, no-deaths, claims) with minimal special pleading.`,
-        `OUTSIDER MATH: Always account for base outsider count plus any modifiers (e.g., Baron). Track both “claimed” and “implied” outsider count.`,
-        `SCRIPT INFERENCE: Use elimination: if certain info is impossible under a Demon/Minion set, reduce its weight.`,
-        `MISREGISTRATION: Recluse/Spy can distort counts and alignment reads. Treat these as low-frequency but important escape hatches.`,
-        `DRUNK/POISON: If an info chain conflicts, consider whether a key piece could be poisoned/drunk before discarding the entire world.`,
-        `PERSONALITY CONSISTENCY: Your confidence and willingness to publicly commit to a world must match your personality traits.`
+        `Worlds must explain observed deaths, claims, and results.`,
+        `Track outsider count math and role-set constraints.`,
+        `Treat misregistration and poison as possible but not default.`
     ],
 
-    footnote: `Worlds win games. Not because they are true, but because they force decisions under uncertainty.`,
+    footnote: `Worlds should stay solvable and testable.`,
 
-    goal: `Produce 2–4 ranked plausible worlds, including outsider math, role-set inference (Demon/Minions/Outsiders), and an action plan for who to talk to next.`,
+    goal: `Produce 2–4 ranked worlds with outsider math and next talks.`,
 
     additionalConsiderations: [
-        `BASE OUTSIDERS: Determine the script’s base outsider count for the player count, then track modifiers (e.g., Baron +2).`,
-        `MODIFIED OUTSIDER COUNT: Output both base and modified counts with confidence and why.`,
-        `DEMON INFERENCE: Use night patterns (kill style, no-death frequency, star-pass plausibility) to narrow Demon possibilities.`,
-        `MINION INFERENCE: Use Investigator pings, poisoning-like inconsistencies, outsider-count anomalies, and social behavior.`,
-        `OUTSIDER INFERENCE: Use Librarian pings, outsider count pressure, and “weird” info patterns to infer Drunk/Recluse/etc.`,
-        `ELIMINATION: Explicitly list which roles are ruled out and why (mechanical contradiction, too many modifiers, etc.).`
+        `List eliminations with mechanical reasons.`,
+        `Separate strong evidence from weak points.`,
+        `Match confidence to the data quality.`
     ],
 
     input: [
-        `Script roles available (all Townsfolk/Outsiders/Minions/Demons on script)`,
-        `Player count and seating order`,
-        `Public claims (by seat) and timelines`,
-        `Public info results (Chef/Empath/FT/etc.) and timelines`,
-        `Deaths/no-deaths by night and executions by day`,
-        `Your private info (if any)`,
-        `Your suspicion map`,
-        `Your personality profile`
+        `Script roles list`,
+        `Player count + seating`,
+        `Public claims + timelines`,
+        `Public info results`,
+        `Deaths/no-deaths + executions`,
+        `Your private info`,
+        `Suspicion map`,
+        `Personality profile`
     ],
 
-    output: {
-        shown: `object: {
-      outsiderCount: {
-        base: number,
-        modified: number,
-        modifiers: string[],
-        confidence: "low" | "medium" | "high"
-      },
-      candidates: {
-        demon: string[],
-        minions: string[],
-        outsiders: string[]
-      },
-      worlds: Array<{
-        name: string,
-        demon: { role: string, seat: number|null },
-        minions: Array<{ role: string, seat: number|null }>,
-        outsiders: Array<{ role: string, seat: number|null }>,
-        coreEvidence: string[],
-        weakPoints: string[],
-        confidence: "low" | "medium" | "high"
-      }>,
-      eliminations: string[]
-    }`,
-        todos: 'number[] (seat numbers to talk to next, in priority order)',
-        reasoning: 'In-character explanation of why these worlds are ranked and what you’re trying to test next.'
-    },
-
-    schema: {
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'WorldBuilderOutput',
         type: 'object',
@@ -95,32 +53,98 @@ export const worldBuilder: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'World summary and ranked hypotheses.',
                 additionalProperties: false,
                 required: ['outsiderCount', 'candidates', 'worlds', 'eliminations'],
                 properties: {
                     outsiderCount: {
                         type: 'object',
+                        description: 'Outsider count math.',
                         additionalProperties: false,
                         required: ['base', 'modified', 'modifiers', 'confidence'],
                         properties: {
-                            base: { type: 'number', minimum: 0 },
-                            modified: { type: 'number', minimum: 0 },
-                            modifiers: { type: 'array', items: { type: 'string' } },
-                            confidence: { type: 'string', enum: ['low', 'medium', 'high'] }
+                            base: {
+                                type: 'integer',
+                                minimum: 0,
+                                maximum: Math.max(1, playerCount),
+                                description: 'Base outsider count for player count.'
+                            },
+                            modified: {
+                                type: 'integer',
+                                minimum: 0,
+                                maximum: Math.max(1, playerCount),
+                                description: 'Modified outsider count after effects.'
+                            },
+                            modifiers: {
+                                type: 'array',
+                                minItems: 0,
+                                maxItems: 6,
+                                description: 'Effects that changed the outsider count.',
+                                items: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 60,
+                                    description: 'Modifier summary.'
+                                }
+                            },
+                            confidence: {
+                                type: 'string',
+                                enum: ['low', 'medium', 'high'],
+                                minLength: 3,
+                                maxLength: 6,
+                                description: 'Confidence in the outsider math.'
+                            }
                         }
                     },
                     candidates: {
                         type: 'object',
+                        description: 'Shortlists of possible roles.',
                         additionalProperties: false,
                         required: ['demon', 'minions', 'outsiders'],
                         properties: {
-                            demon: { type: 'array', items: { type: 'string' } },
-                            minions: { type: 'array', items: { type: 'string' } },
-                            outsiders: { type: 'array', items: { type: 'string' } }
+                            demon: {
+                                type: 'array',
+                                minItems: 0,
+                                maxItems: 6,
+                                description: 'Likely Demon roles.',
+                                items: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 30,
+                                    description: 'Demon role name.'
+                                }
+                            },
+                            minions: {
+                                type: 'array',
+                                minItems: 0,
+                                maxItems: 8,
+                                description: 'Likely Minion roles.',
+                                items: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 30,
+                                    description: 'Minion role name.'
+                                }
+                            },
+                            outsiders: {
+                                type: 'array',
+                                minItems: 0,
+                                maxItems: 8,
+                                description: 'Likely Outsider roles.',
+                                items: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 30,
+                                    description: 'Outsider role name.'
+                                }
+                            }
                         }
                     },
                     worlds: {
                         type: 'array',
+                        minItems: 2,
+                        maxItems: 4,
+                        description: 'Ranked plausible worlds.',
                         items: {
                             type: 'object',
                             additionalProperties: false,
@@ -134,51 +158,166 @@ export const worldBuilder: PromptSpec = {
                                 'confidence'
                             ],
                             properties: {
-                                name: { type: 'string' },
+                                name: {
+                                    type: 'string',
+                                    minLength: 2,
+                                    maxLength: 40,
+                                    description: 'Short world label.'
+                                },
                                 demon: {
                                     type: 'object',
+                                    description: 'Demon guess for this world.',
                                     additionalProperties: false,
                                     required: ['role', 'seat'],
                                     properties: {
-                                        role: { type: 'string' },
-                                        seat: { type: ['number', 'null'] }
+                                        role: {
+                                            type: 'string',
+                                            minLength: 2,
+                                            maxLength: 30,
+                                            description: 'Demon role name.'
+                                        },
+                                        seat: {
+                                            anyOf: [
+                                                {
+                                                    type: 'integer',
+                                                    minimum: 1,
+                                                    maximum: Math.max(1, playerCount),
+                                                    description: 'Seat of the Demon.'
+                                                },
+                                                { type: 'null', description: 'Unknown seat.' }
+                                            ],
+                                            description: 'Demon seat or null.'
+                                        }
                                     }
                                 },
                                 minions: {
                                     type: 'array',
+                                    minItems: 0,
+                                    maxItems: Math.max(1, playerCount),
+                                    description: 'Minion guesses for this world.',
                                     items: {
                                         type: 'object',
                                         additionalProperties: false,
                                         required: ['role', 'seat'],
                                         properties: {
-                                            role: { type: 'string' },
-                                            seat: { type: ['number', 'null'] }
+                                            role: {
+                                                type: 'string',
+                                                minLength: 2,
+                                                maxLength: 30,
+                                                description: 'Minion role name.'
+                                            },
+                                            seat: {
+                                                anyOf: [
+                                                    {
+                                                        type: 'integer',
+                                                        minimum: 1,
+                                                        maximum: Math.max(1, playerCount),
+                                                        description: 'Seat of the Minion.'
+                                                    },
+                                                    { type: 'null', description: 'Unknown seat.' }
+                                                ],
+                                                description: 'Minion seat or null.'
+                                            }
                                         }
                                     }
                                 },
                                 outsiders: {
                                     type: 'array',
+                                    minItems: 0,
+                                    maxItems: Math.max(1, playerCount),
+                                    description: 'Outsider guesses for this world.',
                                     items: {
                                         type: 'object',
                                         additionalProperties: false,
                                         required: ['role', 'seat'],
                                         properties: {
-                                            role: { type: 'string' },
-                                            seat: { type: ['number', 'null'] }
+                                            role: {
+                                                type: 'string',
+                                                minLength: 2,
+                                                maxLength: 30,
+                                                description: 'Outsider role name.'
+                                            },
+                                            seat: {
+                                                anyOf: [
+                                                    {
+                                                        type: 'integer',
+                                                        minimum: 1,
+                                                        maximum: Math.max(1, playerCount),
+                                                        description: 'Seat of the Outsider.'
+                                                    },
+                                                    { type: 'null', description: 'Unknown seat.' }
+                                                ],
+                                                description: 'Outsider seat or null.'
+                                            }
                                         }
                                     }
                                 },
-                                coreEvidence: { type: 'array', items: { type: 'string' } },
-                                weakPoints: { type: 'array', items: { type: 'string' } },
-                                confidence: { type: 'string', enum: ['low', 'medium', 'high'] }
+                                coreEvidence: {
+                                    type: 'array',
+                                    minItems: 0,
+                                    maxItems: 8,
+                                    description: 'Evidence supporting this world.',
+                                    items: {
+                                        type: 'string',
+                                        minLength: 4,
+                                        maxLength: 120,
+                                        description: 'Evidence note.'
+                                    }
+                                },
+                                weakPoints: {
+                                    type: 'array',
+                                    minItems: 0,
+                                    maxItems: 8,
+                                    description: 'Weak points or contradictions.',
+                                    items: {
+                                        type: 'string',
+                                        minLength: 4,
+                                        maxLength: 120,
+                                        description: 'Weak point note.'
+                                    }
+                                },
+                                confidence: {
+                                    type: 'string',
+                                    enum: ['low', 'medium', 'high'],
+                                    minLength: 3,
+                                    maxLength: 6,
+                                    description: 'Confidence in this world.'
+                                }
                             }
                         }
                     },
-                    eliminations: { type: 'array', items: { type: 'string' } }
+                    eliminations: {
+                        type: 'array',
+                        minItems: 0,
+                        maxItems: 12,
+                        description: 'Roles ruled out and why.',
+                        items: {
+                            type: 'string',
+                            minLength: 4,
+                            maxLength: 120,
+                            description: 'Elimination note.'
+                        }
+                    }
                 }
             },
-            todos: { type: 'array', items: { type: 'number' } },
-            reasoning: { type: 'string' }
+            todos: {
+                type: 'array',
+                minItems: 0,
+                maxItems: Math.max(1, playerCount),
+                description: 'Seats to talk to next, in priority order.',
+                items: {
+                    type: 'integer',
+                    minimum: 1,
+                    maximum: Math.max(1, playerCount),
+                    description: 'Seat to prioritize.'
+                }
+            },
+            reasoning: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 300,
+                description: 'Why these worlds are ranked and what to test next.'
+            }
         }
-    }
+    })
 };

@@ -11,32 +11,17 @@ export const drunkChoice: PromptSpec = {
 
     ...genericStorytellerCore,
 
-    goal: `Select which TOWNSFOLK player is made Drunk during setup, seeding long-term misinformation without collapsing deduction.`,
+    goal: `Choose the Townsfolk player who is the Drunk.`,
 
     additionalConsiderations: [
-        `DURATION: Prefer a Drunk choice whose incorrect info compounds over multiple days rather than resolving instantly.`,
-        `FAIRNESS: Avoid making the Drunk a role whose failure immediately hard-confirms Evil or creates an unsolvable mess.`,
-        `SCRIPT SYNERGY: Align the Drunk with expected poison/madness/bluff pressures already in the script.`,
-        `PLAYER EXPERIENCE: Prefer a player who will engage thoughtfully with bad info (avoid brand-new players unless your group enjoys it).`,
-        `THE DRUNKED ROLE must be a TOWNSFOLK`
+        `Pick a role where bad info creates long-term tension.`,
+        `Avoid hard-confirming or unsolvable outcomes.`,
+        `Must be a Townsfolk.`
     ],
 
-    input: [
-        `Full grimoire (setup state)`,
-        `Script context (roles included, outsider count logic)`,
-        `Optional player experience notes`
-    ],
+    input: [`Setup grimoire`, `Script context`, `Player experience notes (optional)`],
 
-    output: {
-        shown: 'object: { seat: number } (the seat made Drunk)',
-        reasoning: {
-            type: 'string',
-            description:
-                'Brief ST philosophy explaining balance, longevity, and expected misinformation arc. Limit to 2 sentences max, preferably 1.'
-        }
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'DrunkChoiceOutput',
         type: 'object',
@@ -45,21 +30,23 @@ export const drunkChoice: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'Chosen Drunk seat.',
                 additionalProperties: false,
                 required: ['seat'],
                 properties: {
                     seat: {
-                        type: 'number',
+                        type: 'integer',
                         minimum: 1,
-                        maximum: playerCount,
-                        description: 'The seat # of the player made drunk. Must be a townsfolk.'
+                        maximum: Math.max(1, playerCount),
+                        description: 'Seat made Drunk (must be Townsfolk).'
                     }
                 }
             },
             reasoning: {
                 type: 'string',
-                description:
-                    'Brief ST philosophy explaining balance, longevity, and expected misinformation arc. Limit to 2 sentences max, preferably 1.'
+                minLength: 1,
+                maxLength: 220,
+                description: 'Why this Drunk choice fits the setup.'
             }
         }
     })

@@ -1,5 +1,6 @@
 // src/prompts/minionClaimPlanner.ts
 import { claimPlanner } from './claimPlanner';
+import { PromptSpec } from './prompt-types';
 
 /**
  * Generic Minion wrapper. Use input “actual role” to specialize at runtime.
@@ -13,9 +14,8 @@ export const minionClaimPlanner: PromptSpec = {
     tags: ['botc', 'player', 'minion', 'claims', 'bluffs'],
     additionalConsiderations: [
         ...(claimPlanner.additionalConsiderations ?? []),
-        `MINION ROLE COVER: Choose claims that explain your behavior (e.g., why you talk to certain players, why you push certain executions).`,
-        `COORDINATION: Avoid colliding with Demon/other Minion claims. Prefer complementary lanes (different “tiers” of power).`,
-        `SACRIFICE OPTION: Sometimes you want to be executed or killed to validate a world; plan a lane that makes your death useful.`,
-        `PRE-BLUFF PHASE: Before official Demon bluffs are known, prioritize flexible claims that don’t require precise out-of-play certainty.`
+        `Choose claims that explain your social pushes.`,
+        `Avoid collisions with Demon/Minion claims.`,
+        `Keep a flexible pre-bluff lane.`
     ]
 };

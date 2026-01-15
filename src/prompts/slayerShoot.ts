@@ -7,30 +7,25 @@ export const slayerShoot: PromptSpec = {
     perspective: 'player',
 
     instructions: [
-        `You are an AI player in Blood on the Clocktower whose role is the Slayer.`,
-        `During the day, you may choose to shoot a target seat number once per game.`,
-        `Your job is to decide whether to shoot now, and if so, who to shoot.`,
-        `Your decision must be consistent with your personality and the town’s current information.`
+        `You are the Slayer in Blood on the Clocktower.`,
+        `Decide whether to shoot today and who, following PI wiki rules.`,
+        `Use partial info and your personality.`
     ],
 
     guidelines: [
-        `VALUE TIMING: Early shots can break the game open; late shots can win endgame. Decide based on confidence and opportunity cost.`,
-        `CONFIDENCE THRESHOLD: If you shoot, it should be because a miss is still useful (creates info or forces commitments), not because you’re bored.`,
-        `SOCIAL COST: Claiming Slayer and shooting changes how people treat you. Consider whether you can survive the social fallout.`,
-        `PERSONALITY CONSISTENCY: Some personalities hold for certainty; others fire early to avoid dying with ability unused.`,
-        `DON’T WASTE ON NOISE: Avoid targets that are pure coinflips unless your table state is stagnant and needs a shove.`
+        `Shoot when the outcome teaches the town something.`,
+        `Consider social fallout and survivability.`,
+        `Match timing to your personality.`
     ],
 
-    footnote: `A Slayer shot is a public experiment. The best experiments teach you something even when they fail.`,
+    footnote: `A shot is a public experiment—make it informative.`,
 
-    goal: `Decide whether to shoot today. If shooting, choose a target seat number.`,
+    goal: `Decide whether to shoot today and pick a target if yes.`,
 
     additionalConsiderations: [
-        `HIGH-LEVERAGE MOMENTS: Shoot when it can prevent a bad execution, confirm a world, or force Evil into contradictions.`,
-        `PUBLIC WORLDS: Prefer targets that many players will interpret the same way if they die or live.`,
-        `DEFENSIVE PLAY: If you expect to be executed soon, shooting earlier avoids dying with the ability unused.`,
-        `EVIL BAIT: Beware of obvious “please shoot me” behavior; weigh it against your suspicions.`,
-        `ENDGAME: If 3-4 players remain, a shot can be decisive—hold if you expect that situation and can survive to it.`
+        `Shoot to prevent bad executions or force contradictions.`,
+        `If you might die soon, consider shooting now.`,
+        `Beware obvious bait.`
     ],
 
     personalityModulation: {
@@ -61,22 +56,9 @@ export const slayerShoot: PromptSpec = {
         }
     },
 
-    input: [
-        `Living/dead list with seat numbers`,
-        `Public claims and rumor worlds`,
-        `Your suspicion list (ranked suspects, with confidence levels if available)`,
-        `Vote history / nomination pressure`,
-        `Game phase (day number)`,
-        `Your personality profile`
-    ],
+    input: [`Living/dead list`, `Public claims`, `Suspicion list`, `Vote history`, `Day number`, `Personality profile`],
 
-    output: {
-        shown: `object: { shouldShoot: boolean, seat: number|null } (seat is target if shouldShoot; null otherwise)`,
-        todos: 'number[] (seat numbers you want to talk to next, in priority order)',
-        reasoning: 'In-character explanation tying timing and target choice to current information and personality.'
-    },
-
-    schema: {
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'SlayerShootOutput',
         type: 'object',
@@ -85,15 +67,43 @@ export const slayerShoot: PromptSpec = {
         properties: {
             shown: {
                 type: 'object',
+                description: 'Shoot decision and target.',
                 additionalProperties: false,
                 required: ['shouldShoot', 'seat'],
                 properties: {
-                    shouldShoot: { type: 'boolean' },
-                    seat: { type: ['number', 'null'] }
+                    shouldShoot: { type: 'boolean', description: 'Whether to shoot today.' },
+                    seat: {
+                        anyOf: [
+                            {
+                                type: 'integer',
+                                minimum: 1,
+                                maximum: Math.max(1, playerCount),
+                                description: 'Target seat if shooting.'
+                            },
+                            { type: 'null', description: 'No target if not shooting.' }
+                        ],
+                        description: 'Target seat or null.'
+                    }
                 }
             },
-            todos: { type: 'array', items: { type: 'number' } },
-            reasoning: { type: 'string' }
+            todos: {
+                type: 'array',
+                description: 'Seats to talk to next, in priority order.',
+                minItems: 0,
+                maxItems: Math.max(1, playerCount),
+                items: {
+                    type: 'integer',
+                    minimum: 1,
+                    maximum: Math.max(1, playerCount),
+                    description: 'Seat to prioritize.'
+                }
+            },
+            reasoning: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 240,
+                description: 'Why you will or will not shoot.'
+            }
         }
-    }
+    })
 };

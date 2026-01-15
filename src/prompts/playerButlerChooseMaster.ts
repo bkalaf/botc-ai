@@ -10,46 +10,34 @@ export const playerButlerChooseMaster: PromptSpec = {
     perspective: 'player',
 
     instructions: [
-        'You are an AI player in a game of Blood on the Clocktower.',
-        'Your role is the Butler.',
-        'Each night, you must choose a living player to be your Master.',
-        'Tomorrow, you may only vote if your Master votes.',
-        'This choice is secret and should be made with awareness of both social and mechanical consequences.'
+        'You are the Butler in Blood on the Clocktower.',
+        'Each night choose a living Master; you can only vote if they vote.',
+        'Follow PI wiki rules and use partial info.'
     ],
 
     guidelines: [
-        'SELF-PRESERVATION: Choose a Master whose voting behavior will not unnecessarily restrict your ability to participate.',
-        'ALIGNMENT AWARENESS: If you believe you are Good, prefer a Master you trust to vote in critical moments.',
-        'MISDIRECTION: If you believe you are Evil or suspected, your Master choice can be used to confuse or frame.',
-        'FLEXIBILITY: Avoid choosing a Master who is likely to die, be executed, or abstain from voting.',
-        'CONSISTENCY: Your choice should make sense with your public behavior and claims if it is later revealed.'
+        'Pick a reliable voter who is likely to live.',
+        'If Good, choose someone you trust; if Evil, consider misdirection.',
+        'Keep the choice consistent with your public behavior.'
     ],
 
-    goal: 'Select a Master whose voting behavior best supports your strategy, survival, and alignment goals for the coming day.',
+    goal: 'Select a Master whose voting behavior supports your strategy.',
 
     additionalConsiderations: [
-        'SOCIAL SIGNALING: While the Master choice is private, its effects may become visible through your voting behavior.',
-        'ENDGAME IMPACT: In late-game scenarios, Master selection can directly decide whether you are able to vote at all.',
-        'EXECUTION RISK: If you expect to be executed or heavily scrutinized, choose a Master whose votes align with your desired narrative.',
-        'TRUST VS CONTROL: A highly active Master gives you more chances to vote; a passive Master gives you cover but less agency.',
-        'POISON / DRUNK STATUS: If you suspect you may be drunk or poisoned, your choice may be unreliable, but should still appear reasonable.'
+        'Late game: avoid Masters who abstain.',
+        'If you expect pressure, pick a Master whose votes help your story.'
     ],
 
     input: [
-        'Your seat number',
-        'List of living players with seat numbers',
-        'Public claims and voting behavior so far',
-        'Your current suspicion map',
-        'Current day and night number',
-        'Your personality profile (if applicable)'
+        'Your seat',
+        'Living players list',
+        'Public votes/claims',
+        'Suspicion map',
+        'Current day/night',
+        'Personality profile'
     ],
 
-    output: {
-        chosenSeat: 'Seat number of the player you choose as your Master',
-        reasoning: 'A brief in-character explanation of why this player was chosen as your Master.'
-    },
-
-    schema: ({ playerCount }: { playerCount: number }) => ({
+    output: ({ playerCount }: { playerCount: number }) => ({
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'ButlerChooseMaster',
         type: 'object',
@@ -57,16 +45,16 @@ export const playerButlerChooseMaster: PromptSpec = {
         required: ['chosenSeat', 'reasoning'],
         properties: {
             chosenSeat: {
-                type: 'number',
+                type: 'integer',
                 minimum: 1,
-                maximum: playerCount,
-                description: 'Seat number of the player you choose as your Master. This must not be yourself.'
+                maximum: Math.max(1, playerCount),
+                description: 'Seat of the chosen Master (not yourself).'
             },
             reasoning: {
                 type: 'string',
                 minLength: 1,
-                description:
-                    'A brief in-character explanation of why this player was chosen as your Master. Limit 2 sentences prefer 1.'
+                maxLength: 200,
+                description: 'Why this Master choice fits your plan.'
             }
         }
     })
