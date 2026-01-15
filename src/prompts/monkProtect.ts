@@ -84,29 +84,13 @@ export const monkProtect: PromptSpec = {
         title: 'MonkProtectOutput',
         type: 'object',
         additionalProperties: false,
-        required: ['shown', 'todos', 'reasoning'],
+        required: ['shown', 'reasoning'],
         properties: {
-            shown: {
-                type: 'object',
-                additionalProperties: false,
-                required: ['seat'],
-                properties: {
-                    seat: {
-                        type: 'number',
-                        minimum: 1,
-                        maximum: playerCount,
-                        description: 'The seat number of the person you want to protect from the demon this evening.'
-                    }
-                }
-            },
-            todos: {
-                type: 'array',
-                items: {
-                    type: 'number',
-                    minimum: 1,
-                    maximum: playerCount,
-                    description: 'People I think need protection in order of importance.'
-                }
+            choice: {
+                type: 'number',
+                minimum: 1,
+                maximum: playerCount,
+                description: 'The seat number of the person you want to protect from the demon this evening.'
             },
             reasoning: {
                 type: 'string',

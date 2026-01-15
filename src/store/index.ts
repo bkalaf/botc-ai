@@ -30,6 +30,8 @@ export const createStoreListeners = () => {
 };
 
 const listenerMiddleware = createStoreListeners();
+const nightOrderListener = createListenerMiddleware();
+const phaseListener = createListenerMiddleware();
 export const dynamicMiddlewareRegistry = createDynamicMiddlewareRegistry();
 
 listenerMiddleware.startListening({
@@ -57,8 +59,7 @@ listenerMiddleware.startListening({
     }
 });
 
-export const listenerMiddleware2 = createStoreListeners();
-listenerMiddleware.startListening({
+nightOrderListener.startListening({
     predicate: (action: any) => setShowNightOrder.match(action),
     effect: (action, listenerApi) => {
         listenerApi.dispatch(setShowFirstNightOrder(action.payload));
@@ -66,8 +67,7 @@ listenerMiddleware.startListening({
     }
 });
 
-export const listenerMiddleware3 = createStoreListeners();
-listenerMiddleware3.startListening({
+phaseListener.startListening({
     predicate: (action) => nextDayPhase.match(action),
     effect: (action, listenerApi) => {
         const phase = (listenerApi.getState() as RootState).game.phase;
@@ -98,8 +98,8 @@ export const store = configureStore({
                 extraArgument: stQueueThunkExtra
             }
         })
-            .prepend(listenerMiddleware.middleware, listenerMiddleware2.middleware)
-            .concat(dynamicMiddlewareRegistry.middleware, listenerMiddleware3.middleware)
+            .prepend(listenerMiddleware.middleware, nightOrderListener.middleware)
+            .concat(dynamicMiddlewareRegistry.middleware, phaseListener.middleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;
