@@ -58,6 +58,31 @@ const FortuneTellerChoiceContent: React.FC<DialogContentProps<'fortunetellerChoi
     </div>
 );
 
+const ButlerChoiceContent: React.FC<DialogContentProps<'butlerChoice'>> = ({ data }) => (
+    <div className='grid grid-cols-2'>
+        <div className='flex'>
+            <Select
+                name='chosenSeat'
+                required
+            >
+                <SelectTrigger>
+                    <SelectValue placeholder='Select a seat...' />
+                </SelectTrigger>
+                <SelectContent>
+                    {data.seatOptions.map((seat) => (
+                        <SelectItem
+                            key={seat.id}
+                            value={seat.id.toString()}
+                        >
+                            {seat.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+    </div>
+);
+
 const PoisonerChoiceContent: React.FC<DialogContentProps<'poisonerChoice'>> = ({ data }) => (
     <div className='grid grid-cols-2'>
         <div className='flex'>
@@ -128,6 +153,11 @@ const DemonInfoContent: React.FC<DialogContentProps<'demonInfo'>> = ({ data }) =
 );
 
 export const dialogConfigs: { [K in DialogType]: DialogConfig<K> } = {
+    butlerChoice: {
+        title: 'Make a choice...',
+        description: 'Choose your master',
+        Content: ButlerChoiceContent
+    },
     poisonerChoice: {
         title: 'Make a choice...',
         description: 'Select one player',

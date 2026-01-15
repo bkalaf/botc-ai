@@ -2,7 +2,7 @@
 import z from 'zod';
 import { InputSchema } from '../prompts/prompt-types';
 import { CharacterTypes } from '../data/types';
-import { addClaim, addDemonBluffsClaim, addEvilTeamClaim } from '../store/memory/memory-slice';
+import { addDemonBluffsClaim, addEvilTeamClaim } from '../store/memory/memory-slice';
 import { RootState, AppDispatch } from '../store';
 import { openDialog } from '@/lib/dialogs';
 import { clearTask } from './clearTask';
@@ -37,33 +37,28 @@ export function minionInfo(state: RootState, dispatch: AppDispatch) {
             demons: demons.map((el) => ({ id: el.ID, name: el.name })),
             minions: minions.map((el) => ({ id: el.ID, name: el.name }))
         };
-        const funcs = evilTeam.map((element) => {
-            return async () => {
-                if (element.controledBy === 'ai') {
-                    dispatch(
-                        addEvilTeamClaim({
-                            data: {
-                                demons: demons.map((x) => x.ID),
-                                minions: minions.map((x) => x.ID)
-                            }
-                        })
-                    );
-                    return;
+        const seats = data.extractedSeats
+            .filter((x) => evilTeam.map((y) => y.ID).includes(x.ID))
+            .some((x) => x.controledBy === 'human');
+        dispatch(
+            addEvilTeamClaim({
+                day: 1,
+                source: 'storyteller',
+                ID: 0,
+                data: {
+                    demons: demons.map((x) => x.ID),
+                    minions: minions.map((x) => x.ID)
                 }
-                return await new Promise<void>((res) => {
-                    openDialog({
-                        dispatch,
-                        dialogType: 'minionInfo',
-                        data: minionDialogData,
-                        resolve: async () => {
-                            dispatch(closeDialog());
-                            res();
-                        }
-                    });
-                });
-            };
+            })
+        );
+        return await openDialog({
+            dispatch,
+            dialogType: 'minionInfo',
+            data: minionDialogData,
+            resolve: async () => {
+                dispatch(closeDialog());
+            }
         });
-        await reduceToPromise(dispatch, ...funcs);
     };
 }
 
@@ -71,27 +66,21 @@ export function demonInfo(state: RootState, dispatch: AppDispatch) {
     return async ({ data }: { data: z.infer<typeof InputSchema> }) => {
         const demons = getTypesFromSeats(data.extractedSeats as any, 'demon');
         const bluffNames = (data.demonBluffs ?? []).map((role) => $$ROLES[role].name);
-        const funcs = demons.map((element) => {
-            return async () => {
-                if (element.controledBy === 'ai') {
-                    dispatch(
-                        addDemonBluffsClaim({ data: { demonBluffs: data.demonBluffs ?? [] }, day: 1, seat: element.ID })
-                    );
-                    return;
+        for (const element of demons) {
+            if (element.controledBy === 'ai') {
+                dispatch(
+                    addDemonBluffsClaim({ data: { demonBluffs: data.demonBluffs ?? [] }, day: 1, ID: element.ID })
+                );
+                return;
+            }
+            return await openDialog({
+                dispatch,
+                dialogType: 'demonInfo',
+                data: { bluffs: bluffNames },
+                resolve: async () => {
+                    dispatch(closeDialog());
                 }
-                return await new Promise<void>((res) => {
-                    openDialog({
-                        dispatch,
-                        dialogType: 'demonInfo',
-                        data: { bluffs: bluffNames },
-                        resolve: async () => {
-                            dispatch(closeDialog());
-                            res();
-                        }
-                    });
-                });
-            };
-        });
-        await reduceToPromise(dispatch, ...funcs);
+            });
+        }
     };
 }

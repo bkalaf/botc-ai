@@ -1,0 +1,1915 @@
+{
+    "aiOrchestrator": {
+        "items": [
+            {
+                "id": "setupComplete",
+                "type": "first_night",
+                "payload": {},
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "setupComplete",
+                "type": "first_night",
+                "payload": {},
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "setupComplete",
+                "type": "first_night",
+                "payload": {},
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "drunkchoice",
+                "type": "prompt",
+                "payload": {
+                    "id": "drunk_choice"
+                },
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "drunkchoice",
+                "type": "prompt",
+                "payload": {
+                    "id": "drunk_choice"
+                },
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "drunkchoice",
+                "type": "prompt",
+                "payload": {
+                    "id": "drunk_choice"
+                },
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "demonbluffs",
+                "type": "prompt",
+                "payload": {
+                    "id": "demonbluffs"
+                },
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "demonbluffs",
+                "type": "prompt",
+                "payload": {
+                    "id": "demonbluffs"
+                },
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "demonbluffs",
+                "type": "prompt",
+                "payload": {
+                    "id": "demonbluffs"
+                },
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "minionInfo",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "minionInfo",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "minionInfo",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "demonInfo",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "demonInfo",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "demonInfo",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "poisoner",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "poisoner",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "poisoner",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "librarian",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "librarian",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "librarian",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "chef",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "chef",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "chef",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "empath",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "empath",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "empath",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "spy",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "spy",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            },
+            {
+                "id": "spy",
+                "type": "first_night",
+                "httpTarget": "storyteller"
+            }
+        ],
+        "currentItem": null,
+        "status": "idle",
+        "error": null,
+        "lastPrompt": null,
+        "lastEstimatedCost": null,
+        "lastResponse": null
+    },
+    "chats": {
+        "rooms": [],
+        "conversations": {},
+        "storytellerId": null,
+        "activeConversationId": null
+    },
+    "game": {
+        "day": 1,
+        "phase": "night",
+        "gameID": "",
+        "gameState": "idle",
+        "script": [
+            "imp",
+            "scarletwoman",
+            "spy",
+            "poisoner",
+            "baron",
+            "saint",
+            "recluse",
+            "drunk",
+            "butler",
+            "washerwoman",
+            "investigator",
+            "librarian",
+            "chef",
+            "fortuneteller",
+            "empath",
+            "virgin",
+            "undertaker",
+            "ravenkeeper",
+            "soldier",
+            "monk",
+            "slayer",
+            "mayor",
+            "beggar",
+            "thief",
+            "bureaucrat",
+            "scapegoat",
+            "gunslinger"
+        ]
+    },
+    "grimoire": {
+        "seats": {
+            "1": {
+                "ID": 1,
+                "player": {
+                    "name": "Sam",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "doubting_thomas",
+                        "tableImpact": "provocative",
+                        "reasoningMode": "surface",
+                        "informationHandling": "archivist",
+                        "voiceStyle": "dominant"
+                    }
+                },
+                "role": "saint",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "2": {
+                "ID": 2,
+                "player": {
+                    "name": "Max",
+                    "pronouns": "they/them",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "guarded",
+                        "tableImpact": "stabilizing",
+                        "reasoningMode": "intuitive",
+                        "informationHandling": "archivist",
+                        "voiceStyle": "assertive"
+                    }
+                },
+                "role": "poisoner",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "evil"
+            },
+            "3": {
+                "ID": 3,
+                "player": {
+                    "name": "Bobby",
+                    "pronouns": "he/him",
+                    "controledBy": "human"
+                },
+                "role": "empath",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "4": {
+                "ID": 4,
+                "player": {
+                    "name": "Jim",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "all_trusting",
+                        "tableImpact": "procedural",
+                        "reasoningMode": "associative",
+                        "informationHandling": "impressionistic",
+                        "voiceStyle": "dominant"
+                    }
+                },
+                "role": "undertaker",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "5": {
+                "ID": 5,
+                "player": {
+                    "name": "Jenny",
+                    "pronouns": "she/her",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "doubting_thomas",
+                        "tableImpact": "provocative",
+                        "reasoningMode": "surface",
+                        "informationHandling": "impressionistic",
+                        "voiceStyle": "quiet"
+                    }
+                },
+                "role": "baron",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "evil"
+            },
+            "6": {
+                "ID": 6,
+                "player": {
+                    "name": "Craig",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "doubting_thomas",
+                        "tableImpact": "provocative",
+                        "reasoningMode": "surface",
+                        "informationHandling": "triage",
+                        "voiceStyle": "assertive"
+                    }
+                },
+                "role": "chef",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "7": {
+                "ID": 7,
+                "player": {
+                    "name": "Patrick",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "all_trusting",
+                        "tableImpact": "organized",
+                        "reasoningMode": "systematic",
+                        "informationHandling": "triage",
+                        "voiceStyle": "quiet"
+                    }
+                },
+                "role": "monk",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "8": {
+                "ID": 8,
+                "player": {
+                    "name": "Justin",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "guarded",
+                        "tableImpact": "stabilizing",
+                        "reasoningMode": "systematic",
+                        "informationHandling": "impressionistic",
+                        "voiceStyle": "quiet"
+                    }
+                },
+                "role": "drunk",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good",
+                "thinks": "mayor"
+            },
+            "9": {
+                "ID": 9,
+                "player": {
+                    "name": "Nancy",
+                    "pronouns": "she/her",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "cautiously_trusting",
+                        "tableImpact": "provocative",
+                        "reasoningMode": "systematic",
+                        "informationHandling": "impressionistic",
+                        "voiceStyle": "conversational"
+                    }
+                },
+                "role": "imp",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "evil"
+            },
+            "10": {
+                "ID": 10,
+                "player": {
+                    "name": "Amy",
+                    "pronouns": "she/her",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "all_trusting",
+                        "tableImpact": "organized",
+                        "reasoningMode": "intuitive",
+                        "informationHandling": "impressionistic",
+                        "voiceStyle": "assertive"
+                    }
+                },
+                "role": "librarian",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "11": {
+                "ID": 11,
+                "player": {
+                    "name": "Jessica",
+                    "pronouns": "she/her",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "skeptical",
+                        "tableImpact": "provocative",
+                        "reasoningMode": "systematic",
+                        "informationHandling": "signal_driven",
+                        "voiceStyle": "assertive"
+                    }
+                },
+                "role": "virgin",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "12": {
+                "ID": 12,
+                "player": {
+                    "name": "Mark",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "skeptical",
+                        "tableImpact": "stabilizing",
+                        "reasoningMode": "deductive",
+                        "informationHandling": "curator",
+                        "voiceStyle": "quiet"
+                    }
+                },
+                "role": "slayer",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            },
+            "13": {
+                "ID": 13,
+                "player": {
+                    "name": "Dustin",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "all_trusting",
+                        "tableImpact": "stabilizing",
+                        "reasoningMode": "intuitive",
+                        "informationHandling": "signal_driven",
+                        "voiceStyle": "dominant"
+                    }
+                },
+                "role": "spy",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "evil"
+            },
+            "14": {
+                "ID": 14,
+                "player": {
+                    "name": "Joe",
+                    "pronouns": "he/him",
+                    "controledBy": "ai",
+                    "personality": {
+                        "trustModel": "all_trusting",
+                        "tableImpact": "provocative",
+                        "reasoningMode": "systematic",
+                        "informationHandling": "signal_driven",
+                        "voiceStyle": "quiet"
+                    }
+                },
+                "role": "recluse",
+                "isAlive": true,
+                "hasVote": true,
+                "alignment": "good"
+            }
+        },
+        "demonBluffs": ["butler", "investigator", "soldier"],
+        "outOfPlay": ["butler", "washerwoman", "investigator", "fortuneteller", "ravenkeeper", "soldier"],
+        "reminderTokens": {
+            "drunk_is_the_drunk": {
+                "key": "drunk_is_the_drunk",
+                "target": 8,
+                "source": 8,
+                "isChanneled": false
+            }
+        },
+        "loricPlayers": [],
+        "fabledPlayers": [],
+        "recalibrationQueue": [8]
+    },
+    "history": {
+        "entries": [
+            {
+                "message": "Action settings/setHistoryExpanded completed.",
+                "actionType": "settings/setHistoryExpanded",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "uv_QA7LxWIUAM18xnmCIa",
+                "timestamp": 1768365784796
+            },
+            {
+                "message": "Action settings/setGrimoireShape completed.",
+                "actionType": "settings/setGrimoireShape",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "Pn57LM8238pmf8v80_kEb",
+                "timestamp": 1768365788433
+            },
+            {
+                "message": "Action game/setScript completed.",
+                "actionType": "game/setScript",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "8Y7du-K7uNAbZYzNOT7eN",
+                "timestamp": 1768365790714
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "1hDEi6fMV1oTeEYXsLbQp",
+                "timestamp": 1768365806227
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "08F9awc_hOpCceJonkKvt",
+                "timestamp": 1768365806228
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "myP9RtRD9APKIfsexlpYr",
+                "timestamp": 1768365806228
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "Ts3ijT3gkzK_sQXSvdfIl",
+                "timestamp": 1768365806229
+            },
+            {
+                "message": "Action grimoire/setOutOfPlay completed.",
+                "actionType": "grimoire/setOutOfPlay",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "By-g6vd-TGUNct3Ft2B83",
+                "timestamp": 1768365806229
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "HYuNXyhCcGHO6XgjT0Xah",
+                "timestamp": 1768365806230
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "7mzwg-YshoMh8qqGbLnDf",
+                "timestamp": 1768365806230
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "5qsMSowAfDtXFMo3xcJ4d",
+                "timestamp": 1768365806231
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "jHh4LeGofriB_8-lV-uwR",
+                "timestamp": 1768365806231
+            },
+            {
+                "message": "Action grimoire/setSeats completed.",
+                "actionType": "grimoire/setSeats",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "TD9M1Bk5GY2o85_B4qvRT",
+                "timestamp": 1768365806233
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "JAJKFKy4FFGkfpwBhN01-",
+                "timestamp": 1768365806234
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "hl6DJhMscRaCgDkp5qR8f",
+                "timestamp": 1768365806235
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "iNIYoeQUE3RvbFhmjlbc2",
+                "timestamp": 1768365806235
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "XowWUgPbChRJCki0Fn0HD",
+                "timestamp": 1768365806236
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "xj5EhDoIrlO9dpjuWsTFj",
+                "timestamp": 1768365806236
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "YrXvoDJftpcsxJy6ELpkj",
+                "timestamp": 1768365806237
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "VWhIgr0BdM6MZWXfir88A",
+                "timestamp": 1768365806238
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "Q9VIAelyhfraDgMnw-X_2",
+                "timestamp": 1768365806239
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "hQaiSLiipSInXSeC1Dwia",
+                "timestamp": 1768365806239
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "8mEHI7jdidFP6oDvHwfvo",
+                "timestamp": 1768365806240
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "-DDEtFXE_yVxUi3YBLUwK",
+                "timestamp": 1768365806241
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "GSrlUXy_w099PqS2XOp2m",
+                "timestamp": 1768365806241
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "4SDsdIDkjmEqjhqlZibif",
+                "timestamp": 1768365806242
+            },
+            {
+                "message": "Action memory/addAssignTokenClaim completed.",
+                "actionType": "memory/addAssignTokenClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "G_mJXV8jxmNpzMn_r5AXb",
+                "timestamp": 1768365806243
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueFront completed.",
+                "actionType": "aiOrchestrator/enqueueFront",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "NwXImTSQZSk-iGDX2QOe5",
+                "timestamp": 1768365806244
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueFront completed.",
+                "actionType": "aiOrchestrator/enqueueFront",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "zdFNthIUvVt_pQus97i_U",
+                "timestamp": 1768365806244
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueFront completed.",
+                "actionType": "aiOrchestrator/enqueueFront",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "zzGaXrjrAczBmVAFVcvRL",
+                "timestamp": 1768365806244
+            },
+            {
+                "message": "Action storytellerQueue/enqueueFront completed.",
+                "actionType": "storytellerQueue/enqueueFront",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "gQlarelsA_tEaqDgrsxWY",
+                "timestamp": 1768365806245
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/pending completed.",
+                "actionType": "storytellerQueue/runTasks/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "BefZlTjZjP3__VnDzNBuq",
+                "timestamp": 1768365806246
+            },
+            {
+                "message": "Action storytellerQueue/setRunning completed.",
+                "actionType": "storytellerQueue/setRunning",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "m2BQinj2-rPAfzGZy-SI1",
+                "timestamp": 1768365806246
+            },
+            {
+                "message": "Action storytellerQueue/setError completed.",
+                "actionType": "storytellerQueue/setError",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "ZSE9dNnBgapCH7sEaYT9N",
+                "timestamp": 1768365806246
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/pending completed.",
+                "actionType": "storytellerQueue/runNextTask/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "MqQ89IHSHQ4G8BChYS4Qj",
+                "timestamp": 1768365806247
+            },
+            {
+                "message": "Action storytellerQueue/dequeueNext completed.",
+                "actionType": "storytellerQueue/dequeueNext",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "nvQ7fbCSEacvdf6NKdEXn",
+                "timestamp": 1768365806248
+            },
+            {
+                "message": "Action ui/showDialog completed.",
+                "actionType": "ui/showDialog",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "lepjiXg_MTLzu5gTdx6fw",
+                "timestamp": 1768365806251
+            },
+            {
+                "message": "Action ui/closeDialog completed.",
+                "actionType": "ui/closeDialog",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "oWQw3BRWBzr6AO05YEiJF",
+                "timestamp": 1768365808474
+            },
+            {
+                "message": "Action ui/closeDialog completed.",
+                "actionType": "ui/closeDialog",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "qr_nQM6wgGQRaf8_q2FN6",
+                "timestamp": 1768365808475
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/pending completed.",
+                "actionType": "storytellerQueue/runTasks/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "_lLmIlLaNjDyvgHkGtzMz",
+                "timestamp": 1768365808476
+            },
+            {
+                "message": "Action storytellerQueue/runFirstNight/pending completed.",
+                "actionType": "storytellerQueue/runFirstNight/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "VYK1WIowjhelWOGl7WaRm",
+                "timestamp": 1768365808476
+            },
+            {
+                "message": "Action ui/showNightBreakDialog completed.",
+                "actionType": "ui/showNightBreakDialog",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "MYZxt2HJx_qBpk50yDqvv",
+                "timestamp": 1768365808478
+            },
+            {
+                "message": "Action game/nextDayPhase completed.",
+                "actionType": "game/nextDayPhase",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "uum65siIedEiYnF1AHBE-",
+                "timestamp": 1768365808479
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "-I2pQGNO7KIwgAwJFIiy_",
+                "timestamp": 1768365808479
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "KAsjb1LAAooZFk49n9OV1",
+                "timestamp": 1768365808480
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "R0W0_QNTmZUDvl16lsdvH",
+                "timestamp": 1768365808480
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "NeF2k4MZYNX4mHPUcC9nI",
+                "timestamp": 1768365808481
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "viIcJ3kYe_cMK8ZXikcjL",
+                "timestamp": 1768365808482
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "y2ie14MALN_vL7CLVezwc",
+                "timestamp": 1768365808483
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "i8BXJmK9X8i5uFjNciEhE",
+                "timestamp": 1768365808483
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "6VUjfLFdL63us-kTZzzU6",
+                "timestamp": 1768365808484
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "BhjDuzCw4TNfRKPjkRUz9",
+                "timestamp": 1768365808485
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "7osng-5H1tpWQt1zB8xxN",
+                "timestamp": 1768365808486
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "qIALr1K6MAJ-_7midwJxp",
+                "timestamp": 1768365808486
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "obJAvKk6liNy3Jq2arjbd",
+                "timestamp": 1768365808487
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "1B9UBjmQBSJoTOX_XA8GV",
+                "timestamp": 1768365808487
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "GMXZy5YWURbpYEunv_d2z",
+                "timestamp": 1768365808488
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "KkkigpcGi-issbVwlaop1",
+                "timestamp": 1768365808488
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "MCQ17esbTSlsOGWSozyxx",
+                "timestamp": 1768365808489
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "nBNhrTK5eBgwPQnRmi-sF",
+                "timestamp": 1768365808489
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "eT0io4Pmx_r668CX2-i7w",
+                "timestamp": 1768365808491
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "rzsiXwsY2cic_v4W4Li3f",
+                "timestamp": 1768365808492
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "Q14auxxr6zz5AfvHcb6Hw",
+                "timestamp": 1768365808492
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "pRscd0jStOirU_9KR---s",
+                "timestamp": 1768365808493
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "WhkMrqNXjId6vwfaCfNx5",
+                "timestamp": 1768365808493
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "DYT8w5_y-CgSU-8KTIzah",
+                "timestamp": 1768365808494
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "aIgOGLf8NcEboWpT46OJS",
+                "timestamp": 1768365808494
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "Ul3SuIBYUg_asZ4pX8aJa",
+                "timestamp": 1768365808495
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "9-A5myxmlR1k1lnUXO3Cr",
+                "timestamp": 1768365808495
+            },
+            {
+                "message": "Action aiOrchestrator/enqueueBack completed.",
+                "actionType": "aiOrchestrator/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "rMwG8sXJkgg_-aEopbcma",
+                "timestamp": 1768365808496
+            },
+            {
+                "message": "Action storytellerQueue/enqueueBack completed.",
+                "actionType": "storytellerQueue/enqueueBack",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "RTivl9km2IGm3qfSLpphY",
+                "timestamp": 1768365808496
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "7xdbR73td4FCtSmgmVdCh",
+                "timestamp": 1768365808670
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "J0_QGMk8gq97jFLTXbztU",
+                "timestamp": 1768365808671
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "qwzWfX5lH2R9JlGoIj6Bl",
+                "timestamp": 1768365808671
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "H96EAj5bOoosL0NhF0Nr0",
+                "timestamp": 1768365808671
+            },
+            {
+                "message": "Action storytellerQueue/runFirstNight/fulfilled completed.",
+                "actionType": "storytellerQueue/runFirstNight/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "C7n1KAMSlv365quKjMPVG",
+                "timestamp": 1768365808671
+            },
+            {
+                "message": "Action storytellerQueue/runFirstNight/fulfilled completed.",
+                "actionType": "storytellerQueue/runFirstNight/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "vFpWHjZSbuLmaeRw0MRzG",
+                "timestamp": 1768365808671
+            },
+            {
+                "message": "Action storytellerQueue/runFirstNight/fulfilled completed.",
+                "actionType": "storytellerQueue/runFirstNight/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "N1hOaNAJuRvvHmcQ5s9qT",
+                "timestamp": 1768365808672
+            },
+            {
+                "message": "Action storytellerQueue/runFirstNight/fulfilled completed.",
+                "actionType": "storytellerQueue/runFirstNight/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "IHXEDfizbR_VVB-83W_El",
+                "timestamp": 1768365808672
+            },
+            {
+                "message": "Action storytellerQueue/setLastRunAtMs completed.",
+                "actionType": "storytellerQueue/setLastRunAtMs",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "9KZW099_NmdR_UriTDHQu",
+                "timestamp": 1768365808672
+            },
+            {
+                "message": "Action storytellerQueue/clearCurrent completed.",
+                "actionType": "storytellerQueue/clearCurrent",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "FjKwzbGxkAXtrTujspcfW",
+                "timestamp": 1768365808672
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "q_ak4tJKeR3hbN151k6zp",
+                "timestamp": 1768365808811
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "8PiBSZwhnBf8l9fS7gcet",
+                "timestamp": 1768365808811
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "3-UaGZzlz9skvOtY3VVCU",
+                "timestamp": 1768365808811
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "b3aOXZP7nED6_SpdTbr8H",
+                "timestamp": 1768365808811
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/pending completed.",
+                "actionType": "storytellerQueue/runNextTask/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "NcRChc4j4GBzV5kv83wD1",
+                "timestamp": 1768365808912
+            },
+            {
+                "message": "Action storytellerQueue/dequeueNext completed.",
+                "actionType": "storytellerQueue/dequeueNext",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "THUb1clNNNkGaOobmQmkO",
+                "timestamp": 1768365808912
+            },
+            {
+                "message": "Action ui/toggleNightBreakDialog completed.",
+                "actionType": "ui/toggleNightBreakDialog",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "VCREhasnOGNuaFSly4WjT",
+                "timestamp": 1768365811169
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/pending completed.",
+                "actionType": "storytellerQueue/runTasks/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "BdlCXESWx7WK9GKcMlb_I",
+                "timestamp": 1768365811170
+            },
+            {
+                "message": "Action ui/toggleNightBreakDialog completed.",
+                "actionType": "ui/toggleNightBreakDialog",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "Fa8qC5bfuAFtBaNWrV27P",
+                "timestamp": 1768365811171
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/pending completed.",
+                "actionType": "storytellerQueue/runTasks/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "putc83MmbRNfZJzFOI77P",
+                "timestamp": 1768365811171
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "0-wJysjX4Fxbn69lGXl5b",
+                "timestamp": 1768365811311
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "mHoHo267vRuq6lXtRjQpt",
+                "timestamp": 1768365811311
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "CFhDSDQKE2-ODxEE3L2hE",
+                "timestamp": 1768365811312
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "3TGN58zSlJf9-tO4Ungoa",
+                "timestamp": 1768365811312
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "tjBJGi_dWJ7bCpfP3frHJ",
+                "timestamp": 1768365811312
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "1zZ5Sk1gScycJlyFYx93U",
+                "timestamp": 1768365811312
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "4IgVtpc-Guqd6cWMBYMdk",
+                "timestamp": 1768365811312
+            },
+            {
+                "message": "Action storytellerQueue/runTasks/fulfilled completed.",
+                "actionType": "storytellerQueue/runTasks/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "Cr1bClzR58_3cGORjy-pS",
+                "timestamp": 1768365811312
+            },
+            {
+                "message": "Action grimoire/setMaskedRole completed.",
+                "actionType": "grimoire/setMaskedRole",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "sshYcgA7mQweNS1hmVDPE",
+                "timestamp": 1768365811732
+            },
+            {
+                "message": "Action grimoire/addReminderToken completed.",
+                "actionType": "grimoire/addReminderToken",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "I82gQcdh6uWZXQP6RuzFR",
+                "timestamp": 1768365811735
+            },
+            {
+                "message": "Action storytellerQueue/setLastRunAtMs completed.",
+                "actionType": "storytellerQueue/setLastRunAtMs",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "0iCTMm2Gbt4Wve7NmdzZi",
+                "timestamp": 1768365811831
+            },
+            {
+                "message": "Action storytellerQueue/clearCurrent completed.",
+                "actionType": "storytellerQueue/clearCurrent",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "LQ79DZx7zGmdVCc3cms7a",
+                "timestamp": 1768365811832
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "7kmbTiV5NuQP7SChrJYOk",
+                "timestamp": 1768365811847
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "lgguhWXxLhRsL1XXm98DL",
+                "timestamp": 1768365811847
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "LBtSxzLdJEV1qM9tz7LaY",
+                "timestamp": 1768365811847
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "zKA4973S7pp3bpk2QVaAy",
+                "timestamp": 1768365811848
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/pending completed.",
+                "actionType": "storytellerQueue/runNextTask/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "QAonLTt-JiFgKlBccjsgA",
+                "timestamp": 1768365811864
+            },
+            {
+                "message": "Action storytellerQueue/dequeueNext completed.",
+                "actionType": "storytellerQueue/dequeueNext",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "7dwXD2RGL8VRUu75Q1bhh",
+                "timestamp": 1768365811864
+            },
+            {
+                "message": "Action grimoire/setDemonBluffs completed.",
+                "actionType": "grimoire/setDemonBluffs",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "iJ-zfbB0FKPke-zWVmGy1",
+                "timestamp": 1768365814995
+            },
+            {
+                "message": "Action storytellerQueue/setLastRunAtMs completed.",
+                "actionType": "storytellerQueue/setLastRunAtMs",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "w8frO3Sbx6pMkNA9Zvaqy",
+                "timestamp": 1768365815131
+            },
+            {
+                "message": "Action storytellerQueue/clearCurrent completed.",
+                "actionType": "storytellerQueue/clearCurrent",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "__WabRYg8Gk0lUXHj789G",
+                "timestamp": 1768365815132
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "_ricA1Don8BJIcdcx76b1",
+                "timestamp": 1768365815277
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "Lq1IHYojl050ZhYcf-fTB",
+                "timestamp": 1768365815277
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "K26G2qfBn9pCTcYoISGUc",
+                "timestamp": 1768365815277
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/fulfilled completed.",
+                "actionType": "storytellerQueue/runNextTask/fulfilled",
+                "logEntryType": "success",
+                "scope": "system",
+                "id": "f1jzJwydRsoParugYoNjA",
+                "timestamp": 1768365815278
+            },
+            {
+                "message": "Action storytellerQueue/runNextTask/pending completed.",
+                "actionType": "storytellerQueue/runNextTask/pending",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "yKcELw0_O1nWCI5C30T7u",
+                "timestamp": 1768365815367
+            },
+            {
+                "message": "Action storytellerQueue/dequeueNext completed.",
+                "actionType": "storytellerQueue/dequeueNext",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "15lHygNvzHT6IV-uUe5Oq",
+                "timestamp": 1768365815368
+            },
+            {
+                "message": "Action memory/addEvilTeamClaim completed.",
+                "actionType": "memory/addEvilTeamClaim",
+                "logEntryType": "info",
+                "scope": "system",
+                "id": "IkVIBbwWHS8d-Ehd2SXg9",
+                "timestamp": 1768365815370
+            }
+        ]
+    },
+    "memory": {
+        "claims": {
+            "0": [
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "saint"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "saint"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "saint"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "poisoner"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "poisoner"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "poisoner"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "empath"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "empath"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "empath"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "undertaker"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "undertaker"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "undertaker"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "baron"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "baron"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "baron"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "chef"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "chef"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "chef"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "monk"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "monk"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "monk"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "mayor"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "mayor"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "mayor"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "imp"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "imp"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "imp"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "librarian"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "librarian"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "librarian"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "virgin"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "virgin"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "virgin"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "slayer"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "slayer"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "slayer"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "spy"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "spy"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "spy"
+                },
+                {
+                    "infoType": "assign_token",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "recluse"
+                },
+                {
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "recluse"
+                },
+                {
+                    "infoType": "role_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "role": "recluse"
+                },
+                {
+                    "ID": 0,
+                    "infoType": "evil_team",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 0,
+                    "data": {
+                        "demons": [9],
+                        "minions": [2, 5, 13]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "ID": 2,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 9
+                },
+                {
+                    "ID": 2,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 2
+                },
+                {
+                    "ID": 2,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 5
+                },
+                {
+                    "ID": 2,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 13
+                }
+            ],
+            "5": [
+                {
+                    "ID": 5,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 9
+                },
+                {
+                    "ID": 5,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 2
+                },
+                {
+                    "ID": 5,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 5
+                },
+                {
+                    "ID": 5,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 13
+                }
+            ],
+            "9": [
+                {
+                    "ID": 9,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 9
+                },
+                {
+                    "ID": 9,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 2
+                },
+                {
+                    "ID": 9,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 5
+                },
+                {
+                    "ID": 9,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 13
+                }
+            ],
+            "13": [
+                {
+                    "ID": 13,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 9
+                },
+                {
+                    "ID": 13,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 2
+                },
+                {
+                    "ID": 13,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 5
+                },
+                {
+                    "ID": 13,
+                    "infoType": "character_type_claim",
+                    "day": 1,
+                    "source": "storyteller",
+                    "seat": 13
+                }
+            ]
+        }
+    },
+    "settings": {
+        "showNightOrder": true,
+        "showFirstNightOrder": true,
+        "showOtherNightOrder": true,
+        "historyExpanded": false,
+        "grimoireShape": "square"
+    },
+    "storytellerQueue": {
+        "items": [
+            {
+                "id": "demonInfo",
+                "type": "first_night",
+                "interaction": "auto"
+            },
+            {
+                "id": "poisoner",
+                "type": "first_night",
+                "interaction": "auto"
+            },
+            {
+                "id": "librarian",
+                "type": "first_night",
+                "interaction": "auto"
+            },
+            {
+                "id": "chef",
+                "type": "first_night",
+                "interaction": "auto"
+            },
+            {
+                "id": "empath",
+                "type": "first_night",
+                "interaction": "auto"
+            },
+            {
+                "id": "spy",
+                "type": "first_night",
+                "interaction": "auto"
+            }
+        ],
+        "currentItem": {
+            "id": "minionInfo",
+            "type": "first_night",
+            "interaction": "auto"
+        },
+        "isRunning": true,
+        "error": null,
+        "lastRunAtMs": 1768365815131
+    },
+    "voting": {
+        "phase": "idle",
+        "currentNomination": null,
+        "currentVotes": {},
+        "currentResult": null,
+        "voteHistory": [],
+        "executedPlayerId": null,
+        "calledForExile": false,
+        "votingPreferences": {
+            "allowDeadToVote": true,
+            "allowDeadToNominate": false,
+            "voteThresholdMultiplier": 0.5
+        }
+    },
+    "ui": {
+        "timesUpDialog": false,
+        "dayBreakDialog": false,
+        "nightBreakDialog": false,
+        "request": null
+    }
+}

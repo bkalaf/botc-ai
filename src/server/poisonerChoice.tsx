@@ -62,7 +62,7 @@ export const poisonerChoiceHandler = (state: RootState, dispatch: AppDispatch) =
             const {
                 shown: { seat }
             } = result;
-            dispatch(addMyNightInfoClaim({ day, seat: ID, role: 'poisoner', data: { seat } }));
+            dispatch(addMyNightInfoClaim({ day, ID, seat: ID, role: 'poisoner', data: { seat } }));
             dispatch(
                 addReminderToken({
                     key: 'poisoner_poisoned',

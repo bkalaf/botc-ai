@@ -8,7 +8,7 @@ import { getClient } from './openaiClient';
 import { fortuneTellerNightAction } from '../prompts/fortuneTellerNightAction';
 import { RootState, AppDispatch } from '../store';
 import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
-import { addClaim, addMyNightInfoClaim, getClaimsFor, selectClaimsByRole } from '../store/memory/memory-slice';
+import { addMyNightInfoClaim, selectClaimsByRole } from '../store/memory/memory-slice';
 import { openDialog } from '@/lib/dialogs';
 import { FortuneTellerInfoInputSchema, fortuneTellerInfoServerFn } from './fortunetellerInfo';
 import { clearTask } from './clearTask';
@@ -62,6 +62,7 @@ export const fortuneTellerChoiceHandler = (state: RootState, dispatch: AppDispat
         if (controledBy === 'ai') {
             dispatch(
                 addMyNightInfoClaim({
+                    ID,
                     seat: ID,
                     day,
                     role: 'fortuneteller',

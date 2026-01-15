@@ -1,6 +1,7 @@
 // src/server/index.tsx
 import { InputSchema } from '../prompts/prompt-types';
 import { AppDispatch, RootState } from '../store';
+import { butlerHandler } from './butlerChoice';
 import { chefHandler } from './chefNumber';
 import { empathHandler } from './empathInfo';
 import { fortuneTellerChoiceHandler } from './fortunetellerChoice';
@@ -34,6 +35,6 @@ export const $$serverFirstFns = {
     spy: notYetImplemented,
     scarletWoman: notYetImplemented,
     undertaker: notYetImplemented,
-    butler: notYetImplemented,
+    butler: butlerHandler,
     setupComplete: setupComplete
 };

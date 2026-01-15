@@ -57,6 +57,7 @@ export const chefHandler = (state: RootState, dispatch: AppDispatch) => {
         if (controledBy === 'ai') {
             dispatch(
                 addMyNightInfoClaim({
+                    ID,
                     seat: ID,
                     role: 'chef',
                     data: { count: value.count },

@@ -1,4 +1,6 @@
 // src/prompts/worldBuilder.ts
+import { PromptSpec } from './prompt-types';
+
 /**
  * Universal world-building prompt for ANY player (Good or Evil).
  * Produces:
@@ -122,7 +124,15 @@ export const worldBuilder: PromptSpec = {
                         items: {
                             type: 'object',
                             additionalProperties: false,
-                            required: ['name', 'demon', 'minions', 'outsiders', 'coreEvidence', 'weakPoints', 'confidence'],
+                            required: [
+                                'name',
+                                'demon',
+                                'minions',
+                                'outsiders',
+                                'coreEvidence',
+                                'weakPoints',
+                                'confidence'
+                            ],
                             properties: {
                                 name: { type: 'string' },
                                 demon: {

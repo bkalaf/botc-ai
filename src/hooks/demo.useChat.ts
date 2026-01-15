@@ -1,3 +1,4 @@
+// src/hooks/demo.useChat.ts
 import { useEffect, useRef } from 'react';
 import { useLiveQuery } from '@tanstack/react-db';
 
@@ -32,7 +33,7 @@ function useStreamConnection(url: string, collection: Collection<any, any, any>)
             }
         };
         fetchData();
-    }, []);
+    }, [collection, url]);
 }
 
 export function useChat() {

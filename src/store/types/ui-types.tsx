@@ -18,7 +18,8 @@ export type DialogType =
     | 'chefInfo'
     | 'minionInfo'
     | 'demonInfo'
-    | 'poisonerChoice';
+    | 'poisonerChoice'
+    | 'butlerChoice';
 
 export type DialogDataMap = {
     setupComplete: Record<string, never>;
@@ -29,6 +30,7 @@ export type DialogDataMap = {
     fortunetellerInfo: { shown: boolean };
     fortunetellerChoice: { seatOptions: { id: number; name: string }[] };
     poisonerChoice: { seatOptions: { id: number; name: string }[] };
+    butlerChoice: { seatOptions: { id: number; name: string }[] };
     empathInfo: { count: number };
     chefInfo: { count: number };
     minionInfo: { demons: { id: number; name: string }[]; minions: { id: number; name: string }[] };

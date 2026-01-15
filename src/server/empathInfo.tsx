@@ -59,6 +59,7 @@ export const empathHandler = (state: RootState, dispatch: AppDispatch) => {
         if (controledBy === 'ai') {
             dispatch(
                 addMyNightInfoClaim({
+                    ID,
                     seat: ID,
                     day,
                     role: 'empath',
