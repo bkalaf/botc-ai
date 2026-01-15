@@ -7,10 +7,20 @@ import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import { getClient } from './openaiClient';
 import { fortuneTellerInfo } from '../prompts/fortuneTellerInfo';
 
-const FortuneTellerInfoReturnSchema = z.object({
-    shown: z.boolean(),
-    reasoning: z.string()
-});
+const FortuneTellerInfoReturnSchema = z
+    .object({
+        shown: z
+            .boolean()
+            .describe(
+                'The fortune tellers reported answer for the two seats checked. True = Yes, one or both of them is the demon or red herring ; False = No, neither is the demon or red herring.'
+            ),
+        reasoning: z
+            .string()
+            .describe(
+                'A brief Storyteller explanation describing the mechanical and narrative factors that justified this result. Limit 2 sentences prefer 1.'
+            )
+    })
+    .strict();
 
 export const FortuneTellerInfoInputSchema = InputSchema.extend({
     seats: z.array(z.number())
@@ -30,7 +40,7 @@ export const fortuneTellerInfoServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(FortuneTellerInfoReturnSchema, 'fortunetellerinfo_decision')
+            response_format: zodResponseFormat(FortuneTellerInfoReturnSchema, 'FortuneTellerResponse')
         });
         console.log(`response`, response);
 

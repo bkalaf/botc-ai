@@ -9,20 +9,41 @@ import { investigatorTokens } from '../prompts/investigatorTokens';
 import { Roles, $$ROLES } from '../data/types';
 import { RootState, AppDispatch } from '../store';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
-import { addClaim, addNightInfoClaim } from '../store/memory/memory-slice';
+import { addClaim, addMyNightInfoClaim, addNightInfoClaim } from '../store/memory/memory-slice';
 import { openDialog } from '@/lib/dialogs';
 import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
 import { selectDay } from '../store/game/game-slice';
 
-const InvestigatorInfoReturnSchema = z.object({
-    correctSeat: z.int().nullable(),
-    shown: z.object({
-        role: z.string(),
-        seats: z.array(z.number())
-    }),
-    reasoning: z.string()
-});
+const InvestigatorInfoReturnSchema = z
+    .object({
+        shown: z
+            .object({
+                role: z
+                    .enum(['scarletwoman', 'baron', 'poisoner', 'spy'])
+                    .describe('The role shown to the Investigator. Must be a minion.'),
+                seats: z
+                    .array(z.number().gte(1).lte(15).describe('The two seats that are shown to the Investigator'))
+                    .min(2)
+                    .max(2)
+            })
+            .strict(),
+        correctSeat: z
+            .number()
+            .gte(1)
+            .lte(15)
+            .describe(
+                'The correct seat for the shown roles. Must be one of the two values in shown.seats if sober and healthy information. null if this is drunk or poisoned information.'
+            )
+            .nullable()
+            .optional(),
+        reasoning: z
+            .string()
+            .describe(
+                'Brief ST philosophy for why this show is good for balance, drama, and plausibility. Max 2 sentences, prefer 1.'
+            )
+    })
+    .strict();
 
 export const investigatorInfoServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
@@ -37,7 +58,7 @@ export const investigatorInfoServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(InvestigatorInfoReturnSchema, 'investigatorinfo_decision')
+            response_format: zodResponseFormat(InvestigatorInfoReturnSchema, 'InvestigatorTokensOutput')
         });
         console.log(`response`, response);
 
@@ -97,19 +118,23 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addNightInfoClaim({
+                addMyNightInfoClaim({
                     seat: ID,
+                    ID,
                     role: 'investigator',
                     data: data.shown,
                     day
                 })
             );
-            setTokens({ ID, value: { correctSeat: data.correctSeat, shown: data.shown, reasoning: data.reasoning } });
+            setTokens({
+                ID,
+                value: { correctSeat: data.correctSeat, shown: data.shown as any, reasoning: data.reasoning }
+            });
         } else {
             const seat1 = selectSeatedPlayers(state).find((x) => x.ID === data.shown.seats[0]);
             const seat2 = selectSeatedPlayers(state).find((x) => x.ID === data.shown.seats[1]);
             const name = $$ROLES[data.shown.role];
-            const result = await openDialog({
+            await openDialog({
                 dispatch,
                 dialogType: 'investigatorInfo',
                 data: {
@@ -117,7 +142,7 @@ export const investigatorHandler = (state: RootState, dispatch: AppDispatch) => 
                     seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
                 }
             });
-            setTokens({ ID, value: data });
+            setTokens({ ID, value: data as any });
         }
     };
     return buildHandler(investigatorInfoServerFn, func);

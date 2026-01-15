@@ -12,14 +12,21 @@ import { selectSeatByRole } from '../store/grimoire/grimoire-slice';
 import { addMyNightInfoClaim } from '../store/memory/memory-slice';
 import { openDialog } from '../lib/dialogs';
 
-const PlayerButlerReturnSchema = ({ playerCount }: { playerCount: number }) =>
-    z.object({
+const PlayerButlerReturnSchema = z
+    .object({
         chosenSeat: z
-            .int()
-            .min(1, { message: 'Must be greater than or equal to 1' })
-            .max(playerCount, { message: `Must be less than or equal to ${playerCount}` }),
-        reasoning: z.string().min(1, { message: 'This field is required.' })
-    });
+            .number()
+            .gte(1)
+            .lte(15)
+            .describe('Seat number of the player you choose as your Master. This must not be yourself.'),
+        reasoning: z
+            .string()
+            .min(1)
+            .describe(
+                'A brief in-character explanation of why this player was chosen as your Master. Limit 2 sentences prefer 1.'
+            )
+    })
+    .strict();
 
 export const butlerChoiceServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
@@ -34,10 +41,7 @@ export const butlerChoiceServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(
-                PlayerButlerReturnSchema({ playerCount: data.extractedSeats.length }),
-                'butler_decision'
-            )
+            response_format: zodResponseFormat(PlayerButlerReturnSchema, 'ButlerChooseMaster')
         });
         console.log(`response`, response);
 
@@ -51,7 +55,7 @@ export const butlerChoiceServerFn = createServerFn({ method: 'POST' })
     });
 
 export const butlerHandler = (state: RootState, dispatch: AppDispatch) => {
-    const func = async ({ data: { claims, ...data } }: { data: z.infer<typeof ClaimsInputSchema> }) => {
+    return async ({ data: { claims, ...data } }: { data: z.infer<typeof ClaimsInputSchema> }) => {
         const day = selectDay(state);
         const seat = selectSeatByRole(state, 'butler');
         if (seat == null) throw new Error(`no butler seat`);

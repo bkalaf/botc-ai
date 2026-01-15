@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectNightBreakDialog, selectRequest, toggleNightBreakDialog } from '../../store/ui/ui-slice';
 import { useCallback, useMemo } from 'react';
 import { runTasks } from '../../store/st-queue/st-queue-slice';
+import { Button } from '../ui/button';
 
 export function NightFallsDialog() {
     const open = useAppSelector(selectNightBreakDialog);
@@ -32,7 +33,7 @@ export function NightFallsDialog() {
     return (
         <Dialog
             open={open}
-            onOpenChange={onOpenChange}
+            // onOpenChange={onOpenChange}
         >
             <DialogTrigger />
             <DialogContent
@@ -57,7 +58,7 @@ export function NightFallsDialog() {
                             draggable={false}
                         />
                         <DialogFooter>
-                            <DialogClose onClick={onOpenChange}>Cancel</DialogClose>
+                            <Button onClick={onOpenChange}>Cancel</Button>
                         </DialogFooter>
                     </div>
                 </div>

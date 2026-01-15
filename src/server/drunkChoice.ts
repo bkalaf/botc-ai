@@ -7,12 +7,20 @@ import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import { drunkChoice } from '../prompts/drunkChoice';
 import { getClient } from './openaiClient';
 
-const DrunkChoiceReturnSchema = z.object({
-    shown: z.object({
-        seat: z.number()
-    }),
-    reasoning: z.string()
-});
+const DrunkChoiceReturnSchema = z
+    .object({
+        shown: z
+            .object({
+                seat: z.number().gte(1).lte(15).describe('The seat # of the player made drunk. Must be a townsfolk.')
+            })
+            .strict(),
+        reasoning: z
+            .string()
+            .describe(
+                'Brief ST philosophy explaining balance, longevity, and expected misinformation arc. Limit to 2 sentences max, preferably 1.'
+            )
+    })
+    .strict();
 
 export const drunkChoiceServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
@@ -27,7 +35,7 @@ export const drunkChoiceServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(DrunkChoiceReturnSchema, 'drunkchoice_decision')
+            response_format: zodResponseFormat(DrunkChoiceReturnSchema, 'DrunkChoiceOutput')
         });
         console.log(`response`, response);
 

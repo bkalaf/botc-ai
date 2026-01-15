@@ -8,6 +8,7 @@ import { fortuneTellerChoiceHandler } from './fortunetellerChoice';
 import { investigatorHandler } from './investigatorInfo';
 import { librarianHandler } from './librarianInfo';
 import { demonInfo, minionInfo } from './minionInfo';
+import { monkChoiceHandler } from './monkChoice';
 import { setupComplete } from './nightOne';
 import { notYetImplemented } from './notYetImplemented';
 import { poisonerChoiceHandler } from './poisonerChoice';
@@ -18,7 +19,6 @@ type ServerFns = Record<
     string,
     (state: RootState, dispatch: AppDispatch) => ({ data }: { data: any }) => Promise<void>
 >;
-// src/server/index.ts
 export const $$serverFirstFns = {
     minionInfo: minionInfo,
     demonInfo: demonInfo,
@@ -28,7 +28,7 @@ export const $$serverFirstFns = {
     investigator: investigatorHandler,
     empath: empathHandler,
     fortuneteller: fortuneTellerChoiceHandler,
-    monk: notYetImplemented,
+    monk: monkChoiceHandler,
     ravenkeeper: notYetImplemented,
     slayer: notYetImplemented,
     poisoner: poisonerChoiceHandler,

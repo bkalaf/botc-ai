@@ -6,7 +6,7 @@ import z from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 import { getClient } from './openaiClient';
 import { librarianTokens } from '../prompts/librarianTokens';
-import { addNightInfoClaim } from '../store/memory/memory-slice';
+import { addMyNightInfoClaim, addNightInfoClaim } from '../store/memory/memory-slice';
 import { addReminderToken, selectSeatByRole, selectSeatedPlayers } from '../store/grimoire/grimoire-slice';
 import { Roles, $$ROLES } from '../data/types';
 import { RootState, AppDispatch } from '../store';
@@ -15,14 +15,47 @@ import { buildHandler } from './buildHandler';
 import { clearTask } from './clearTask';
 import { selectDay } from '../store/game/game-slice';
 
-const LibrarianInfoReturnSchema = z.object({
-    correctSeat: z.int().nullable(),
-    shown: z.object({
-        role: z.string(),
-        seats: z.array(z.number())
-    }),
-    reasoning: z.string()
-});
+const LibrarianInfoReturnSchema = z
+    .object({
+        shown: z
+            .object({
+                role: z
+                    .enum(['saint', 'recluse', 'drunk', 'butler'])
+                    .describe(
+                        'The role shown to the Librarian. Must be an outsider or null if there are no outsiders in play.'
+                    )
+                    .nullable()
+                    .optional(),
+                seats: z
+                    .array(
+                        z
+                            .number()
+                            .gte(0)
+                            .lte(15)
+                            .describe(
+                                'The two seats that are shown to the Librarian or an empty array if there are no outsiders in play.'
+                            )
+                    )
+                    .min(0)
+                    .max(2)
+            })
+            .strict(),
+        correctSeat: z
+            .number()
+            .gte(1)
+            .lte(15)
+            .describe(
+                'The correct seat for the shown roles. Must be one of the two values in shown.seats if sober and healthy information. null if this is drunk or poisoned information or there are no outsiders in play.'
+            )
+            .nullable()
+            .optional(),
+        reasoning: z
+            .string()
+            .describe(
+                'Brief ST philosophy for why this show is good for balance, drama, and plausibility. Max 2 sentences, prefer 1.'
+            )
+    })
+    .strict();
 
 export const librarianInfoServerFn = createServerFn({ method: 'POST' })
     .inputValidator((data) => InputSchema.parse(data))
@@ -37,7 +70,7 @@ export const librarianInfoServerFn = createServerFn({ method: 'POST' })
                 { role: 'system', content: system },
                 { role: 'user', content: user }
             ],
-            response_format: zodResponseFormat(LibrarianInfoReturnSchema, 'librarianinfo_decision')
+            response_format: zodResponseFormat(LibrarianInfoReturnSchema, 'LibrarianTokenOutput')
         });
         console.log(`response`, response);
 
@@ -97,19 +130,23 @@ export const librarianHandler = (state: RootState, dispatch: AppDispatch) => {
         } = seat;
         if (controledBy === 'ai') {
             dispatch(
-                addNightInfoClaim({
+                addMyNightInfoClaim({
                     seat: ID,
+                    ID,
                     role: 'librarian',
                     data: data.shown,
                     day
                 })
             );
-            setTokens({ ID, value: { correctSeat: data.correctSeat, shown: data.shown, reasoning: data.reasoning } });
+            setTokens({
+                ID,
+                value: { correctSeat: data.correctSeat, shown: data.shown as any, reasoning: data.reasoning }
+            });
         } else {
             const seat1 = selectSeatedPlayers(state).find((x) => x.ID === data.shown.seats[0]);
             const seat2 = selectSeatedPlayers(state).find((x) => x.ID === data.shown.seats[1]);
             const name = $$ROLES[data.shown.role];
-            const result = await openDialog({
+            await openDialog({
                 dispatch,
                 dialogType: 'librarianInfo',
                 data: {
@@ -117,7 +154,7 @@ export const librarianHandler = (state: RootState, dispatch: AppDispatch) => {
                     seatNames: [seat1?.name ?? 'Unknown', seat2?.name ?? 'Unknown']
                 }
             });
-            setTokens({ ID, value: data });
+            setTokens({ ID, value: data as any });
         }
     };
     return buildHandler(librarianInfoServerFn, func);
